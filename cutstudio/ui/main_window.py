@@ -1,4 +1,3 @@
-
 # ============================================================
 # CUTSTUDIO
 # Main Application Window
@@ -7,8 +6,14 @@
 # Imports, initialization, menus and toolbar
 # ============================================================
 
+
+# ------------------------------------------------------------
+# PySide6 imports
+# ------------------------------------------------------------
+
 from PySide6.QtCore import Qt, QRectF
 from PySide6.QtGui import QAction, QKeySequence
+
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -24,12 +29,28 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QFormLayout,
     QDoubleSpinBox,
+    QFileDialog,
+    QMessageBox,
 )
+
+
+# ------------------------------------------------------------
+# CutStudio core imports
+# ------------------------------------------------------------
 
 from cutstudio.core.constants import MAT_INCHES
 from cutstudio.core.document import Document
 from cutstudio.core.objects import ObjectType, VectorObject
+from cutstudio.core.project_file import (
+    ProjectFileError,
+    load_project,
+    save_project,
+)
 from cutstudio.core.units import mm_to_scene_units
+
+# ------------------------------------------------------------
+# Canvas imports
+# ------------------------------------------------------------
 
 from cutstudio.ui.canvas.cutting_mat import CuttingMat
 from cutstudio.ui.canvas.renderer import CanvasRenderer
@@ -56,6 +77,15 @@ class MainWindow(QMainWindow):
         # ----------------------------------------------------
 
         self.document = Document()
+
+        # ----------------------------------------------------
+        # Project file tracking
+        # ----------------------------------------------------
+
+        self.current_filename = None
+        self.document_modified = False
+
+        self.update_window_title()
 
         # ----------------------------------------------------
         # Graphics scene
@@ -138,26 +168,261 @@ class MainWindow(QMainWindow):
         self.create_keyboard_shortcuts()
 
 
+# ---------------------------------
+# Project state
+# ---------------------------------
+
+    def update_window_title(self):
+
+        filename = (
+            self.current_filename
+            if self.current_filename
+            else "Untitled"
+        )
+
+        modified = "*" if self.document_modified else ""
+
+        self.setWindowTitle(
+            f"CutStudio - {filename}{modified}"
+        )
+
+    def mark_modified(self):
+
+        if not self.document_modified:
+
+            self.document_modified = True
+
+            self.update_window_title()
+
+
 # ============================================================
 # SECTION 1A: MENU BAR
 # ============================================================
+
 
     def create_menu(self):
 
         menu_bar = self.menuBar()
 
-        self.file_menu = menu_bar.addMenu("File")
+        # ---------------------------------
+        # File menu
+        # ---------------------------------
 
-        self.edit_menu = menu_bar.addMenu("Edit")
+        file_menu = menu_bar.addMenu("File")
 
-        self.view_menu = menu_bar.addMenu("View")
+        new_action = QAction("New", self)
+        new_action.setShortcut(QKeySequence.StandardKey.New)
+        new_action.triggered.connect(self.new_project)
+        file_menu.addAction(new_action)
 
+        open_action = QAction("Open...", self)
+        open_action.setShortcut(QKeySequence.StandardKey.Open)
+        open_action.triggered.connect(self.open_project)
+        file_menu.addAction(open_action)
+
+        file_menu.addSeparator()
+
+        save_action = QAction("Save", self)
+        save_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_action.triggered.connect(self.save_project)
+        file_menu.addAction(save_action)
+
+        save_as_action = QAction("Save As...", self)
+        save_as_action.setShortcut(
+            QKeySequence.StandardKey.SaveAs
+        )
+        save_as_action.triggered.connect(self.save_project_as)
+        file_menu.addAction(save_as_action)
+
+        # ---------------------------------
+        # Other menus
+        # ---------------------------------
+
+        menus = [
+            "Edit",
+            "View",
+            "Machine",
+            "Help",
+        ]
+
+        for name in menus:
+            menu_bar.addMenu(name)
+
+        # Objects menu
         self.object_menu = menu_bar.addMenu("Objects")
 
-        self.machine_menu = menu_bar.addMenu("Machine")
+    # ---------------------------------
+    # Project file operations
+    # ---------------------------------
 
-        self.help_menu = menu_bar.addMenu("Help")
+    def confirm_unsaved_changes(self):
 
+        if not self.document_modified:
+            return True
+
+        answer = QMessageBox.question(
+            self,
+            "Unsaved Changes",
+            "This project has unsaved changes.\n"
+            "Would you like to save them?",
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.Save
+        )
+
+        if answer == QMessageBox.StandardButton.Save:
+            return self.save_project()
+
+        if answer == QMessageBox.StandardButton.Discard:
+            return True
+
+        return False
+
+    def new_project(self):
+
+        if not self.confirm_unsaved_changes():
+            return
+
+        self.document = Document()
+
+        self.renderer.document = self.document
+
+        self.current_filename = None
+        self.document_modified = False
+
+        self.scene.setSceneRect(
+            QRectF(
+                0,
+                0,
+                mm_to_scene_units(self.document.width_mm),
+                mm_to_scene_units(self.document.height_mm),
+            )
+        )
+
+        self.renderer.rebuild()
+
+        self.refresh_layer_list()
+        self.update_properties()
+        self.update_window_title()
+
+        self.statusBar().showMessage(
+            "New project created"
+        )
+
+    def open_project(self):
+
+        if not self.confirm_unsaved_changes():
+            return
+
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open CutStudio Project",
+            "",
+            "CutStudio Projects (*.cutstudio);;JSON Files (*.json)"
+        )
+
+        if not filename:
+            return
+
+        try:
+
+            document = load_project(filename)
+
+            self.document = document
+            self.renderer.document = document
+
+            self.current_filename = filename
+            self.document_modified = False
+
+            self.scene.setSceneRect(
+                QRectF(
+                    0,
+                    0,
+                    mm_to_scene_units(document.width_mm),
+                    mm_to_scene_units(document.height_mm),
+                )
+            )
+
+            self.renderer.rebuild()
+
+            self.refresh_layer_list()
+            self.update_properties()
+            self.update_window_title()
+
+            self.statusBar().showMessage(
+                f"Opened {filename}"
+            )
+
+        except ProjectFileError as error:
+
+            QMessageBox.critical(
+                self,
+                "Open Failed",
+                str(error)
+            )
+
+    def save_project(self):
+
+        if not self.current_filename:
+            return self.save_project_as()
+
+        try:
+
+            self.renderer.sync_to_document()
+
+            save_project(
+                self.document,
+                self.current_filename
+            )
+
+            self.document_modified = False
+
+            self.update_window_title()
+
+            self.statusBar().showMessage(
+                "Project saved successfully"
+            )
+
+            return True
+
+        except ProjectFileError as error:
+
+            QMessageBox.critical(
+                self,
+                "Save Failed",
+                str(error)
+            )
+
+            return False
+
+    def save_project_as(self):
+
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save CutStudio Project",
+            "",
+            "CutStudio Projects (*.cutstudio)"
+        )
+
+        if not filename:
+            return False
+
+        if not filename.lower().endswith(".cutstudio"):
+            filename += ".cutstudio"
+
+        previous_filename = self.current_filename
+
+        self.current_filename = filename
+
+        if not self.save_project():
+
+            self.current_filename = previous_filename
+            self.update_window_title()
+
+            return False
+
+        return True
 
 # ============================================================
 # SECTION 1B: MAIN TOOLBAR
@@ -947,6 +1212,7 @@ class MainWindow(QMainWindow):
 # ============================================================
 
     def add_rectangle(self):
+
 
         layer = self.document.active_layer
 
