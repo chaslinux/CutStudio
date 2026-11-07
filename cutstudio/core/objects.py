@@ -1,5 +1,5 @@
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from math import isfinite
 from uuid import uuid4
@@ -78,4 +78,23 @@ class VectorObject:
             raise ValueError(
                 "Object ID cannot be empty"
             )
+
+    def duplicate(
+        self,
+        offset_x: float = 5.0,
+        offset_y: float = 5.0
+    ):
+        """
+        Create an independent copy of this object.
+
+        Coordinates and offsets are measured in millimetres.
+        The duplicate receives a new unique object ID.
+        """
+
+        return replace(
+            self,
+            x=self.x + offset_x,
+            y=self.y + offset_y,
+            object_id=str(uuid4())
+        )
 

@@ -1,6 +1,14 @@
 
+# ============================================================
+# CUTSTUDIO
+# Main Application Window
+#
+# SECTION 1 OF 4
+# Imports, initialization, menus and toolbar
+# ============================================================
+
 from PySide6.QtCore import Qt, QRectF
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -27,6 +35,10 @@ from cutstudio.ui.canvas.cutting_mat import CuttingMat
 from cutstudio.ui.canvas.renderer import CanvasRenderer
 
 
+# ============================================================
+# MAIN WINDOW
+# ============================================================
+
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -39,7 +51,15 @@ class MainWindow(QMainWindow):
 
         self.resize(1400, 900)
 
+        # ----------------------------------------------------
+        # Document model
+        # ----------------------------------------------------
+
         self.document = Document()
+
+        # ----------------------------------------------------
+        # Graphics scene
+        # ----------------------------------------------------
 
         self.scene = QGraphicsScene(self)
 
@@ -47,15 +67,27 @@ class MainWindow(QMainWindow):
             QRectF(
                 0,
                 0,
-                mm_to_scene_units(self.document.width_mm),
-                mm_to_scene_units(self.document.height_mm),
+                mm_to_scene_units(
+                    self.document.width_mm
+                ),
+                mm_to_scene_units(
+                    self.document.height_mm
+                ),
             )
         )
+
+        # ----------------------------------------------------
+        # Canvas renderer
+        # ----------------------------------------------------
 
         self.renderer = CanvasRenderer(
             self.document,
             self.scene
         )
+
+        # ----------------------------------------------------
+        # Cutting mat
+        # ----------------------------------------------------
 
         self.canvas = CuttingMat(
             self.scene,
@@ -63,6 +95,10 @@ class MainWindow(QMainWindow):
         )
 
         self.setCentralWidget(self.canvas)
+
+        # ----------------------------------------------------
+        # Signals
+        # ----------------------------------------------------
 
         self.scene.selectionChanged.connect(
             self.update_properties
@@ -72,40 +108,60 @@ class MainWindow(QMainWindow):
             self.update_properties
         )
 
+        # ----------------------------------------------------
+        # Build interface
+        # ----------------------------------------------------
+
         self.create_menu()
+
         self.create_toolbar()
+
         self.create_left_panel()
+
         self.create_right_panel()
+
         self.create_status_bar()
+
+        # ----------------------------------------------------
+        # Initial canvas positioning
+        # ----------------------------------------------------
 
         self.canvas.fitInView(
             self.scene.sceneRect(),
             Qt.AspectRatioMode.KeepAspectRatio
         )
 
-    # ---------------------------------
-    # Menu bar
-    # ---------------------------------
+        # ----------------------------------------------------
+        # Keyboard shortcuts
+        # ----------------------------------------------------
+
+        self.create_keyboard_shortcuts()
+
+
+# ============================================================
+# SECTION 1A: MENU BAR
+# ============================================================
 
     def create_menu(self):
 
         menu_bar = self.menuBar()
 
-        menus = [
-            "File",
-            "Edit",
-            "View",
-            "Objects",
-            "Machine",
-            "Help",
-        ]
+        self.file_menu = menu_bar.addMenu("File")
 
-        for name in menus:
-            menu_bar.addMenu(name)
+        self.edit_menu = menu_bar.addMenu("Edit")
 
-    # ---------------------------------
-    # Main toolbar
-    # ---------------------------------
+        self.view_menu = menu_bar.addMenu("View")
+
+        self.object_menu = menu_bar.addMenu("Objects")
+
+        self.machine_menu = menu_bar.addMenu("Machine")
+
+        self.help_menu = menu_bar.addMenu("Help")
+
+
+# ============================================================
+# SECTION 1B: MAIN TOOLBAR
+# ============================================================
 
     def create_toolbar(self):
 
@@ -130,13 +186,68 @@ class MainWindow(QMainWindow):
 
             toolbar.addAction(action)
 
-    # ---------------------------------
-    # Left tool panel
-    # ---------------------------------
+
+# ============================================================
+# SECTION 1C: KEYBOARD SHORTCUT REGISTRATION
+# ============================================================
+
+    def create_keyboard_shortcuts(self):
+
+        # Actual shortcut actions will be connected to
+        # the editing methods implemented in later sections.
+
+        self.duplicate_action = QAction(
+            "Duplicate",
+            self
+        )
+
+        self.duplicate_action.setShortcut(
+            QKeySequence("Ctrl+D")
+        )
+
+        self.duplicate_action.triggered.connect(
+            self.duplicate_selected_objects
+        )
+
+        self.object_menu.addAction(
+            self.duplicate_action
+        )
+
+        self.delete_action = QAction(
+            "Delete",
+            self
+        )
+
+        self.delete_action.setShortcut(
+            QKeySequence(Qt.Key.Key_Delete)
+        )
+
+        self.delete_action.triggered.connect(
+            self.delete_selected_objects
+        )
+
+        self.object_menu.addAction(
+            self.delete_action
+        )
+
+# ============================================================
+# SECTION 2 OF 4
+# Drawing Tools Panel
+# Properties Panel
+# Layer Management
+# ============================================================
+
+
+# ============================================================
+# SECTION 2A: LEFT DRAWING TOOLS PANEL
+# ============================================================
 
     def create_left_panel(self):
 
-        dock = QDockWidget("Drawing Tools", self)
+        dock = QDockWidget(
+            "Drawing Tools",
+            self
+        )
 
         dock.setAllowedAreas(
             Qt.DockWidgetArea.LeftDockWidgetArea
@@ -170,13 +281,17 @@ class MainWindow(QMainWindow):
             dock
         )
 
-    # ---------------------------------
-    # Right properties and layers
-    # ---------------------------------
+
+# ============================================================
+# SECTION 2B: RIGHT PROPERTIES AND LAYERS PANEL
+# ============================================================
 
     def create_right_panel(self):
 
-        dock = QDockWidget("Properties / Layers", self)
+        dock = QDockWidget(
+            "Properties / Layers",
+            self
+        )
 
         dock.setAllowedAreas(
             Qt.DockWidgetArea.RightDockWidgetArea
@@ -196,7 +311,10 @@ class MainWindow(QMainWindow):
 
         form = QFormLayout()
 
-        # Object type.
+        # ----------------------------------------------------
+        # Object type
+        # ----------------------------------------------------
+
         self.property_values["type"] = QLabel("—")
 
         form.addRow(
@@ -204,20 +322,31 @@ class MainWindow(QMainWindow):
             self.property_values["type"]
         )
 
-        # Editable numerical properties.
+        # ----------------------------------------------------
+        # Editable numerical properties
+        # ----------------------------------------------------
+
         properties = [
             ("X (mm)", "x", -1000000, 1000000),
             ("Y (mm)", "y", -1000000, 1000000),
             ("Width (mm)", "width", 0.01, 1000000),
             ("Height (mm)", "height", 0.01, 1000000),
-            ("Rotation (degrees)", "rotation", -360000, 360000),
+            (
+                "Rotation (degrees)",
+                "rotation",
+                -360000,
+                360000
+            ),
         ]
 
         for label, key, minimum, maximum in properties:
 
             spinbox = QDoubleSpinBox()
 
-            spinbox.setRange(minimum, maximum)
+            spinbox.setRange(
+                minimum,
+                maximum
+            )
 
             spinbox.setDecimals(2)
 
@@ -236,13 +365,19 @@ class MainWindow(QMainWindow):
 
             self.property_inputs[key] = spinbox
 
-            form.addRow(label, spinbox)
+            form.addRow(
+                label,
+                spinbox
+            )
 
         layout.addLayout(form)
 
         layout.addSpacing(15)
 
-        # Layer management.
+        # ----------------------------------------------------
+        # Layer management
+        # ----------------------------------------------------
+
         layout.addWidget(
             QLabel("Layers")
         )
@@ -257,7 +392,9 @@ class MainWindow(QMainWindow):
             self.on_layer_selected
         )
 
-        layout.addWidget(self.layer_list)
+        layout.addWidget(
+            self.layer_list
+        )
 
         self.lock_button = QPushButton(
             "Lock Active Layer"
@@ -267,7 +404,9 @@ class MainWindow(QMainWindow):
             self.toggle_active_layer_lock
         )
 
-        layout.addWidget(self.lock_button)
+        layout.addWidget(
+            self.lock_button
+        )
 
         self.refresh_layer_list()
 
@@ -280,9 +419,10 @@ class MainWindow(QMainWindow):
 
         self.update_properties()
 
-    # ---------------------------------
-    # Layer management
-    # ---------------------------------
+
+# ============================================================
+# SECTION 2C: REFRESH LAYER LIST
+# ============================================================
 
     def refresh_layer_list(self):
 
@@ -292,7 +432,9 @@ class MainWindow(QMainWindow):
 
         for layer in self.document.layers:
 
-            item = QListWidgetItem(layer.name)
+            item = QListWidgetItem(
+                layer.name
+            )
 
             item.setData(
                 Qt.ItemDataRole.UserRole,
@@ -313,12 +455,21 @@ class MainWindow(QMainWindow):
 
             self.layer_list.addItem(item)
 
-            if layer.layer_id == self.document.active_layer_id:
+            if (
+                layer.layer_id
+                == self.document.active_layer_id
+            ):
+
                 self.layer_list.setCurrentItem(item)
 
         self.layer_list.blockSignals(False)
 
         self.update_lock_button()
+
+
+# ============================================================
+# SECTION 2D: UPDATE LAYER LOCK BUTTON
+# ============================================================
 
     def update_lock_button(self):
 
@@ -332,6 +483,11 @@ class MainWindow(QMainWindow):
             if layer.locked
             else "Lock Active Layer"
         )
+
+
+# ============================================================
+# SECTION 2E: LAYER VISIBILITY
+# ============================================================
 
     def on_layer_visibility_changed(self, item):
 
@@ -351,6 +507,11 @@ class MainWindow(QMainWindow):
 
         self.update_properties()
 
+
+# ============================================================
+# SECTION 2F: ACTIVE LAYER SELECTION
+# ============================================================
+
     def on_layer_selected(self, current, previous):
 
         if current is None:
@@ -360,9 +521,16 @@ class MainWindow(QMainWindow):
             Qt.ItemDataRole.UserRole
         )
 
-        self.document.set_active_layer(layer_id)
+        self.document.set_active_layer(
+            layer_id
+        )
 
         self.update_lock_button()
+
+
+# ============================================================
+# SECTION 2G: TOGGLE ACTIVE LAYER LOCK
+# ============================================================
 
     def toggle_active_layer_lock(self):
 
@@ -380,9 +548,18 @@ class MainWindow(QMainWindow):
 
         self.update_properties()
 
-    # ---------------------------------
-    # Find object and owning layer
-    # ---------------------------------
+# ============================================================
+# SECTION 3 OF 4
+# Object Lookup
+# Object Properties
+# Selection Handling
+# Property Editing
+# ============================================================
+
+
+# ============================================================
+# SECTION 3A: FIND OBJECT AND OWNING LAYER
+# ============================================================
 
     def find_object_and_layer(self, object_id):
 
@@ -391,13 +568,15 @@ class MainWindow(QMainWindow):
             obj = layer.find_object(object_id)
 
             if obj is not None:
+
                 return obj, layer
 
         return None, None
 
-    # ---------------------------------
-    # Object properties
-    # ---------------------------------
+
+# ============================================================
+# SECTION 3B: CLEAR OBJECT PROPERTIES
+# ============================================================
 
     def clear_properties(self):
 
@@ -413,6 +592,11 @@ class MainWindow(QMainWindow):
 
             spinbox.blockSignals(False)
 
+
+# ============================================================
+# SECTION 3C: UPDATE OBJECT PROPERTIES
+# ============================================================
+
     def update_properties(self):
 
         selected_items = self.scene.selectedItems()
@@ -420,6 +604,7 @@ class MainWindow(QMainWindow):
         if not selected_items:
 
             self.clear_properties()
+
             return
 
         item = selected_items[0]
@@ -431,15 +616,20 @@ class MainWindow(QMainWindow):
         if object_id is None:
 
             self.clear_properties()
+
             return
 
+        # Synchronize canvas positions with document model.
         self.renderer.sync_to_document()
 
-        obj, layer = self.find_object_and_layer(object_id)
+        obj, layer = self.find_object_and_layer(
+            object_id
+        )
 
-        if obj is None:
+        if obj is None or layer is None:
 
             self.clear_properties()
+
             return
 
         self.property_values["type"].setText(
@@ -464,22 +654,32 @@ class MainWindow(QMainWindow):
 
             spinbox.setValue(value)
 
-            # Text dimensions are calculated from font and text layout.
+            # Text dimensions are controlled by font and content.
+            # Font editing will be implemented in a later phase.
             if (
                 obj.object_type == ObjectType.TEXT
                 and key in ("width", "height")
             ):
+
                 spinbox.setEnabled(False)
+
             else:
+
                 spinbox.setEnabled(editable)
 
             spinbox.blockSignals(False)
+
+
+# ============================================================
+# SECTION 3D: APPLY OBJECT PROPERTY CHANGES
+# ============================================================
 
     def apply_property(self, key):
 
         selected_items = self.scene.selectedItems()
 
         if len(selected_items) != 1:
+
             return
 
         item = selected_items[0]
@@ -489,30 +689,44 @@ class MainWindow(QMainWindow):
         )
 
         if object_id is None:
+
             return
 
         self.renderer.sync_to_document()
 
-        obj, layer = self.find_object_and_layer(object_id)
+        obj, layer = self.find_object_and_layer(
+            object_id
+        )
 
         if obj is None or layer is None:
+
             return
 
+        # Prevent editing objects on locked layers.
         if layer.locked:
+
             self.update_properties()
+
             return
 
+        # Text dimensions are not directly editable.
         if (
             obj.object_type == ObjectType.TEXT
             and key in ("width", "height")
         ):
+
             return
 
         value = self.property_inputs[key].value()
 
+        # Reject zero or negative object dimensions.
         if key in ("width", "height") and value <= 0:
+
             self.update_properties()
+
             return
+
+        old_value = getattr(obj, key)
 
         setattr(obj, key, value)
 
@@ -520,7 +734,9 @@ class MainWindow(QMainWindow):
 
             obj.validate()
 
-            self.renderer.update_item_from_object(obj)
+            self.renderer.update_item_from_object(
+                obj
+            )
 
             self.renderer.sync_to_document()
 
@@ -530,15 +746,23 @@ class MainWindow(QMainWindow):
 
         except (ValueError, RuntimeError) as error:
 
+            # Restore the previous model value.
+            setattr(obj, key, old_value)
+
+            self.renderer.update_item_from_object(
+                obj
+            )
+
             self.statusBar().showMessage(
                 f"Could not update property: {error}"
             )
 
         self.update_properties()
 
-    # ---------------------------------
-    # Status bar
-    # ---------------------------------
+
+# ============================================================
+# SECTION 3E: STATUS BAR
+# ============================================================
 
     def create_status_bar(self):
 
@@ -551,9 +775,19 @@ class MainWindow(QMainWindow):
 
         self.setStatusBar(status)
 
-    # ---------------------------------
-    # Drawing tools
-    # ---------------------------------
+# ============================================================
+# CUTSTUDIO
+# SECTION 4 OF 4
+# Object Duplication
+# Object Deletion
+# Selection Management
+# Drawing Tools
+# ============================================================
+
+
+# ============================================================
+# SECTION 4A: SELECT TOOL
+# ============================================================
 
     def select_tool(self):
 
@@ -561,16 +795,156 @@ class MainWindow(QMainWindow):
             QGraphicsView.DragMode.RubberBandDrag
         )
 
-    def get_object_position(self, width_mm=0, height_mm=0):
+
+# ============================================================
+# SECTION 4B: DUPLICATE SELECTED OBJECTS
+# ============================================================
+
+    def duplicate_selected_objects(self):
+
+        selected_items = self.scene.selectedItems()
+
+        if not selected_items:
+
+            self.statusBar().showMessage(
+                "No objects selected for duplication"
+            )
+
+            return
+
+        # Collect selected object IDs.
+        object_ids = []
+
+        for item in selected_items:
+
+            object_id = item.data(
+                CanvasRenderer.OBJECT_ID_ROLE
+            )
+
+            if object_id is not None:
+                object_ids.append(object_id)
+
+        if not object_ids:
+            return
+
+        # Synchronize canvas positions before duplication.
+        self.renderer.sync_to_document()
+
+        try:
+
+            duplicated = self.renderer.duplicate_objects(
+                object_ids,
+                offset_mm=5.0
+            )
+
+        except (ValueError, RuntimeError) as error:
+
+            self.statusBar().showMessage(
+                f"Could not duplicate objects: {error}"
+            )
+
+            return
+
+        # Select the newly duplicated objects.
+        self.scene.clearSelection()
+
+        for obj in duplicated:
+
+            item = self.renderer.items.get(
+                obj.object_id
+            )
+
+            if item is not None:
+                item.setSelected(True)
+
+        self.update_properties()
+
+        self.statusBar().showMessage(
+            f"Duplicated {len(duplicated)} object(s)"
+        )
+
+
+# ============================================================
+# SECTION 4C: DELETE SELECTED OBJECTS
+# ============================================================
+
+    def delete_selected_objects(self):
+
+        selected_items = self.scene.selectedItems()
+
+        if not selected_items:
+
+            self.statusBar().showMessage(
+                "No objects selected for deletion"
+            )
+
+            return
+
+        # Collect selected object IDs.
+        object_ids = []
+
+        for item in selected_items:
+
+            object_id = item.data(
+                CanvasRenderer.OBJECT_ID_ROLE
+            )
+
+            if object_id is not None:
+                object_ids.append(object_id)
+
+        if not object_ids:
+            return
+
+        # Synchronize document positions first.
+        self.renderer.sync_to_document()
+
+        try:
+
+            deleted_count = self.renderer.delete_objects(
+                object_ids
+            )
+
+        except (ValueError, RuntimeError) as error:
+
+            self.statusBar().showMessage(
+                f"Could not delete objects: {error}"
+            )
+
+            return
+
+        self.clear_properties()
+
+        self.statusBar().showMessage(
+            f"Deleted {deleted_count} object(s)"
+        )
+
+
+# ============================================================
+# SECTION 4D: GET OBJECT POSITION
+# ============================================================
+
+    def get_object_position(
+        self,
+        width_mm=0,
+        height_mm=0
+    ):
 
         center = self.canvas.mapToScene(
             self.canvas.viewport().rect().center()
         )
 
         return (
-            center.x() - mm_to_scene_units(width_mm) / 2,
-            center.y() - mm_to_scene_units(height_mm) / 2,
+            center.x()
+            - mm_to_scene_units(width_mm) / 2,
+
+            center.y()
+            - mm_to_scene_units(height_mm) / 2,
         )
+
+
+# ============================================================
+# SECTION 4E: ADD RECTANGLE
+# ============================================================
 
     def add_rectangle(self):
 
@@ -581,28 +955,45 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(
                 "Cannot draw on a locked layer"
             )
+
             return
 
         width = 100 * 25.4 / 96
         height = 100 * 25.4 / 96
 
-        x, y = self.get_object_position(width, height)
+        x, y = self.get_object_position(
+            width,
+            height
+        )
 
         obj = VectorObject(
             object_type=ObjectType.RECTANGLE,
+
             x=x * 25.4 / 96,
             y=y * 25.4 / 96,
+
             width=width,
             height=height,
+
             stroke="#222222",
             stroke_width=2 * 25.4 / 96,
         )
 
-        self.renderer.add_object(obj, layer)
+        self.renderer.add_object(
+            obj,
+            layer
+        )
 
         self.scene.clearSelection()
 
-        self.renderer.items[obj.object_id].setSelected(True)
+        self.renderer.items[
+            obj.object_id
+        ].setSelected(True)
+
+
+# ============================================================
+# SECTION 4F: ADD ELLIPSE
+# ============================================================
 
     def add_ellipse(self):
 
@@ -613,28 +1004,45 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(
                 "Cannot draw on a locked layer"
             )
+
             return
 
         width = 100 * 25.4 / 96
         height = 100 * 25.4 / 96
 
-        x, y = self.get_object_position(width, height)
+        x, y = self.get_object_position(
+            width,
+            height
+        )
 
         obj = VectorObject(
             object_type=ObjectType.ELLIPSE,
+
             x=x * 25.4 / 96,
             y=y * 25.4 / 96,
+
             width=width,
             height=height,
+
             stroke="#222222",
             stroke_width=2 * 25.4 / 96,
         )
 
-        self.renderer.add_object(obj, layer)
+        self.renderer.add_object(
+            obj,
+            layer
+        )
 
         self.scene.clearSelection()
 
-        self.renderer.items[obj.object_id].setSelected(True)
+        self.renderer.items[
+            obj.object_id
+        ].setSelected(True)
+
+
+# ============================================================
+# SECTION 4G: ADD TEXT
+# ============================================================
 
     def add_text(self):
 
@@ -645,23 +1053,38 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(
                 "Cannot add text to a locked layer"
             )
+
             return
 
         x, y = self.get_object_position()
 
         obj = VectorObject(
             object_type=ObjectType.TEXT,
+
             x=x * 25.4 / 96,
             y=y * 25.4 / 96,
+
             text="CutStudio",
+
             font_family="DejaVu Sans",
             font_size=12.7,
+
             stroke="#222222",
         )
 
-        self.renderer.add_object(obj, layer)
+        self.renderer.add_object(
+            obj,
+            layer
+        )
 
         self.scene.clearSelection()
 
-        self.renderer.items[obj.object_id].setSelected(True)
+        self.renderer.items[
+            obj.object_id
+        ].setSelected(True)
+
+
+# ============================================================
+# END OF MAIN WINDOW
+# ============================================================
 

@@ -27,7 +27,7 @@ class CanvasRenderer:
         self.items = {}
 
     # ---------------------------------
-    # Create graphics items
+    # 1. Create and Add Graphics Items
     # ---------------------------------
 
     def create_item(self, obj):
@@ -115,10 +115,6 @@ class CanvasRenderer:
 
         return item
 
-    # ---------------------------------
-    # Add document object
-    # ---------------------------------
-
     def add_object(self, obj, layer):
 
         if layer.locked:
@@ -159,7 +155,7 @@ class CanvasRenderer:
         return item
 
     # ---------------------------------
-    # Find document object
+    # 2. Find Objects and Manage Them
     # ---------------------------------
 
     def find_object(self, object_id):
@@ -173,8 +169,147 @@ class CanvasRenderer:
 
         return None
 
+    def find_object_and_layer(self, object_id):
+
+        for layer in self.document.layers:
+
+            obj = layer.find_object(object_id)
+
+            if obj is not None:
+                return obj, layer
+
+        return None, None
+
     # ---------------------------------
-    # Update canvas from document object
+    # 3. Duplicate and Delete Objects
+    # ---------------------------------
+
+    def duplicate_objects(
+        self,
+        object_ids,
+        offset_x=5.0,
+        offset_y=5.0,
+        offset_mm=None
+    ):
+        """
+        Duplicate objects on their original layers.
+
+        Coordinates and offsets are measured in millimetres.
+
+        offset_mm is supported for compatibility with
+        MainWindow. When supplied, it sets both X and Y offsets.
+
+        Returns a list of duplicated VectorObjects.
+        """
+
+        if offset_mm is not None:
+
+            offset_x = offset_mm
+            offset_y = offset_mm
+
+        object_ids = list(dict.fromkeys(object_ids))
+
+        if not object_ids:
+            return []
+
+        originals = []
+
+        # Validate the entire selection first.
+        for object_id in object_ids:
+
+            obj, layer = self.find_object_and_layer(object_id)
+
+            if obj is None or layer is None:
+
+                raise ValueError(
+                    f"Object not found: {object_id}"
+                )
+
+            if layer.locked:
+
+                raise RuntimeError(
+                    "Cannot duplicate objects from a locked layer"
+                )
+
+            originals.append((obj, layer))
+
+        # Create the duplicates.
+        duplicates = []
+
+        for original, layer in originals:
+
+            duplicate = original.duplicate(
+                offset_x=offset_x,
+                offset_y=offset_y
+            )
+
+            self.add_object(duplicate, layer)
+
+            duplicates.append(duplicate)
+
+        return duplicates
+
+    def delete_objects(self, object_ids):
+        """
+        Delete selected objects from their document layers
+        and remove their graphics items from the scene.
+
+        The entire operation is rejected if any selected
+        object belongs to a locked layer.
+
+        Returns the number of deleted objects.
+        """
+
+        object_ids = list(dict.fromkeys(object_ids))
+
+        if not object_ids:
+            return 0
+
+        objects_to_delete = []
+
+        # Validate everything before deleting anything.
+        for object_id in object_ids:
+
+            obj, layer = self.find_object_and_layer(object_id)
+
+            if obj is None or layer is None:
+
+                raise ValueError(
+                    f"Object not found: {object_id}"
+                )
+
+            if layer.locked:
+
+                raise RuntimeError(
+                    "Cannot delete objects from a locked layer"
+                )
+
+            objects_to_delete.append(
+                (obj, layer)
+            )
+
+        # Perform deletion.
+        deleted_count = 0
+
+        for obj, layer in objects_to_delete:
+
+            layer.remove_object(obj.object_id)
+
+            item = self.items.pop(
+                obj.object_id,
+                None
+            )
+
+            if item is not None:
+
+                self.scene.removeItem(item)
+
+            deleted_count += 1
+
+        return deleted_count
+
+    # ---------------------------------
+    # 4. Update, Rebuild and Synchronize
     # ---------------------------------
 
     def update_item_from_object(self, obj):
@@ -204,7 +339,6 @@ class CanvasRenderer:
 
         elif isinstance(item, QGraphicsTextItem):
 
-            # Text dimensions are controlled by its font and content.
             obj.width = scene_units_to_mm(
                 item.boundingRect().width()
             )
@@ -221,10 +355,6 @@ class CanvasRenderer:
         item.setRotation(obj.rotation)
 
         item.update()
-
-    # ---------------------------------
-    # Rebuild canvas
-    # ---------------------------------
 
     def rebuild(self):
 
@@ -255,10 +385,6 @@ class CanvasRenderer:
                 self.scene.addItem(item)
 
                 self.items[obj.object_id] = item
-
-    # ---------------------------------
-    # Synchronize canvas to document
-    # ---------------------------------
 
     def sync_to_document(self):
 
@@ -316,7 +442,7 @@ class CanvasRenderer:
                     )
 
     # ---------------------------------
-    # Layer visibility
+    # Layer Visibility
     # ---------------------------------
 
     def set_layer_visibility(self, layer_id, visible):
@@ -339,7 +465,7 @@ class CanvasRenderer:
                 item.setVisible(visible)
 
     # ---------------------------------
-    # Layer locking
+    # Layer Locking
     # ---------------------------------
 
     def set_layer_locked(self, layer_id, locked):
