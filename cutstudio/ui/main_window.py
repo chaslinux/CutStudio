@@ -1,0 +1,667 @@
+
+from PySide6.QtCore import Qt, QRectF
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QWidget,
+    QGraphicsScene,
+    QVBoxLayout,
+    QToolBar,
+    QDockWidget,
+    QListWidget,
+    QListWidgetItem,
+    QLabel,
+    QPushButton,
+    QStatusBar,
+    QGraphicsView,
+    QFormLayout,
+    QDoubleSpinBox,
+)
+
+from cutstudio.core.constants import MAT_INCHES
+from cutstudio.core.document import Document
+from cutstudio.core.objects import ObjectType, VectorObject
+from cutstudio.core.units import mm_to_scene_units
+
+from cutstudio.ui.canvas.cutting_mat import CuttingMat
+from cutstudio.ui.canvas.renderer import CanvasRenderer
+
+
+class MainWindow(QMainWindow):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.setWindowTitle(
+            "CutStudio - Design Workspace"
+        )
+
+        self.resize(1400, 900)
+
+        self.document = Document()
+
+        self.scene = QGraphicsScene(self)
+
+        self.scene.setSceneRect(
+            QRectF(
+                0,
+                0,
+                mm_to_scene_units(self.document.width_mm),
+                mm_to_scene_units(self.document.height_mm),
+            )
+        )
+
+        self.renderer = CanvasRenderer(
+            self.document,
+            self.scene
+        )
+
+        self.canvas = CuttingMat(
+            self.scene,
+            self.renderer
+        )
+
+        self.setCentralWidget(self.canvas)
+
+        self.scene.selectionChanged.connect(
+            self.update_properties
+        )
+
+        self.canvas.objects_positions_changed.connect(
+            self.update_properties
+        )
+
+        self.create_menu()
+        self.create_toolbar()
+        self.create_left_panel()
+        self.create_right_panel()
+        self.create_status_bar()
+
+        self.canvas.fitInView(
+            self.scene.sceneRect(),
+            Qt.AspectRatioMode.KeepAspectRatio
+        )
+
+    # ---------------------------------
+    # Menu bar
+    # ---------------------------------
+
+    def create_menu(self):
+
+        menu_bar = self.menuBar()
+
+        menus = [
+            "File",
+            "Edit",
+            "View",
+            "Objects",
+            "Machine",
+            "Help",
+        ]
+
+        for name in menus:
+            menu_bar.addMenu(name)
+
+    # ---------------------------------
+    # Main toolbar
+    # ---------------------------------
+
+    def create_toolbar(self):
+
+        toolbar = QToolBar("Main Toolbar")
+
+        toolbar.setMovable(False)
+
+        self.addToolBar(toolbar)
+
+        actions = [
+            ("Select", self.select_tool),
+            ("Rectangle", self.add_rectangle),
+            ("Ellipse", self.add_ellipse),
+            ("Text", self.add_text),
+        ]
+
+        for label, callback in actions:
+
+            action = QAction(label, self)
+
+            action.triggered.connect(callback)
+
+            toolbar.addAction(action)
+
+    # ---------------------------------
+    # Left tool panel
+    # ---------------------------------
+
+    def create_left_panel(self):
+
+        dock = QDockWidget("Drawing Tools", self)
+
+        dock.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea
+        )
+
+        panel = QWidget()
+
+        layout = QVBoxLayout(panel)
+
+        tools = [
+            ("Select", self.select_tool),
+            ("Rectangle", self.add_rectangle),
+            ("Ellipse", self.add_ellipse),
+            ("Text", self.add_text),
+        ]
+
+        for label, callback in tools:
+
+            button = QPushButton(label)
+
+            button.clicked.connect(callback)
+
+            layout.addWidget(button)
+
+        layout.addStretch()
+
+        dock.setWidget(panel)
+
+        self.addDockWidget(
+            Qt.DockWidgetArea.LeftDockWidgetArea,
+            dock
+        )
+
+    # ---------------------------------
+    # Right properties and layers
+    # ---------------------------------
+
+    def create_right_panel(self):
+
+        dock = QDockWidget("Properties / Layers", self)
+
+        dock.setAllowedAreas(
+            Qt.DockWidgetArea.RightDockWidgetArea
+        )
+
+        panel = QWidget()
+
+        layout = QVBoxLayout(panel)
+
+        layout.addWidget(
+            QLabel("Object Properties")
+        )
+
+        self.property_values = {}
+
+        self.property_inputs = {}
+
+        form = QFormLayout()
+
+        # Object type.
+        self.property_values["type"] = QLabel("—")
+
+        form.addRow(
+            "Type",
+            self.property_values["type"]
+        )
+
+        # Editable numerical properties.
+        properties = [
+            ("X (mm)", "x", -1000000, 1000000),
+            ("Y (mm)", "y", -1000000, 1000000),
+            ("Width (mm)", "width", 0.01, 1000000),
+            ("Height (mm)", "height", 0.01, 1000000),
+            ("Rotation (degrees)", "rotation", -360000, 360000),
+        ]
+
+        for label, key, minimum, maximum in properties:
+
+            spinbox = QDoubleSpinBox()
+
+            spinbox.setRange(minimum, maximum)
+
+            spinbox.setDecimals(2)
+
+            spinbox.setSingleStep(
+                1.0 if key != "rotation" else 5.0
+            )
+
+            spinbox.setKeyboardTracking(False)
+
+            spinbox.setEnabled(False)
+
+            spinbox.editingFinished.connect(
+                lambda property_key=key:
+                    self.apply_property(property_key)
+            )
+
+            self.property_inputs[key] = spinbox
+
+            form.addRow(label, spinbox)
+
+        layout.addLayout(form)
+
+        layout.addSpacing(15)
+
+        # Layer management.
+        layout.addWidget(
+            QLabel("Layers")
+        )
+
+        self.layer_list = QListWidget()
+
+        self.layer_list.itemChanged.connect(
+            self.on_layer_visibility_changed
+        )
+
+        self.layer_list.currentItemChanged.connect(
+            self.on_layer_selected
+        )
+
+        layout.addWidget(self.layer_list)
+
+        self.lock_button = QPushButton(
+            "Lock Active Layer"
+        )
+
+        self.lock_button.clicked.connect(
+            self.toggle_active_layer_lock
+        )
+
+        layout.addWidget(self.lock_button)
+
+        self.refresh_layer_list()
+
+        dock.setWidget(panel)
+
+        self.addDockWidget(
+            Qt.DockWidgetArea.RightDockWidgetArea,
+            dock
+        )
+
+        self.update_properties()
+
+    # ---------------------------------
+    # Layer management
+    # ---------------------------------
+
+    def refresh_layer_list(self):
+
+        self.layer_list.blockSignals(True)
+
+        self.layer_list.clear()
+
+        for layer in self.document.layers:
+
+            item = QListWidgetItem(layer.name)
+
+            item.setData(
+                Qt.ItemDataRole.UserRole,
+                layer.layer_id
+            )
+
+            item.setFlags(
+                item.flags()
+                | Qt.ItemFlag.ItemIsUserCheckable
+                | Qt.ItemFlag.ItemIsSelectable
+            )
+
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if layer.visible
+                else Qt.CheckState.Unchecked
+            )
+
+            self.layer_list.addItem(item)
+
+            if layer.layer_id == self.document.active_layer_id:
+                self.layer_list.setCurrentItem(item)
+
+        self.layer_list.blockSignals(False)
+
+        self.update_lock_button()
+
+    def update_lock_button(self):
+
+        layer = self.document.active_layer
+
+        if layer is None:
+            return
+
+        self.lock_button.setText(
+            "Unlock Active Layer"
+            if layer.locked
+            else "Lock Active Layer"
+        )
+
+    def on_layer_visibility_changed(self, item):
+
+        layer_id = item.data(
+            Qt.ItemDataRole.UserRole
+        )
+
+        visible = (
+            item.checkState()
+            == Qt.CheckState.Checked
+        )
+
+        self.renderer.set_layer_visibility(
+            layer_id,
+            visible
+        )
+
+        self.update_properties()
+
+    def on_layer_selected(self, current, previous):
+
+        if current is None:
+            return
+
+        layer_id = current.data(
+            Qt.ItemDataRole.UserRole
+        )
+
+        self.document.set_active_layer(layer_id)
+
+        self.update_lock_button()
+
+    def toggle_active_layer_lock(self):
+
+        layer = self.document.active_layer
+
+        if layer is None:
+            return
+
+        self.renderer.set_layer_locked(
+            layer.layer_id,
+            not layer.locked
+        )
+
+        self.update_lock_button()
+
+        self.update_properties()
+
+    # ---------------------------------
+    # Find object and owning layer
+    # ---------------------------------
+
+    def find_object_and_layer(self, object_id):
+
+        for layer in self.document.layers:
+
+            obj = layer.find_object(object_id)
+
+            if obj is not None:
+                return obj, layer
+
+        return None, None
+
+    # ---------------------------------
+    # Object properties
+    # ---------------------------------
+
+    def clear_properties(self):
+
+        self.property_values["type"].setText("—")
+
+        for spinbox in self.property_inputs.values():
+
+            spinbox.blockSignals(True)
+
+            spinbox.setValue(0)
+
+            spinbox.setEnabled(False)
+
+            spinbox.blockSignals(False)
+
+    def update_properties(self):
+
+        selected_items = self.scene.selectedItems()
+
+        if not selected_items:
+
+            self.clear_properties()
+            return
+
+        item = selected_items[0]
+
+        object_id = item.data(
+            CanvasRenderer.OBJECT_ID_ROLE
+        )
+
+        if object_id is None:
+
+            self.clear_properties()
+            return
+
+        self.renderer.sync_to_document()
+
+        obj, layer = self.find_object_and_layer(object_id)
+
+        if obj is None:
+
+            self.clear_properties()
+            return
+
+        self.property_values["type"].setText(
+            obj.object_type.value.capitalize()
+        )
+
+        values = {
+            "x": obj.x,
+            "y": obj.y,
+            "width": obj.width,
+            "height": obj.height,
+            "rotation": obj.rotation,
+        }
+
+        editable = not layer.locked
+
+        for key, value in values.items():
+
+            spinbox = self.property_inputs[key]
+
+            spinbox.blockSignals(True)
+
+            spinbox.setValue(value)
+
+            # Text dimensions are calculated from font and text layout.
+            if (
+                obj.object_type == ObjectType.TEXT
+                and key in ("width", "height")
+            ):
+                spinbox.setEnabled(False)
+            else:
+                spinbox.setEnabled(editable)
+
+            spinbox.blockSignals(False)
+
+    def apply_property(self, key):
+
+        selected_items = self.scene.selectedItems()
+
+        if len(selected_items) != 1:
+            return
+
+        item = selected_items[0]
+
+        object_id = item.data(
+            CanvasRenderer.OBJECT_ID_ROLE
+        )
+
+        if object_id is None:
+            return
+
+        self.renderer.sync_to_document()
+
+        obj, layer = self.find_object_and_layer(object_id)
+
+        if obj is None or layer is None:
+            return
+
+        if layer.locked:
+            self.update_properties()
+            return
+
+        if (
+            obj.object_type == ObjectType.TEXT
+            and key in ("width", "height")
+        ):
+            return
+
+        value = self.property_inputs[key].value()
+
+        if key in ("width", "height") and value <= 0:
+            self.update_properties()
+            return
+
+        setattr(obj, key, value)
+
+        try:
+
+            obj.validate()
+
+            self.renderer.update_item_from_object(obj)
+
+            self.renderer.sync_to_document()
+
+            self.statusBar().showMessage(
+                f"Updated {key}: {value:.2f}"
+            )
+
+        except (ValueError, RuntimeError) as error:
+
+            self.statusBar().showMessage(
+                f"Could not update property: {error}"
+            )
+
+        self.update_properties()
+
+    # ---------------------------------
+    # Status bar
+    # ---------------------------------
+
+    def create_status_bar(self):
+
+        status = QStatusBar()
+
+        status.showMessage(
+            f"Ready | {MAT_INCHES} x {MAT_INCHES} inch mat | "
+            "Ctrl + mouse wheel to zoom"
+        )
+
+        self.setStatusBar(status)
+
+    # ---------------------------------
+    # Drawing tools
+    # ---------------------------------
+
+    def select_tool(self):
+
+        self.canvas.setDragMode(
+            QGraphicsView.DragMode.RubberBandDrag
+        )
+
+    def get_object_position(self, width_mm=0, height_mm=0):
+
+        center = self.canvas.mapToScene(
+            self.canvas.viewport().rect().center()
+        )
+
+        return (
+            center.x() - mm_to_scene_units(width_mm) / 2,
+            center.y() - mm_to_scene_units(height_mm) / 2,
+        )
+
+    def add_rectangle(self):
+
+        layer = self.document.active_layer
+
+        if layer.locked:
+
+            self.statusBar().showMessage(
+                "Cannot draw on a locked layer"
+            )
+            return
+
+        width = 100 * 25.4 / 96
+        height = 100 * 25.4 / 96
+
+        x, y = self.get_object_position(width, height)
+
+        obj = VectorObject(
+            object_type=ObjectType.RECTANGLE,
+            x=x * 25.4 / 96,
+            y=y * 25.4 / 96,
+            width=width,
+            height=height,
+            stroke="#222222",
+            stroke_width=2 * 25.4 / 96,
+        )
+
+        self.renderer.add_object(obj, layer)
+
+        self.scene.clearSelection()
+
+        self.renderer.items[obj.object_id].setSelected(True)
+
+    def add_ellipse(self):
+
+        layer = self.document.active_layer
+
+        if layer.locked:
+
+            self.statusBar().showMessage(
+                "Cannot draw on a locked layer"
+            )
+            return
+
+        width = 100 * 25.4 / 96
+        height = 100 * 25.4 / 96
+
+        x, y = self.get_object_position(width, height)
+
+        obj = VectorObject(
+            object_type=ObjectType.ELLIPSE,
+            x=x * 25.4 / 96,
+            y=y * 25.4 / 96,
+            width=width,
+            height=height,
+            stroke="#222222",
+            stroke_width=2 * 25.4 / 96,
+        )
+
+        self.renderer.add_object(obj, layer)
+
+        self.scene.clearSelection()
+
+        self.renderer.items[obj.object_id].setSelected(True)
+
+    def add_text(self):
+
+        layer = self.document.active_layer
+
+        if layer.locked:
+
+            self.statusBar().showMessage(
+                "Cannot add text to a locked layer"
+            )
+            return
+
+        x, y = self.get_object_position()
+
+        obj = VectorObject(
+            object_type=ObjectType.TEXT,
+            x=x * 25.4 / 96,
+            y=y * 25.4 / 96,
+            text="CutStudio",
+            font_family="DejaVu Sans",
+            font_size=12.7,
+            stroke="#222222",
+        )
+
+        self.renderer.add_object(obj, layer)
+
+        self.scene.clearSelection()
+
+        self.renderer.items[obj.object_id].setSelected(True)
+

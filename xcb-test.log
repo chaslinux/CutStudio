@@ -1,0 +1,688 @@
+qt.qpa.plugin: init_platform called with pluginNamesWithArguments "xcb" platformPluginPath "" platformThemeName ""
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms" ...
+qt.core.plugin.factoryloader: looking at "libqminimalegl.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqminimalegl.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "minimalegl"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QMinimalEglIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("minimalegl")
+qt.core.plugin.factoryloader: looking at "libqwayland.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqwayland.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "wayland",
+            "wayland-egl",
+            "wayland-brcm"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QWaylandIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("wayland", "wayland-egl", "wayland-brcm")
+qt.core.plugin.factoryloader: looking at "libqvkkhrdisplay.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqvkkhrdisplay.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "vkkhrdisplay"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QVkKhrDisplayIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("vkkhrdisplay")
+qt.core.plugin.factoryloader: looking at "libqlinuxfb.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqlinuxfb.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "linuxfb"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QLinuxFbIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("linuxfb")
+qt.core.plugin.factoryloader: looking at "libqeglfs.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqeglfs.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "eglfs"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QEglFSIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("eglfs")
+qt.core.plugin.factoryloader: looking at "libqxcb.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqxcb.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "xcb"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QXcbIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("xcb")
+qt.core.plugin.factoryloader: looking at "libqoffscreen.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqoffscreen.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "offscreen"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QOffscreenIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("offscreen")
+qt.core.plugin.factoryloader: looking at "libqvnc.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqvnc.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "vnc"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QVncIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("vnc")
+qt.core.plugin.factoryloader: looking at "libqminimal.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqminimal.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformIntegrationFactoryInterface.5.3",
+    "MetaData": {
+        "Keys": [
+            "minimal"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QMinimalIntegrationPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("minimal")
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/platforms" ...
+qt.qpa.plugin: Attempting to load Qt platform plugin "xcb" with arguments QList()
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqxcb.so" loaded library
+qt.qpa.xcb: Has MIT-SHM     : true
+qt.qpa.xcb: Has MIT-SHM FD  : true
+qt.qpa.xcb: Using XInput version 2.4
+qt.qpa.screen: xcb_randr_monitor_info_t: primary= 1 , x= 0 , y= 0 , width= 3840 , height= 2160 , width_in_millimeters= 697 , height_in_millimeters= 392
+qt.qpa.screen: EDID data for output "HDMI-1": identifier '', manufacturer 'Samsung Electric Company',model 'U32J59x', serial 'HCJW402215', physical size: 700.00x390.00
+qt.qpa.screen: adding QXcbScreen(0x3e8b1480, name="HDMI-1", geometry=3840x2160+0+0, availableGeometry=3840x2120+0+0, devicePixelRatio=1.0, logicalDpi=std::pair(96.0, 96.0), physicalSize=697.0x392.0mm, screenNumber=0, virtualSize=3840x2160 (3840.0x2160.0mm), orientation=QFlags<Qt::ScreenOrientation>(LandscapeOrientation), depth=24, refreshRate=60.0, root=1ea, windowManagerName="Mutter (Muffin)") (Primary: true )
+qt.qpa.screen: initializeScreens: primary output is "HDMI-1"
+qt.qpa.input.devices: Registered QInputDevice(QPointingDevice("Virtual core pointer" Mouse id=2 seat=30002 caps=Position|Scroll|Hover buttonCount=32)
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Virtual core keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=3, seat='30002')
+qt.qpa.input.devices: input device  "Virtual core XTEST pointer" ID 4
+qt.qpa.input.devices:    has 10 buttons
+qt.qpa.input.devices:    has valuator "Rel X" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Y" recognized? true
+qt.qpa.input.devices:    it's a scrolling device
+qt.qpa.input.devices:    it's a mouse
+qt.qpa.input.devices: Registered QInputDevice(QPointingDevice("Virtual core XTEST pointer" Mouse id=4 seat=30002 caps=Position|Scroll|Hover buttonCount=10)
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Virtual core XTEST keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=5, seat='30002')
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Blue Microphones Yeti Nano Consumer Control", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=6, seat='30002')
+qt.qpa.input.devices: input device  "Logitech G502 HERO SE" ID 7
+qt.qpa.input.devices:    has 20 buttons
+qt.qpa.input.devices:    has valuator "Rel X" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Y" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Horiz Scroll" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Vert Scroll" recognized? true
+qt.qpa.input.devices:    it's a scrolling device
+qt.qpa.input.devices:    it's a mouse
+qt.qpa.input.devices: Registered QInputDevice(QPointingDevice("Logitech G502 HERO SE" Mouse id=7 seat=30002 caps=Position|Scroll|Hover buttonCount=20)
+qt.qpa.input.devices: input device  "Logitech G502 HERO SE Keyboard" ID 8
+qt.qpa.input.devices:    has 7 buttons
+qt.qpa.input.devices:    has valuator "Rel X" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Y" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Horiz Scroll" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Vert Scroll" recognized? true
+qt.qpa.input.devices:    it's a scrolling device
+qt.qpa.input.devices:    it's a mouse
+qt.qpa.input.devices: Registered QInputDevice(QPointingDevice("Logitech G502 HERO SE Keyboard" Mouse id=8 seat=30002 caps=Position|Scroll|Hover buttonCount=7)
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Logitech LogiG TKL MKeyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=9, seat='30002')
+qt.qpa.input.devices: input device  "Logitech LogiG TKL MKeyboard" ID 10
+qt.qpa.input.devices:    has 7 buttons
+qt.qpa.input.devices:    has valuator "Rel X" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Y" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Horiz Scroll" recognized? true
+qt.qpa.input.devices:    has valuator "Rel Vert Scroll" recognized? true
+qt.qpa.input.devices:    it's a scrolling device
+qt.qpa.input.devices:    it's a mouse
+qt.qpa.input.devices: Registered QInputDevice(QPointingDevice("Logitech LogiG TKL MKeyboard" Mouse id=10 seat=30002 caps=Position|Scroll|Hover buttonCount=7)
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Power Button", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=11, seat='30002')
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Power Button", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=12, seat='30002')
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Logitech G502 HERO SE Keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=13, seat='30002')
+qt.qpa.input.devices: Registered QInputDevice(QInputDevice("Logitech LogiG TKL MKeyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=14, seat='30002')
+qt.qpa.input.devices: removed QList()
+qt.qpa.plugin: Successfully loaded Qt platform plugin "xcb"
+qt.qpa.theme: Adding platform integration's theme names to list of theme names: QList("gtk3", "gnome", "generic")
+qt.qpa.theme: Attempting to create platform theme "gtk3" via QPlatformThemeFactory::create
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platformthemes" ...
+qt.core.plugin.factoryloader: looking at "libqxdgdesktopportal.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platformthemes/libqxdgdesktopportal.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformThemeFactoryInterface.5.1",
+    "MetaData": {
+        "Keys": [
+            "xdgdesktopportal",
+            "flatpak",
+            "snap"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QXdgDesktopPortalThemePlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("xdgdesktopportal", "flatpak", "snap")
+qt.core.plugin.factoryloader: looking at "libqgtk3.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platformthemes/libqgtk3.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPA.QPlatformThemeFactoryInterface.5.1",
+    "MetaData": {
+        "Keys": [
+            "gtk3"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QGtk3ThemePlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("gtk3")
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/platformthemes" ...
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platformthemes/libqgtk3.so" loaded library
+qt.qpa.fonts: default fonts: system QFont(Sans Serif,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0) fixed QFont(monospace,9,-1,2,400,0,0,0,0,0,0,0,0,0,0,1,,0,0)
+qt.qpa.theme.dbus: "" "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings" "SettingChanged"
+qt.qpa.gtk: Color map populated from defaults.
+qt.qpa.theme.dbus: "" "/org/freedesktop/portal/desktop" "org.freedesktop.portal.Settings" "SettingChanged"
+qt.qpa.gtk: GTK theme initialized: "Mint-Y-Aqua" Qt::ColorScheme::Light
+qt.qpa.theme: Successfully created platform theme "gtk3" via QPlatformThemeFactory::create
+qt.qpa.xcb: using glib dispatcher
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts" ...
+qt.core.plugin.factoryloader: looking at "libcomposeplatforminputcontextplugin.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPlatformInputContextFactoryInterface.5.1",
+    "MetaData": {
+        "Keys": [
+            "compose",
+            "xim"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QComposePlatformInputContextPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("compose", "xim")
+qt.core.plugin.factoryloader: looking at "libqtvirtualkeyboardplugin.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts/libqtvirtualkeyboardplugin.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPlatformInputContextFactoryInterface.5.1",
+    "MetaData": {
+        "Keys": [
+            "qtvirtualkeyboard"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QVirtualKeyboardPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("qtvirtualkeyboard")
+qt.core.plugin.factoryloader: looking at "libibusplatforminputcontextplugin.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QPlatformInputContextFactoryInterface.5.1",
+    "MetaData": {
+        "Keys": [
+            "ibus"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QIbusPlatformInputContextPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("ibus")
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/platforminputcontexts" ...
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so" loaded library
+qt.qpa.input.methods: host= "unix" displayNumber "0"
+qt.qpa.input.methods: IBUS_ADDRESS= "unix:path=/home/chaslinux/.cache/ibus/dbus-ljqYlyuo,guid=181b4800563d2a3eb83849636ae33175" PID= 1674
+qt.qpa.input.methods: >>>> bus connected!
+qt.qpa.input.methods.serialize: QIBusEngineDesc::fromDBusArgument() "(sa{sv}ssssssssussssssss)"
+qt.qpa.input.methods: host= "unix" displayNumber "0"
+qt.qpa.input.methods: socketWatcher.addPath "/home/chaslinux/.config/ibus/bus/b4539d6e861f4773be72dfe12110c710-unix-0"
+qt.qpa.gtk: Creating palette: "SystemPalette"
+qt.qpa.gtk: System Palette defined "Mint-Y-Aqua" Qt::ColorScheme::Light QPalette(resolve=0x74ffffa7fffd3fff,"WindowText:[Active:#ff303030,Disabled:#ff969696,Inactive:#de000000],Button:[Active:#fffcfcfd,Disabled:#fffcfcfd,Inactive:#fffcfcfd],Light:[Active:#ffffffff,Disabled:#ffffffff,Inactive:#ffffffff],Midlight:[Active:#ffffffff,Disabled:#ffffffff,Inactive:#ffffffff],Dark:[Active:#ffddddde,Disabled:#ffddddde,Inactive:#ffddddde],Mid:[Active:#ffffffff,Disabled:#ffffffff,Inactive:#ffffffff],Text:[Active:#ff303030,Disabled:#ff969696,Inactive:#ff303030],BrightText:[Active:#ffffffff,Disabled:#ffffffff,Inactive:#ffffffff],ButtonText:[Active:#ff303030,Disabled:#ff969696,Inactive:#ff303030],Base:[Active:#fffcfcfd,Disabled:#fffcfcfd,Inactive:#fffcfcfd],Window:[Active:#fffcfcfd,Disabled:#fffcfcfd,Inactive:#fffcfcfd],Shadow:[Active:#ff0d0d0d,Disabled:#ff0d0d0d,Inactive:#ff0d0d0d],Highlight:[Active:#ff1f9ede,Disabled:#ff1f9ede,Inactive:#ff1f9ede],HighlightedText:[Active:#ffffffff,Disabled:#ff303030,Inactive:#ffffffff],AlternateBase:[Active:#ffececec,Disabled:#ffececec,Inactive:#ffececec],ToolTipBase:[Active:#ffffffdc,Disabled:#ffffffdc,Inactive:#ffffffdc],ToolTipText:[Active:#ff000000,Disabled:#ff000000,Inactive:#ff000000],PlaceholderText:[Active:#ff949494,Disabled:#ff949494,Inactive:#ff949494]")
+qt.qpa.gtk: Returning system palette for unknown type "ToolButtonPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ButtonPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Creating palette: "CheckBoxPalette"
+qt.qpa.gtk: Creating palette: "RadioButtonPalette"
+qt.qpa.gtk: Returning system palette for unknown type "HeaderPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ItemViewPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "MessageBoxLabelPelette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Creating palette: "TabBarPalette"
+qt.qpa.gtk: Creating palette: "LabelPalette"
+qt.qpa.gtk: Creating palette: "GroupBoxPalette"
+qt.qpa.gtk: Creating palette: "MenuPalette"
+qt.qpa.gtk: Returning system palette for unknown type "MenuBarPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "TextEditPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "TextEditPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Creating palette: "TextLineEditPalette"
+qt.qpa.gtk: Creating palette: "ComboBoxPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ToolTipPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/styles" ...
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/styles" ...
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/iconengines" ...
+qt.core.plugin.factoryloader: looking at "libqsvgicon.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/iconengines/libqsvgicon.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QIconEngineFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "svg",
+            "svgz",
+            "svg.gz"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QSvgIconPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("svg", "svgz", "svg.gz")
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/iconengines" ...
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats" ...
+qt.core.plugin.factoryloader: looking at "libqsvg.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqsvg.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "svg",
+            "svgz"
+        ],
+        "MimeTypes": [
+            "image/svg+xml",
+            "image/svg+xml-compressed"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QSvgPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("svg", "svgz")
+qt.core.plugin.factoryloader: looking at "libqtiff.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqtiff.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "tiff",
+            "tif"
+        ],
+        "MimeTypes": [
+            "image/tiff",
+            "image/tiff"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QTiffPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("tiff", "tif")
+qt.core.plugin.factoryloader: looking at "libqgif.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqgif.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "gif"
+        ],
+        "MimeTypes": [
+            "image/gif"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QGifPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("gif")
+qt.core.plugin.factoryloader: looking at "libqico.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqico.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "ico",
+            "cur"
+        ],
+        "MimeTypes": [
+            "image/vnd.microsoft.icon",
+            "image/vnd.microsoft.icon"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QICOPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("ico", "cur")
+qt.core.plugin.factoryloader: looking at "libqwbmp.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqwbmp.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "wbmp"
+        ],
+        "MimeTypes": [
+            "image/vnd.wap.wbmp"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QWbmpPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("wbmp")
+qt.core.plugin.factoryloader: looking at "libqpdf.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqpdf.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "pdf"
+        ],
+        "MimeTypes": [
+            "application/pdf"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QPdfPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("pdf")
+qt.core.plugin.factoryloader: looking at "libqtga.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqtga.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "tga"
+        ],
+        "MimeTypes": [
+            "image/x-tga"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QTgaPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("tga")
+qt.core.plugin.factoryloader: looking at "libqicns.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqicns.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "icns"
+        ],
+        "MimeTypes": [
+            "image/x-icns"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QICNSPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("icns")
+qt.core.plugin.factoryloader: looking at "libqjpeg.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqjpeg.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "jpg",
+            "jpeg",
+            "jfif"
+        ],
+        "MimeTypes": [
+            "image/jpeg",
+            "image/jpeg",
+            "image/jpeg"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QJpegPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("jpg", "jpeg", "jfif")
+qt.core.plugin.factoryloader: looking at "libqwebp.so"
+qt.core.plugin.loader: Found metadata in lib /home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/imageformats/libqwebp.so, metadata=
+{
+    "IID": "org.qt-project.Qt.QImageIOHandlerFactoryInterface",
+    "MetaData": {
+        "Keys": [
+            "webp"
+        ],
+        "MimeTypes": [
+            "image/webp"
+        ]
+    },
+    "archlevel": 2,
+    "className": "QWebpPlugin",
+    "debug": false,
+    "version": 396288
+}
+
+
+qt.core.plugin.factoryloader: Got keys from plugin meta data QList("webp")
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/imageformats" ...
+qt.qpa.backingstore: Check for forced use of QRhi resulted in enable false with api Null
+qt.qpa.xdnd: dndEnable QPlatformSurface(0x3ebeccd0, class=QSurface::Window, type=QSurface::RasterSurface, window=QWidgetWindow(0x3ec62520, name="MainWindowClassWindow")) true
+qt.qpa.xdnd: setting XdndAware for 73400327
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/accessiblebridge" ...
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/accessiblebridge" ...
+qt.qpa.services: QGuiApplication::desktopFileName not set. Unable to register application with portal registry
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 328
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 329
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 330
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 331
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 332
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 334
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 335
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 336
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 342
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 343
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 344
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 348
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 349
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 350
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 351
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 353
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 354
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 355
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 357
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 360
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 361
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 362
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 363
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 364
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 366
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 377
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 382
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 382
+qt.qpa.events: Event | XCB_REPARENT_NOTIFY(21) | sequence: 382
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ToolTipPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ToolTipPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.qpa.gtk: Returning system palette for unknown type "ToolTipPalette"
+qt.qpa.gtk: Returning palette from cache: "SystemPalette"
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/accessible" ...
+qt.core.plugin.factoryloader: checking directory path "/home/chaslinux/Code/CutStudio/.venv/bin/accessible" ...
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 382
+qt.qpa.events: Event | XCB_CONFIGURE_NOTIFY(22) | sequence: 382
+qt.qpa.events: Event | XCB_CONFIGURE_NOTIFY(22) | sequence: 382
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 382
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 384
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 384
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 384
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 384
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_CONFIGURE_NOTIFY(22) | sequence: 387
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 387
+qt.qpa.events: Event | XCB_MAP_NOTIFY(19) | sequence: 387
+qt.qpa.events: Event | XCB_EXPOSE(12) | sequence: 387
+qt.qpa.events: Event | XCB_FOCUS_IN(9) | sequence: 387
+qt.qpa.xcb: [ QWidgetWindow(0x3ec62520, name="MainWindowClassWindow") ] creating shared memory 5040000 bytes for QSize(1400, 900) depth 24 bits 32
+qt.qpa.input.methods: setFocusObject CuttingMat(0x3e8061c0)
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.events: Event | XCB_PROPERTY_NOTIFY(28) | sequence: 390
+qt.qpa.input.methods.serialize: QIBusText::fromDBusArgument() "(sa{sv}sv)"
+qt.qpa.input.methods.serialize: QIBusAttributeList::fromDBusArgument() "(sa{sv}av)"
+qt.qpa.input.methods: preedit text: ""
+qt.qpa.events: Event | XCB_XKB_* event(85) | sequence: 404
+qt.qpa.events: Event | XCB_XKB_* event(85) | sequence: 404
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 404
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 404
+qt.qpa.events: Event | XCB_CLIENT_MESSAGE(33) | sequence: 405
+qt.qpa.events: Event | XCB_UNMAP_NOTIFY(18) | sequence: 406
+qt.qpa.events: Event | XCB_FOCUS_OUT(10) | sequence: 406
+qt.qpa.input.methods: setFocusObject QObject(0x0)
+qt.qpa.input.methods: setFocusObject QObject(0x0)
+qt.qpa.events.reader: nodes on heap: 0
+qt.qpa.input.devices: Unregistered QInputDevice(QPointingDevice("Virtual core pointer" Mouse id=2 seat=30002 caps=Position|Scroll|Hover buttonCount=32)
+qt.qpa.input.devices: Unregistered QInputDevice(QPointingDevice("Virtual core XTEST pointer" Mouse id=4 seat=30002 caps=Position|Scroll|Hover buttonCount=10)
+qt.qpa.input.devices: Unregistered QInputDevice(QPointingDevice("Logitech G502 HERO SE" Mouse id=7 seat=30002 caps=Position|Scroll|Hover buttonCount=20)
+qt.qpa.input.devices: Unregistered QInputDevice(QPointingDevice("Logitech G502 HERO SE Keyboard" Mouse id=8 seat=30002 caps=Position|Scroll|Hover buttonCount=7)
+qt.qpa.input.devices: Unregistered QInputDevice(QPointingDevice("Logitech LogiG TKL MKeyboard" Mouse id=10 seat=30002 caps=Position|Scroll|Hover buttonCount=7)
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Virtual core keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=3, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Virtual core XTEST keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=5, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Blue Microphones Yeti Nano Consumer Control", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=6, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Logitech LogiG TKL MKeyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=9, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Power Button", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=11, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Power Button", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=12, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Logitech G502 HERO SE Keyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=13, seat='30002')
+qt.qpa.input.devices: Unregistered QInputDevice(QInputDevice("Logitech LogiG TKL MKeyboard", type=QFlags<QInputDevice::DeviceType>(Keyboard), ID=14, seat='30002')
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so" unloaded library 
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platformthemes/libqgtk3.so" unloaded library 
+qt.core.library: "/home/chaslinux/Code/CutStudio/.venv/lib/python3.12/site-packages/PySide6/Qt/plugins/platforms/libqxcb.so" unloaded library 
