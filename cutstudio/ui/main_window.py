@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         )
 
         self.canvas.objects_positions_changed.connect(
-            self.update_properties
+            self.on_objects_positions_changed
         )
 
         # ----------------------------------------------------
@@ -193,6 +193,13 @@ class MainWindow(QMainWindow):
             self.document_modified = True
 
             self.update_window_title()
+
+
+    def on_objects_positions_changed(self):
+
+        self.mark_modified()
+
+        self.update_properties()
 
 
 # ============================================================
@@ -770,6 +777,8 @@ class MainWindow(QMainWindow):
             visible
         )
 
+        self.mark_modified()
+
         self.update_properties()
 
 
@@ -808,6 +817,8 @@ class MainWindow(QMainWindow):
             layer.layer_id,
             not layer.locked
         )
+
+        self.mark_modified()
 
         self.update_lock_button()
 
@@ -868,6 +879,8 @@ class MainWindow(QMainWindow):
 
         if not selected_items:
 
+            self.renderer.clear_resize_handles()
+
             self.clear_properties()
 
             return
@@ -880,9 +893,13 @@ class MainWindow(QMainWindow):
 
         if object_id is None:
 
+            self.renderer.clear_resize_handles()
+
             self.clear_properties()
 
             return
+
+        self.renderer.update_resize_handles(object_id)
 
         # Synchronize canvas positions with document model.
         self.renderer.sync_to_document()
@@ -993,6 +1010,9 @@ class MainWindow(QMainWindow):
 
         old_value = getattr(obj, key)
 
+        if value == old_value:
+            return
+
         setattr(obj, key, value)
 
         try:
@@ -1004,6 +1024,8 @@ class MainWindow(QMainWindow):
             )
 
             self.renderer.sync_to_document()
+
+            self.mark_modified()
 
             self.statusBar().showMessage(
                 f"Updated {key}: {value:.2f}"

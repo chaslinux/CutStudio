@@ -26,6 +26,82 @@ class CanvasRenderer:
 
         self.items = {}
 
+        # Resize handles are separate from document objects.
+        self.resize_handles = {}
+
+    # ---------------------------------
+    # Resize Handle Management
+    # ---------------------------------
+
+    def clear_resize_handles(self):
+
+        for handle in self.resize_handles.values():
+            self.scene.removeItem(handle)
+
+        self.resize_handles.clear()
+
+    def update_resize_handles(self, object_id=None):
+
+        self.clear_resize_handles()
+
+        if object_id is None:
+            return
+
+        obj, layer = self.find_object_and_layer(object_id)
+
+        if obj is None or layer is None:
+            return
+
+        if layer.locked or obj.object_type == ObjectType.TEXT:
+            return
+
+        item = self.items.get(object_id)
+
+        if item is None:
+            return
+
+        bounds = item.rect()
+
+        positions = {
+            "nw": (bounds.left(), bounds.top()),
+            "n": (bounds.center().x(), bounds.top()),
+            "ne": (bounds.right(), bounds.top()),
+            "e": (bounds.right(), bounds.center().y()),
+            "se": (bounds.right(), bounds.bottom()),
+            "s": (bounds.center().x(), bounds.bottom()),
+            "sw": (bounds.left(), bounds.bottom()),
+            "w": (bounds.left(), bounds.center().y()),
+        }
+
+        for name, position in positions.items():
+
+            handle = QGraphicsRectItem(
+                QRectF(-4, -4, 8, 8)
+            )
+
+            handle.setBrush(QBrush(QColor("#ffffff")))
+
+            pen = QPen(QColor("#2878c8"))
+            pen.setWidthF(1)
+            handle.setPen(pen)
+
+            handle.setFlag(
+                handle.GraphicsItemFlag.ItemIgnoresTransformations,
+                True
+            )
+
+            handle.setAcceptedMouseButtons(
+                Qt.MouseButton.NoButton
+            )
+
+            handle.setZValue(10000)
+
+            handle.setPos(item.mapToScene(*position))
+
+            self.scene.addItem(handle)
+            self.resize_handles[name] = handle
+
+
     # ---------------------------------
     # 1. Create and Add Graphics Items
     # ---------------------------------
