@@ -2,181 +2,336 @@
 
 ## 1. Project Vision
 
-CutStudio is a cross-platform desktop vector design application built with Python and PySide6.
+CutStudio is a cross-platform desktop vector design application built
+with Python and PySide6.
 
-The goal is to create an accessible, reliable design environment for vinyl cutting, plotter workflows, and other vector-based fabrication projects.
+The goal is to create an accessible, reliable design environment for
+vinyl cutting, plotter workflows, and other vector-based fabrication
+projects.
 
-The application should eventually support Linux, Windows, and macOS.
+The application should eventually support:
+
+- Linux.
+- Windows.
+- macOS.
+- Multiple cutting machines.
+- Common vector file formats.
+- Accurate physical measurements.
+- Professional vector editing workflows.
 
 ### Core Principles
 
 - Cross-platform compatibility.
-- Reproducible installation and development environments.
-- Modular, maintainable architecture.
+- Reproducible installation.
+- Modular architecture.
 - Accurate physical measurements.
 - Non-destructive editing wherever practical.
 - Open vector file formats.
-- Extensible machine and cutter support.
+- Extensible machine support.
+- Reliable document handling.
 
 ---
 
-## 2. Development Phases
+## 2. Current Development Status
 
-### Phase 1: Foundation and Application Structure
+CutStudio has progressed beyond its initial prototype.
 
-**Status: In Progress**
+The application currently has:
+
+- A modular core document architecture.
+- A Qt graphics-based canvas.
+- Document and layer management.
+- Rectangle, ellipse, and text objects.
+- Object selection and manipulation.
+- Object properties.
+- Object duplication and deletion.
+- Layer visibility and locking.
+- Native project saving and loading.
+- Automated unit and integration tests.
+
+Current automated test results:
+
+37 tests passing.
+
+The next development stage focuses on improving existing functionality,
+reliability, and professional editing capabilities.
+
+---
+
+## 3. Development Phases
+
+### Phase 1: Foundation and Architecture
+
+Status: Substantially Complete
 
 - [x] Establish Python virtual environment.
 - [x] Install PySide6.
-- [x] Create initial application window.
-- [x] Implement basic menu bar.
+- [x] Create application entry point.
+- [x] Implement main application window.
+- [x] Implement menu bar.
 - [x] Implement main toolbar.
-- [x] Create left drawing tools panel.
-- [x] Create right properties and layers panel.
-- [x] Implement initial 12 × 12 inch cutting mat.
-- [x] Implement basic grid.
-- [x] Implement rectangle tool.
-- [x] Implement ellipse tool.
-- [x] Implement text tool.
-- [x] Implement object selection and movement.
-- [x] Implement Ctrl + mouse wheel zoom.
-- [x] Resolve Qt platform plugin initialization on Linux.
+- [x] Implement drawing tools panel.
+- [x] Implement properties and layers panel.
+- [x] Establish core document architecture.
+- [x] Implement document model.
+- [x] Implement layer model.
+- [x] Implement vector object model.
+- [x] Implement physical measurement conversions.
+- [x] Implement initial cutting mat.
+- [x] Implement grid.
+- [x] Establish automated tests.
 - [ ] Establish reproducible cross-platform Qt configuration.
-- [ ] Document installation dependencies.
-- [ ] Create automated startup tests.
+- [ ] Document complete installation requirements.
+- [ ] Implement automated application startup tests.
 
 ### Phase 2: Canvas and Navigation
 
-- [ ] Implement zoom in/out controls.
+Status: In Progress
+
+- [x] Implement cutting mat display.
+- [x] Implement grid display.
+- [x] Implement Ctrl + mouse wheel zoom.
+- [x] Implement canvas selection.
+- [x] Implement rubber-band selection.
+- [ ] Implement dedicated zoom in/out controls.
 - [ ] Implement zoom-to-fit.
 - [ ] Implement canvas panning.
 - [ ] Add configurable mat dimensions.
 - [ ] Add measurement rulers.
 - [ ] Add configurable grid spacing.
-- [ ] Add grid snapping.
-- [ ] Add object snapping and alignment guides.
+- [ ] Implement grid snapping.
+- [ ] Implement object snapping.
+- [ ] Implement alignment guides.
 - [ ] Improve canvas rendering performance.
 
 ### Phase 3: Object Editing
 
-- [ ] Implement object selection.
-- [ ] Implement multi-selection.
-- [ ] Implement resize handles.
-- [ ] Implement object rotation.
-- [ ] Implement object duplication.
-- [ ] Implement delete and copy/paste.
-- [ ] Implement undo/redo.
+Status: In Progress
+
+- [x] Implement rectangle objects.
+- [x] Implement ellipse objects.
+- [x] Implement text objects.
+- [x] Implement object selection.
+- [x] Implement multi-selection.
+- [x] Implement object movement.
+- [x] Implement eight resize handles.
+- [x] Implement object rotation.
+- [x] Implement rotation handle.
+- [x] Implement rotation snapping with Shift.
+- [x] Implement object duplication.
+- [x] Implement Ctrl+D duplication shortcut.
+- [x] Implement object deletion.
+- [x] Implement object identifiers.
+- [x] Implement object validation.
+- [ ] Implement Shift + resize aspect-ratio locking.
+- [ ] Implement copy and paste.
+- [ ] Implement undo and redo.
 - [ ] Implement grouping and ungrouping.
-- [ ] Implement object locking.
-- [ ] Implement object alignment and distribution.
+- [ ] Implement object alignment.
+- [ ] Implement object distribution.
+- [ ] Improve multi-object manipulation.
 
 ### Phase 4: Properties and Layers
 
-- [ ] Implement live object properties.
-- [ ] Add position controls (X/Y).
-- [ ] Add width and height controls.
-- [ ] Add rotation controls.
-- [ ] Add fill and stroke controls.
-- [ ] Add line width controls.
-- [ ] Implement functional layer management.
-- [ ] Add layer visibility.
-- [ ] Add layer locking.
-- [ ] Add layer reordering.
+Status: Partially Complete
 
-### Phase 5: Vector Editing
+- [x] Display selected object type.
+- [x] Implement X position editing.
+- [x] Implement Y position editing.
+- [x] Implement width editing.
+- [x] Implement height editing.
+- [x] Implement rotation editing.
+- [x] Synchronize properties with canvas geometry.
+- [x] Implement layer selection.
+- [x] Implement layer visibility.
+- [x] Implement layer locking.
+- [x] Prevent editing objects on locked layers.
+- [ ] Implement fill color editing.
+- [ ] Implement stroke color editing.
+- [ ] Implement stroke width editing.
+- [ ] Implement font selection.
+- [ ] Implement font size editing.
+- [ ] Implement layer creation.
+- [ ] Implement layer deletion.
+- [ ] Implement layer reordering.
+- [ ] Improve layer management interface.
+
+### Phase 5: Document Management
+
+Status: Partially Complete
+
+- [x] Implement document creation.
+- [x] Implement document dimensions.
+- [x] Implement document layers.
+- [x] Implement native CutStudio project format.
+- [x] Implement project saving.
+- [x] Implement project loading.
+- [x] Implement project validation.
+- [x] Implement project version checking.
+- [x] Implement modified-document tracking.
+- [x] Implement unsaved-change detection.
+- [x] Implement save confirmation.
+- [x] Implement discard confirmation.
+- [ ] Verify and correct Cancel behavior for unsaved changes.
+- [ ] Implement undo and redo history.
+- [ ] Implement autosave.
+- [ ] Implement crash recovery.
+- [ ] Implement recent project list.
+
+### Phase 6: Vector Editing
+
+Status: Planned
 
 - [ ] Implement path objects.
+- [ ] Implement freehand drawing.
 - [ ] Implement Bézier curves.
 - [ ] Implement node editing.
-- [ ] Implement path joining and splitting.
+- [ ] Implement path joining.
+- [ ] Implement path splitting.
 - [ ] Implement boolean operations.
-- [ ] Implement text editing and font selection.
+- [ ] Implement text editing.
+- [ ] Implement font selection.
 - [ ] Implement text-to-path conversion.
+- [ ] Implement grouping and compound paths.
 
-### Phase 6: File Support
+### Phase 7: File Import and Export
 
-- [ ] Implement native CutStudio project format.
+Status: Planned
+
 - [ ] Implement SVG import.
 - [ ] Implement SVG export.
 - [ ] Implement PDF export.
 - [ ] Implement PNG export.
-- [ ] Implement project save/load.
-- [ ] Implement autosave and recovery.
+- [ ] Preserve physical dimensions during export.
+- [ ] Preserve object positions and rotations.
+- [ ] Preserve layers where supported.
+- [ ] Test compatibility with external vector applications.
+- [ ] Document supported import and export features.
 
-### Phase 7: Cutting Machine Integration
+### Phase 8: Cutting Machine Integration
+
+Status: Planned
 
 - [ ] Establish cutter communication architecture.
+- [ ] Research supported cutting machine protocols.
 - [ ] Implement machine configuration profiles.
 - [ ] Implement cutter discovery where supported.
 - [ ] Implement cutting preview.
 - [ ] Implement cut job preparation.
-- [ ] Implement supported cutter communication protocols.
+- [ ] Implement supported cutter communication.
 - [ ] Add machine-specific settings.
-- [ ] Implement job status and error reporting.
+- [ ] Implement job status reporting.
+- [ ] Implement error handling.
+- [ ] Test with physical cutting machines.
 
-### Phase 8: Packaging and Distribution
+### Phase 9: Packaging and Distribution
 
+Status: Planned
+
+- [ ] Establish application versioning.
 - [ ] Create Linux installation package.
 - [ ] Create Windows installer.
 - [ ] Create macOS application package.
 - [ ] Bundle required Qt dependencies.
 - [ ] Test clean installations.
-- [ ] Establish release and versioning process.
+- [ ] Establish release process.
 - [ ] Publish user documentation.
 
 ---
 
-## 3. Architecture Guidelines
+## 4. Immediate Development Priorities
 
-The application should evolve beyond a single-file implementation.
+The next development work should follow this order.
 
-Recommended responsibilities:
+1. Complete and verify Shift-based aspect-ratio locking.
+2. Verify and correct unsaved-change Cancel behavior.
+3. Implement undo and redo.
+4. Improve canvas navigation.
+5. Add copy and paste.
+6. Improve object alignment and distribution.
+7. Expand text properties.
+8. Implement SVG export.
+9. Implement SVG import.
 
-- `canvas/`: Drawing surface, grid, navigation, and rendering.
-- `tools/`: Selection, shapes, text, and path editing.
-- `panels/`: Properties, layers, and application sidebars.
-- `models/`: Document, layer, and object data models.
-- `exporters/`: SVG, PDF, and raster export.
-- `machine/`: Cutter profiles, communication, and job management.
-
-The graphical interface should remain separate from the underlying document model.
-
-This will make future features easier to test and maintain.
+These priorities should be revisited as functionality is completed.
 
 ---
 
-## 4. Cross-Platform Requirements
+## 5. Cross-Platform Requirements
 
-CutStudio should not depend on machine-specific paths or manually configured Qt environment variables.
+CutStudio must not depend on developer-specific paths or manually
+configured Qt environment variables.
 
 Requirements:
 
 - Use Python virtual environments.
-- Declare dependencies in project metadata.
-- Use PySide6's bundled Qt libraries and plugins.
+- Maintain declared dependencies.
+- Use PySide6 bundled Qt libraries and plugins.
 - Avoid hardcoded developer-specific paths.
-- Detect the appropriate Qt platform integration automatically.
-- Support X11 and Wayland on Linux where available.
-- Test Windows and macOS independently.
-- Document operating-system-level dependencies.
+- Detect Qt platform integration automatically.
+- Support X11 and Wayland where available.
+- Test Windows independently.
+- Test macOS independently.
+- Document operating-system dependencies.
 
 ---
 
-## 5. Development Priorities
+## 6. Development and Testing Policy
 
-Our immediate priorities are:
+Every significant feature should include appropriate automated tests.
 
-1. Establish the project architecture.
-2. Make installation and startup reproducible.
-3. Improve the canvas and navigation.
-4. Implement functional object properties.
-5. Establish a proper document and layer model.
-6. Add SVG import/export.
+Existing functionality must not regress when new features are added.
+
+Development should follow these principles:
+
+- Test core document logic independently of the GUI.
+- Test geometry and measurement conversions.
+- Test document persistence.
+- Test object manipulation.
+- Test layer behavior.
+- Add GUI interaction tests where practical.
+- Run the complete test suite before committing significant changes.
+
+Current baseline:
+
+37 automated tests passing.
 
 ---
 
-## 6. Long-Term Goal
+## 7. Long-Term Goal
 
-Build CutStudio into a dependable, cross-platform vector design and vinyl cutting application with a clean interface, accurate measurements, and extensible hardware support.
+Build CutStudio into a dependable, cross-platform vector design and
+vinyl cutting application.
 
-The project should remain modular so that additional design tools, file formats, and cutting machines can be supported without major architectural changes.
+The application should provide:
+
+- Accurate physical measurements.
+- Professional vector editing tools.
+- Reliable document management.
+- Open vector file compatibility.
+- Flexible layer management.
+- Cutting job preparation.
+- Extensible machine support.
+
+The long-term objective is to provide a capable alternative to
+proprietary vinyl cutting design software, including workflows
+traditionally available in Brother ScanNCut software.
+
+---
+
+## 8. Roadmap Maintenance
+
+Update this document whenever significant functionality is completed.
+
+Only mark features as implemented when they have been verified.
+
+Keep implemented functionality separate from planned functionality.
+
+Maintain consistency between:
+
+- ARCHITECTURE.md
+- HANDOFF.md
+- ROADMAP.md
+
+The roadmap describes development objectives, not a guarantee
+that every planned feature has been implemented.
