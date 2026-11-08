@@ -73,13 +73,33 @@ class CanvasRenderer:
             "w": (bounds.left(), bounds.center().y()),
         }
 
+        # Rotation handle sits above the top-middle handle.
+        positions["rotate"] = (
+            bounds.center().x(),
+            bounds.top() - 20
+        )
+
         for name, position in positions.items():
 
-            handle = QGraphicsRectItem(
-                QRectF(-4, -4, 8, 8)
-            )
+            if name == "rotate":
 
-            handle.setBrush(QBrush(QColor("#ffffff")))
+                handle = QGraphicsEllipseItem(
+                    QRectF(-5, -5, 10, 10)
+                )
+
+                handle.setBrush(
+                    QBrush(QColor("#2878c8"))
+                )
+
+            else:
+
+                handle = QGraphicsRectItem(
+                    QRectF(-4, -4, 8, 8)
+                )
+
+                handle.setBrush(
+                    QBrush(QColor("#ffffff"))
+                )
 
             pen = QPen(QColor("#2878c8"))
             pen.setWidthF(1)
@@ -176,6 +196,11 @@ class CanvasRenderer:
             item.setDefaultTextColor(
                 QColor(obj.stroke)
             )
+
+        # Rotate around the visual centre of the object.
+        item.setTransformOriginPoint(
+            item.boundingRect().center()
+        )
 
         item.setRotation(obj.rotation)
 
@@ -422,6 +447,10 @@ class CanvasRenderer:
             obj.height = scene_units_to_mm(
                 item.boundingRect().height()
             )
+
+        item.setTransformOriginPoint(
+            item.boundingRect().center()
+        )
 
         item.setPos(
             mm_to_scene_units(obj.x),

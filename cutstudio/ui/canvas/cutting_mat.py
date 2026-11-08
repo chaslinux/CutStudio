@@ -19,6 +19,7 @@ class CuttingMat(QGraphicsView):
         self.renderer = renderer
 
         self._resize_state = None
+        self._rotation_state = None
         self._geometry_before = None
 
         self.setRenderHint(
@@ -183,6 +184,44 @@ class CuttingMat(QGraphicsView):
 
                 if object_id is not None:
 
+                    if handle_name == "rotate":
+
+                        obj, layer = self.renderer.find_object_and_layer(
+                            object_id
+                        )
+
+                        if obj is None or layer is None or layer.locked:
+                            event.accept()
+                            return
+
+                        center = item.mapToScene(
+                            item.rect().center()
+                        )
+
+                        mouse_position = self.mapToScene(
+                            event.position().toPoint()
+                        )
+
+                        vector = mouse_position - center
+
+                        if vector.isNull():
+                            event.accept()
+                            return
+
+                        self._rotation_state = {
+                            "item": item,
+                            "object_id": object_id,
+                            "center": center,
+                            "start_angle": math.degrees(
+                                math.atan2(vector.y(), vector.x())
+                            ),
+                            "start_rotation": item.rotation(),
+                            "geometry_before": self._document_geometry(),
+                        }
+
+                        event.accept()
+                        return
+
                     rect = item.rect()
 
                     width = rect.width()
@@ -246,6 +285,51 @@ class CuttingMat(QGraphicsView):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+
+        if self._rotation_state is not None:
+
+            state = self._rotation_state
+
+            item = state["item"]
+
+            scene_position = self.mapToScene(
+                event.position().toPoint()
+            )
+
+            vector = scene_position - state["center"]
+
+            if vector.isNull():
+                event.accept()
+                return
+
+            current_angle = math.degrees(
+                math.atan2(vector.y(), vector.x())
+            )
+
+            delta = current_angle - state["start_angle"]
+
+            # Keep the change within one revolution.
+            delta = (delta + 180) % 360 - 180
+
+            new_rotation = state["start_rotation"] + delta
+
+            # Hold Shift to snap to 15-degree increments.
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+
+                new_rotation = round(
+                    new_rotation / 15.0
+                ) * 15.0
+
+            item.setRotation(new_rotation)
+
+            self.renderer.sync_to_document()
+
+            self.renderer.update_resize_handles(
+                state["object_id"]
+            )
+
+            event.accept()
+            return
 
         if self._resize_state is not None:
 
@@ -320,6 +404,10 @@ class CuttingMat(QGraphicsView):
                 QRectF(0, 0, width, height)
             )
 
+            item.setTransformOriginPoint(
+                item.boundingRect().center()
+            )
+
             # Keep the opposite edge or corner stationary.
             new_anchor_scene = item.mapToScene(
                 QPointF(new_anchor_x, new_anchor_y)
@@ -358,6 +446,25 @@ class CuttingMat(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+
+        if self._rotation_state is not None:
+
+            state = self._rotation_state
+            self._rotation_state = None
+
+            self.renderer.sync_to_document()
+
+            self.renderer.update_resize_handles(
+                state["object_id"]
+            )
+
+            if self._geometry_changed(
+                state["geometry_before"]
+            ):
+                self.objects_positions_changed.emit()
+
+            event.accept()
+            return
 
         if self._resize_state is not None:
 
