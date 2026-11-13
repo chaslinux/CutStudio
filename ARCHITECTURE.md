@@ -437,3 +437,63 @@ Do not describe planned functionality as implemented functionality.
 
 Do not introduce imaginary directory structures into the
 description of the current application.
+
+
+## 11. Document History
+
+### Core History Module
+
+Location:
+
+`cutstudio/core/history.py`
+
+The `UndoHistory` class manages document history independently
+of the graphical user interface.
+
+History uses independent document snapshots created with deepcopy.
+
+### History Operations
+
+- `record(document)` - Record a document state.
+- `undo()` - Return the previous document state.
+- `redo()` - Return the next document state.
+- `clear(document)` - Reset history.
+
+Available properties:
+
+- `can_undo`
+- `can_redo`
+- `undo_count`
+- `redo_count`
+
+The default history limit is 100 operations.
+
+Recording a new state after Undo discards unreachable redo states.
+Identical document states are ignored.
+
+### Main Window Integration
+
+`cutstudio/ui/main_window.py` integrates history with the Edit menu.
+
+The main window handles:
+
+- Recording document changes.
+- Undo and Redo actions.
+- Restoring document snapshots.
+- Updating the renderer.
+- Rebuilding the graphics scene.
+- Refreshing layer and property panels.
+- Resetting history when replacing a project.
+
+The history module has no PySide6 or Qt graphics dependency.
+
+### Testing
+
+Location:
+
+`tests/test_history.py`
+
+History functionality is tested independently of the GUI.
+
+Command-based history may be considered in the future if snapshot
+memory consumption becomes significant.

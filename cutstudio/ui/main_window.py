@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 
 from cutstudio.core.constants import MAT_INCHES
 from cutstudio.core.document import Document
+from cutstudio.core.history import UndoHistory
 from cutstudio.core.objects import ObjectType, VectorObject
 from cutstudio.core.project_file import (
     ProjectFileError,
@@ -77,6 +78,7 @@ class MainWindow(QMainWindow):
         # ----------------------------------------------------
 
         self.document = Document()
+        self.history = UndoHistory(self.document)
 
         # ----------------------------------------------------
         # Project file tracking
@@ -195,9 +197,73 @@ class MainWindow(QMainWindow):
             self.update_window_title()
 
 
-    def on_objects_positions_changed(self):
+    def update_history_actions(self):
+
+        if not hasattr(self, "undo_action"):
+            return
+
+        self.undo_action.setEnabled(
+            self.history.can_undo
+        )
+
+        self.redo_action.setEnabled(
+            self.history.can_redo
+        )
+
+    def record_history(self):
+
+        if self.history.record(self.document):
+            self.mark_modified()
+
+        self.update_history_actions()
+
+    def undo(self):
+
+        document = self.history.undo()
+
+        if document is not None:
+            self.restore_document(document)
+
+    def redo(self):
+
+        document = self.history.redo()
+
+        if document is not None:
+            self.restore_document(document)
+
+    def restore_document(self, document):
+
+        self.document = document
+        self.renderer.document = document
+
+        self.scene.clearSelection()
+
+        self.scene.setSceneRect(
+            QRectF(
+                0,
+                0,
+                mm_to_scene_units(document.width_mm),
+                mm_to_scene_units(document.height_mm),
+            )
+        )
+
+        self.renderer.rebuild()
+
+        self.refresh_layer_list()
+        self.clear_properties()
+        self.update_properties()
 
         self.mark_modified()
+        self.update_history_actions()
+
+        self.statusBar().showMessage(
+            "Document restored"
+        )
+
+
+    def on_objects_positions_changed(self):
+
+        self.record_history()
 
         self.update_properties()
 
@@ -245,14 +311,11 @@ class MainWindow(QMainWindow):
         # Other menus
         # ---------------------------------
 
-        menus = [
-            "Edit",
-            "View",
-            "Machine",
-            "Help",
-        ]
+        edit_menu = menu_bar.addMenu("Edit")
 
-        for name in menus:
+        self.edit_menu = edit_menu
+
+        for name in ("View", "Machine", "Help"):
             menu_bar.addMenu(name)
 
         # Objects menu
@@ -292,6 +355,8 @@ class MainWindow(QMainWindow):
             return
 
         self.document = Document()
+        self.history.clear(self.document)
+        self.update_history_actions()
 
         self.renderer.document = self.document
 
@@ -337,6 +402,8 @@ class MainWindow(QMainWindow):
             document = load_project(filename)
 
             self.document = document
+            self.history.clear(document)
+            self.update_history_actions()
             self.renderer.document = document
 
             self.current_filename = filename
@@ -467,6 +534,22 @@ class MainWindow(QMainWindow):
 
         # Actual shortcut actions will be connected to
         # the editing methods implemented in later sections.
+
+        self.undo_action = QAction("Undo", self)
+        self.undo_action.setShortcut(
+            QKeySequence.StandardKey.Undo
+        )
+        self.undo_action.triggered.connect(self.undo)
+        self.edit_menu.addAction(self.undo_action)
+
+        self.redo_action = QAction("Redo", self)
+        self.redo_action.setShortcut(
+            QKeySequence.StandardKey.Redo
+        )
+        self.redo_action.triggered.connect(self.redo)
+        self.edit_menu.addAction(self.redo_action)
+
+        self.update_history_actions()
 
         self.duplicate_action = QAction(
             "Duplicate",
@@ -777,7 +860,7 @@ class MainWindow(QMainWindow):
             visible
         )
 
-        self.mark_modified()
+        self.record_history()
 
         self.update_properties()
 
@@ -818,7 +901,7 @@ class MainWindow(QMainWindow):
             not layer.locked
         )
 
-        self.mark_modified()
+        self.record_history()
 
         self.update_lock_button()
 
@@ -1025,7 +1108,7 @@ class MainWindow(QMainWindow):
 
             self.renderer.sync_to_document()
 
-            self.mark_modified()
+            self.record_history()
 
             self.statusBar().showMessage(
                 f"Updated {key}: {value:.2f}"
@@ -1146,6 +1229,8 @@ class MainWindow(QMainWindow):
 
         self.update_properties()
 
+        self.record_history()
+
         self.statusBar().showMessage(
             f"Duplicated {len(duplicated)} object(s)"
         )
@@ -1200,6 +1285,8 @@ class MainWindow(QMainWindow):
             return
 
         self.clear_properties()
+
+        self.record_history()
 
         self.statusBar().showMessage(
             f"Deleted {deleted_count} object(s)"
@@ -1278,6 +1365,8 @@ class MainWindow(QMainWindow):
             obj.object_id
         ].setSelected(True)
 
+        self.record_history()
+
 
 # ============================================================
 # SECTION 4F: ADD ELLIPSE
@@ -1327,6 +1416,8 @@ class MainWindow(QMainWindow):
             obj.object_id
         ].setSelected(True)
 
+        self.record_history()
+
 
 # ============================================================
 # SECTION 4G: ADD TEXT
@@ -1370,6 +1461,8 @@ class MainWindow(QMainWindow):
         self.renderer.items[
             obj.object_id
         ].setSelected(True)
+
+        self.record_history()
 
 
 # ============================================================

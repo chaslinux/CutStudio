@@ -125,7 +125,7 @@ Status: In Progress
 - [x] Implement object validation.
 - [ ] Implement Shift + resize aspect-ratio locking.
 - [ ] Implement copy and paste.
-- [ ] Implement undo and redo.
+- [x] Implement undo and redo.
 - [ ] Implement grouping and ungrouping.
 - [ ] Implement object alignment.
 - [ ] Implement object distribution.
@@ -173,7 +173,7 @@ Status: Partially Complete
 - [x] Implement save confirmation.
 - [x] Implement discard confirmation.
 - [ ] Verify and correct Cancel behavior for unsaved changes.
-- [ ] Implement undo and redo history.
+- [x] Implement undo and redo history.
 - [ ] Implement autosave.
 - [ ] Implement crash recovery.
 - [ ] Implement recent project list.

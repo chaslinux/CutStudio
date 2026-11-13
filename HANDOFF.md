@@ -515,3 +515,53 @@ The immediate goal is to establish accurate documentation and then continue deve
 Important:
 
 Always inspect the current source code before assuming that a feature is implemented or that a proposed change is still necessary.
+
+
+## 13. Undo and Redo
+
+Undo and Redo functionality has been implemented.
+
+### Implementation
+
+- History is managed by `cutstudio/core/history.py`.
+- `UndoHistory` stores independent document snapshots.
+- Snapshots use Python deepcopy.
+- Undo restores the previous document state.
+- Redo restores the next available document state.
+- New edits after Undo discard redo history.
+- Identical states are not recorded.
+- The default history limit is 100 operations.
+- History resets when creating or opening a project.
+
+### User Interface
+
+The Edit menu provides Undo and Redo actions with standard
+keyboard shortcuts.
+
+Actions are enabled or disabled according to available history.
+
+Restoring a snapshot rebuilds the canvas and refreshes the
+layer and property panels.
+
+### Recorded Operations
+
+- Rectangle creation
+- Ellipse creation
+- Text creation
+- Object duplication
+- Object deletion
+- Property changes
+- Object movement
+- Resizing
+- Rotation
+- Layer visibility changes
+- Layer locking changes
+
+### Automated Testing
+
+Six dedicated history tests cover initialization, recording,
+undo, redo, branching, history limits, and clearing history.
+
+The complete test suite currently reports 43 passing tests.
+
+GUI-level verification remains necessary.
