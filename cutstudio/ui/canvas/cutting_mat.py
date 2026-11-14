@@ -400,6 +400,65 @@ class CuttingMat(QGraphicsView):
 
                 new_anchor_y = height / 2
 
+            # Hold Shift to preserve the original aspect ratio.
+            if (
+                event.modifiers()
+                & Qt.KeyboardModifier.ShiftModifier
+            ):
+
+                original_width = state["width"]
+                original_height = state["height"]
+
+                if original_width > 0 and original_height > 0:
+
+                    width_scale = width / original_width
+                    height_scale = height / original_height
+
+                    # For corner handles, use the dimension
+                    # with the greater proportional movement.
+                    if horizontal is not None and vertical is not None:
+
+                        scale = (
+                            width_scale
+                            if abs(width_scale - 1.0)
+                            >= abs(height_scale - 1.0)
+                            else height_scale
+                        )
+
+                    elif horizontal is not None:
+                        scale = width_scale
+
+                    elif vertical is not None:
+                        scale = height_scale
+
+                    else:
+                        scale = 1.0
+
+                    minimum_scale = max(
+                        minimum_size / original_width,
+                        minimum_size / original_height,
+                    )
+
+                    scale = max(scale, minimum_scale)
+
+                    width = original_width * scale
+                    height = original_height * scale
+
+                    # Recalculate the stationary anchor.
+                    if horizontal == "w":
+                        new_anchor_x = width
+                    elif horizontal == "e":
+                        new_anchor_x = 0
+                    else:
+                        new_anchor_x = width / 2
+
+                    if vertical == "n":
+                        new_anchor_y = height
+                    elif vertical == "s":
+                        new_anchor_y = 0
+                    else:
+                        new_anchor_y = height / 2
+
             item.setRect(
                 QRectF(0, 0, width, height)
             )

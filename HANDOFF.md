@@ -228,11 +228,16 @@ The resize implementation maintains the opposite edge or corner as the stationar
 
 When resizing using a single horizontal or vertical handle, the untouched dimension is preserved.
 
-Outstanding feature:
+Aspect-ratio constrained resizing:
 
-Holding Shift while resizing should constrain the object's aspect ratio.
+- Holding Shift while resizing preserves the original aspect ratio.
+- Supported by all eight resize handles.
+- Works with rotated rectangles and ellipses.
+- Edge resizing adjusts both dimensions proportionally.
+- Opposite edges and corners remain anchored.
+- Normal unrestricted resizing remains available without Shift.
 
-This has not yet been implemented or verified.
+Manually tested and verified.
 
 ### Rotation
 

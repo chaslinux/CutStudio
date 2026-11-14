@@ -123,7 +123,7 @@ Status: In Progress
 - [x] Implement object deletion.
 - [x] Implement object identifiers.
 - [x] Implement object validation.
-- [ ] Implement Shift + resize aspect-ratio locking.
+- [x] Implement Shift + resize aspect-ratio locking.
 - [ ] Implement copy and paste.
 - [x] Implement undo and redo.
 - [ ] Implement grouping and ungrouping.
