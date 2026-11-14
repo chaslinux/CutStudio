@@ -303,9 +303,9 @@ The actual interface behaviour needs to be reproduced and tested before consider
 
 ## 6. Automated Testing
 
-As of November 8, 2026, the test suite reported:
+As of November 14, 2026, the test suite reported:
 
-    37 passed in 0.18s
+    43 passed in 0.16s
 
 The existing tests cover:
 
@@ -334,11 +334,10 @@ Mouse-driven operations, keyboard shortcuts, and visual behaviour must also be t
 
 ### High Priority
 
-1. Implement Shift-constrained proportional resizing.
-2. Verify the unsaved-changes Cancel behaviour.
-3. Confirm resizing and rotation at different zoom levels.
-4. Verify that object movement, resizing, and rotation are correctly marked as document modifications.
-5. Add automated tests for canvas interaction where practical.
+1. Verify the unsaved-changes Cancel behaviour.
+2. Confirm Shift-constrained resizing and rotation at different zoom levels.
+3. Verify that object movement, resizing, and rotation are correctly marked as document modifications.
+4. Add automated tests for canvas interaction where practical.
 
 ### Medium Priority
 
@@ -490,14 +489,14 @@ These requirements are mandatory for all future documentation work and handoffs.
 ## 11. Current Development Priorities
 
 1. Complete and verify project documentation.
-2. Update ARCHITECTURE.md to reflect the actual implementation.
-3. Update ROADMAP.md to distinguish completed and planned functionality.
-4. Populate README.md.
-5. Implement Shift-constrained proportional resizing.
-6. Resolve and test the unsaved-changes cancellation issue.
-7. Continue improving the ScanNCut-inspired editing workflow.
+2. Verify the unsaved-changes cancellation workflow.
+3. Verify resizing and rotation at different zoom levels.
+4. Verify document modification tracking for canvas operations.
+5. Improve the ScanNCut-inspired editing workflow.
 
-Documentation should be completed before moving into the next feature-development phase.
+The primary project documentation has been updated. Remaining
+development priorities focus on GUI verification, interaction
+reliability, and continued editing workflow improvements.
 
 ## 12. Current Development State
 
@@ -513,9 +512,15 @@ It has progressed beyond its original prototype and now includes:
 - Resizing
 - Project persistence
 
-The existing automated test suite has 37 passing tests.
+The existing automated test suite has 43 passing tests.
 
-The immediate goal is to establish accurate documentation and then continue development without regressing existing functionality.
+Six dedicated tests cover Undo and Redo history.
+
+Shift-constrained proportional resizing and Undo/Redo have been
+implemented. GUI-level verification remains necessary.
+
+The immediate goal is to verify outstanding graphical interactions
+and continue development without regressing existing functionality.
 
 Important:
 

@@ -45,6 +45,7 @@ Current modules:
 
 - constants.py
 - document.py
+- history.py
 - layer.py
 - objects.py
 - project_file.py
@@ -86,6 +87,27 @@ Unit management:
 
 The core package should remain independent of the graphical interface
 where practical.
+
+History management:
+
+The `history.py` module provides document-level Undo and Redo
+functionality through the `UndoHistory` class.
+
+Responsibilities:
+- Maintain document history using independent snapshots.
+- Create snapshots using Python's `deepcopy`.
+- Restore previous document states through Undo.
+- Restore subsequent document states through Redo.
+- Discard redo history when a new edit follows an Undo.
+- Avoid recording identical document states.
+- Limit the number of stored operations.
+- Reset history when a document is replaced.
+
+The default history limit is 100 operations.
+
+The history module is independent of PySide6 and Qt graphics
+components. The main window coordinates history operations
+with the graphical interface.
 
 ### 2.2 User Interface
 
@@ -184,6 +206,7 @@ CutStudio/
 |   |   |-- __init__.py
 |   |   |-- constants.py
 |   |   |-- document.py
+|   |   |-- history.py
 |   |   |-- layer.py
 |   |   |-- objects.py
 |   |   |-- project_file.py
@@ -201,6 +224,7 @@ CutStudio/
 |-- tests/
 |   |-- test_document.py
 |   |-- test_duplication.py
+|   |-- test_history.py
 |   |-- test_layers.py
 |   |-- test_objects.py
 |   |-- test_project_file.py
@@ -266,6 +290,7 @@ Existing test modules:
 
 - test_document.py
 - test_duplication.py
+- test_history.py
 - test_layers.py
 - test_objects.py
 - test_project_file.py
@@ -282,6 +307,7 @@ The tests currently cover:
 - Object validation.
 - Object identifiers.
 - Object duplication.
+- Undo and Redo history.
 - Project saving and loading.
 - Renderer operations.
 - Position synchronization.
@@ -387,7 +413,6 @@ Planned functionality:
 Potential future responsibilities:
 
 - Document operations.
-- Undo and redo.
 - Application settings.
 - Autosave.
 - Document recovery.
@@ -415,12 +440,11 @@ Priority should be given to:
 1. Reliable document operations.
 2. Object manipulation.
 3. Accurate physical dimensions.
-4. Undo and redo.
-5. Reliable project saving and loading.
-6. Improved drawing and editing tools.
-7. Vector import and export.
-8. Cutting job preparation.
-9. Machine integration.
+4. Reliable project saving and loading.
+5. Improved drawing and editing tools.
+6. Vector import and export.
+7. Cutting job preparation.
+8. Machine integration.
 
 New functionality must not compromise existing document integrity.
 

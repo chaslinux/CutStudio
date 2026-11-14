@@ -51,8 +51,9 @@ The application currently has:
 
 Current automated test results:
 
-37 tests passing.
+43 tests passing.
 
+The test suite includes six dedicated Undo and Redo history tests.
 The next development stage focuses on improving existing functionality,
 reliability, and professional editing capabilities.
 
@@ -243,15 +244,14 @@ Status: Planned
 
 The next development work should follow this order.
 
-1. Complete and verify Shift-based aspect-ratio locking.
-2. Verify and correct unsaved-change Cancel behavior.
-3. Implement undo and redo.
-4. Improve canvas navigation.
-5. Add copy and paste.
-6. Improve object alignment and distribution.
-7. Expand text properties.
-8. Implement SVG export.
-9. Implement SVG import.
+1. Verify and correct unsaved-change Cancel behavior.
+2. Verify Shift-based resizing and rotation at different zoom levels.
+3. Improve canvas navigation.
+4. Add copy and paste.
+5. Improve object alignment and distribution.
+6. Expand text properties.
+7. Implement SVG export.
+8. Implement SVG import.
 
 These priorities should be revisited as functionality is completed.
 
@@ -294,7 +294,11 @@ Development should follow these principles:
 
 Current baseline:
 
-37 automated tests passing.
+43 automated tests passing.
+
+Six dedicated tests cover Undo and Redo history.
+GUI-level verification remains necessary for mouse-driven operations,
+keyboard shortcuts, and visual behaviour.
 
 ---
 
