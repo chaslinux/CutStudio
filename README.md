@@ -6,6 +6,10 @@ I recently discovered that Brother discontinued the web version of CanvasWorkSpa
 
 This is not a clone of Brother's software. It's my intention to make a functional program to do some of the job of Brother's CanvasWorkspace, but it's not intended to be a clone. The purpose of this software is to give Linux (and perhaps other *nix users) software they can use to eventually use their cutter as expected again.
 
+## Screenshot (current state - very early development)
+
+<img width="1423" height="953" alt="CutStudio" src="https://github.com/user-attachments/assets/f84c3c2e-4ea9-437b-8444-d9c152ab4bfe" />
+
 ## Cloning the repository
 
 I put all my projects in a sudirectory of `~/Code`
