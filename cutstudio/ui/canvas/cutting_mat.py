@@ -23,6 +23,14 @@ class CuttingMat(QGraphicsView):
         self._geometry_before = None
         self._pan_position = None
 
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+
+        self.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+
         self.setRenderHint(
             QPainter.RenderHint.Antialiasing
         )
@@ -190,7 +198,6 @@ class CuttingMat(QGraphicsView):
         if event.button() == Qt.MouseButton.MiddleButton:
 
             self._pan_position = event.position().toPoint()
-            print("PAN START:", self._pan_position)
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
 
             event.accept()
@@ -322,29 +329,20 @@ class CuttingMat(QGraphicsView):
         if self._pan_position is not None:
 
             current = event.position().toPoint()
-            print(
-                "PAN MOVE:",
-                current,
-                "buttons:",
-                event.buttons(),
-                "transform:",
-                self.transform().m11(),
-                self.transform().m22(),
-            )
-            hbar = self.horizontalScrollBar()
-            vbar = self.verticalScrollBar()
-
-            print(
-                "SCROLLBARS:",
-                "H:", hbar.minimum(), hbar.maximum(), hbar.value(),
-                "V:", vbar.minimum(), vbar.maximum(), vbar.value(),
-                "VIEWPORT:", self.viewport().size(),
-                "SCENE:", self.scene().sceneRect(),
-            )
             delta = current - self._pan_position
 
-            scale_x = self.transform().m11()
-            scale_y = self.transform().m22()
+            self.horizontalScrollBar().setValue(
+                self.horizontalScrollBar().value() - delta.x()
+            )
+
+            self.verticalScrollBar().setValue(
+                self.verticalScrollBar().value() - delta.y()
+            )
+
+            self._pan_position = current
+
+            event.accept()
+            return
 
             if abs(scale_x) > 1e-9 and abs(scale_y) > 1e-9:
 
@@ -580,7 +578,6 @@ class CuttingMat(QGraphicsView):
 
         if event.button() == Qt.MouseButton.MiddleButton:
 
-            print("PAN END")
 
             self._pan_position = None
             self.unsetCursor()

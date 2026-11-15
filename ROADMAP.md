@@ -97,7 +97,7 @@ Status: In Progress
 - [x] Implement rubber-band selection.
 - [ ] Implement dedicated zoom in/out controls.
 - [x] Implement zoom-to-fit.
-- [ ] Implement canvas panning.
+- [x] Implement middle-mouse canvas panning.
 - [ ] Add configurable mat dimensions.
 - [ ] Add measurement rulers.
 - [ ] Add configurable grid spacing.
@@ -105,6 +105,13 @@ Status: In Progress
 - [ ] Implement object snapping.
 - [ ] Implement alignment guides.
 - [ ] Improve canvas rendering performance.
+
+Canvas navigation:
+- Middle mouse button + drag pans the canvas.
+- Panning uses Qt scrollbars and requires the mat to extend
+  beyond the viewport.
+- Ctrl + mouse wheel zooms in and out.
+- Zoom to Fit restores the complete mat to view.
 
 ### Phase 3: Object Editing
 

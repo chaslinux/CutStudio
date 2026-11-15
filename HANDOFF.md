@@ -158,6 +158,10 @@ cutting_mat.py handles canvas interaction, including:
 - Object rotation
 - Resize and rotation handles
 - Synchronization between graphics items and document objects
+- Middle-mouse drag panning
+- Scrollbar-based canvas navigation
+- Ctrl + mouse wheel zoom
+- Zoom to Fit
 
 ## 5. Confirmed Working Functionality
 
@@ -418,6 +422,12 @@ Contains:
 - Modification notifications
 - Zoom to Fit functionality
 - Automatic canvas fitting with a 3% margin around the cutting mat
+
+Middle-mouse panning is supported when the cutting mat
+extends beyond the viewport and Qt provides a scrollable area.
+
+The physical document dimensions are independent of canvas
+zoom and navigation.
 
 ### Core
 
