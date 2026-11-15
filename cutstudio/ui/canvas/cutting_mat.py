@@ -21,6 +21,7 @@ class CuttingMat(QGraphicsView):
         self._resize_state = None
         self._rotation_state = None
         self._geometry_before = None
+        self._pan_position = None
 
         self.setRenderHint(
             QPainter.RenderHint.Antialiasing
@@ -186,6 +187,15 @@ class CuttingMat(QGraphicsView):
 
     def mousePressEvent(self, event):
 
+        if event.button() == Qt.MouseButton.MiddleButton:
+
+            self._pan_position = event.position().toPoint()
+            print("PAN START:", self._pan_position)
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+
+            event.accept()
+            return
+
         if (
             event.button() == Qt.MouseButton.LeftButton
             and self.renderer is not None
@@ -308,6 +318,45 @@ class CuttingMat(QGraphicsView):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+
+        if self._pan_position is not None:
+
+            current = event.position().toPoint()
+            print(
+                "PAN MOVE:",
+                current,
+                "buttons:",
+                event.buttons(),
+                "transform:",
+                self.transform().m11(),
+                self.transform().m22(),
+            )
+            hbar = self.horizontalScrollBar()
+            vbar = self.verticalScrollBar()
+
+            print(
+                "SCROLLBARS:",
+                "H:", hbar.minimum(), hbar.maximum(), hbar.value(),
+                "V:", vbar.minimum(), vbar.maximum(), vbar.value(),
+                "VIEWPORT:", self.viewport().size(),
+                "SCENE:", self.scene().sceneRect(),
+            )
+            delta = current - self._pan_position
+
+            scale_x = self.transform().m11()
+            scale_y = self.transform().m22()
+
+            if abs(scale_x) > 1e-9 and abs(scale_y) > 1e-9:
+
+                self.translate(
+                    delta.x() / scale_x,
+                    delta.y() / scale_y
+                )
+
+            self._pan_position = current
+
+            event.accept()
+            return
 
         if self._rotation_state is not None:
 
@@ -528,6 +577,16 @@ class CuttingMat(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+
+        if event.button() == Qt.MouseButton.MiddleButton:
+
+            print("PAN END")
+
+            self._pan_position = None
+            self.unsetCursor()
+
+            event.accept()
+            return
 
         if self._rotation_state is not None:
 

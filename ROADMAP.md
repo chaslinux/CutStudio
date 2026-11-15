@@ -225,6 +225,12 @@ Status: Planned
 - [ ] Implement job status reporting.
 - [ ] Implement error handling.
 - [ ] Test with physical cutting machines.
+- [ ] Implement Brother ScanNCut SDX125 machine profile.
+- [ ] Implement standard 12 × 12 inch mat configuration.
+- [ ] Implement optional 12 × 24 inch mat configuration.
+- [ ] Distinguish physical mat dimensions from usable cutting area.
+- [ ] Validate cutting-area restrictions against Brother specifications.
+- [ ] Verify SVG compatibility with Brother ScanNCut workflows.
 
 ### Phase 9: Packaging and Distribution
 
@@ -274,6 +280,8 @@ Requirements:
 - Test Windows independently.
 - Test macOS independently.
 - Document operating-system dependencies.
+- Maintain accurate physical dimensions and support machine-specific
+  cutting-area constraints.
 
 ---
 
