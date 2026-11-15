@@ -105,6 +105,29 @@ class CuttingMat(QGraphicsView):
         else:
             super().wheelEvent(event)
 
+    def zoom_to_fit(self):
+
+        scene_rect = self.scene().sceneRect()
+
+        if scene_rect.isNull() or scene_rect.isEmpty():
+            return
+
+        # Add a 3% margin around the cutting mat.
+        margin_x = scene_rect.width() * 0.03
+        margin_y = scene_rect.height() * 0.03
+
+        fit_rect = scene_rect.adjusted(
+            -margin_x,
+            -margin_y,
+            margin_x,
+            margin_y
+        )
+
+        self.fitInView(
+            fit_rect,
+            Qt.AspectRatioMode.KeepAspectRatio
+        )
+
     # ---------------------------------
     # Object Resizing
     # ---------------------------------

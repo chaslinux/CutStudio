@@ -127,6 +127,7 @@ Responsibilities:
 - Menus.
 - Toolbars.
 - Drawing tool activation.
+- Zoom to Fit toolbar action and keyboard shortcut (Ctrl+0).
 - Object creation.
 - Object selection.
 - Object duplication.
@@ -157,7 +158,8 @@ Responsible for canvas interaction.
 Current functionality:
 
 - Display the cutting mat.
-- Zoom.
+- Zoom using Ctrl + mouse wheel.
+- Zoom to Fit with a 3% margin around the cutting mat.
 - Object selection.
 - Rubber-band selection.
 - Object movement.

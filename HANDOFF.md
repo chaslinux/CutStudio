@@ -176,6 +176,8 @@ The following functionality has been implemented and verified during development
 - Graphics view
 - Cutting mat
 - Grid display
+- Zoom to Fit toolbar control
+- Zoom to Fit keyboard shortcut (Ctrl+0)
 
 ### Drawing
 
@@ -414,6 +416,8 @@ Contains:
 - Resize handle detection
 - Geometry synchronization
 - Modification notifications
+- Zoom to Fit functionality
+- Automatic canvas fitting with a 3% margin around the cutting mat
 
 ### Core
 

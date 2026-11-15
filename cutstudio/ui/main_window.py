@@ -158,10 +158,7 @@ class MainWindow(QMainWindow):
         # Initial canvas positioning
         # ----------------------------------------------------
 
-        self.canvas.fitInView(
-            self.scene.sceneRect(),
-            Qt.AspectRatioMode.KeepAspectRatio
-        )
+        self.canvas.zoom_to_fit()
 
         # ----------------------------------------------------
         # Keyboard shortcuts
@@ -511,6 +508,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(toolbar)
 
         actions = [
+            ("Zoom to Fit", self.canvas.zoom_to_fit),
             ("Select", self.select_tool),
             ("Rectangle", self.add_rectangle),
             ("Ellipse", self.add_ellipse),
@@ -534,6 +532,23 @@ class MainWindow(QMainWindow):
 
         # Actual shortcut actions will be connected to
         # the editing methods implemented in later sections.
+
+        self.zoom_to_fit_action = QAction(
+            "Zoom to Fit",
+            self
+        )
+
+        self.zoom_to_fit_action.setShortcut(
+            QKeySequence("Ctrl+0")
+        )
+
+        self.zoom_to_fit_action.triggered.connect(
+            self.canvas.zoom_to_fit
+        )
+
+        self.addAction(
+            self.zoom_to_fit_action
+        )
 
         self.undo_action = QAction("Undo", self)
         self.undo_action.setShortcut(

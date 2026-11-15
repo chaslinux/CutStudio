@@ -48,6 +48,7 @@ The application currently has:
 - Layer visibility and locking.
 - Native project saving and loading.
 - Automated unit and integration tests.
+- Zoom to Fit canvas functionality.
 
 Current automated test results:
 
@@ -95,7 +96,7 @@ Status: In Progress
 - [x] Implement canvas selection.
 - [x] Implement rubber-band selection.
 - [ ] Implement dedicated zoom in/out controls.
-- [ ] Implement zoom-to-fit.
+- [x] Implement zoom-to-fit.
 - [ ] Implement canvas panning.
 - [ ] Add configurable mat dimensions.
 - [ ] Add measurement rulers.
