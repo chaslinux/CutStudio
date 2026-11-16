@@ -181,7 +181,9 @@ Status: Partially Complete
 - [x] Implement unsaved-change detection.
 - [x] Implement save confirmation.
 - [x] Implement discard confirmation.
-- [ ] Verify and correct Cancel behavior for unsaved changes.
+- [x] Verify and correct Cancel behavior for unsaved changes.
+- [x] Implement application-close confirmation.
+- [x] Verify Save, Discard, and Cancel when closing the application.
 - [x] Implement undo and redo history.
 - [ ] Implement autosave.
 - [ ] Implement crash recovery.

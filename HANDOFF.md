@@ -299,13 +299,23 @@ Saving changes and reopening the changed project has also been tested.
 
 Creating a new project replaces the current document after the unsaved-changes workflow.
 
-Outstanding verification:
+### Unsaved-Change Protection
 
-The user reported that the new-project unsaved-changes workflow did not provide a working cancellation option.
+The unsaved-changes workflow has been manually verified.
 
-The current source code contains Save, Discard, and Cancel choices in confirm_unsaved_changes().
+Confirmed behaviour:
 
-The actual interface behaviour needs to be reproduced and tested before considering this resolved.
+- New Project → Cancel preserves the existing project.
+- New Project → Discard creates a new blank project.
+- Application Close → Cancel keeps the application open.
+- Application Close → Discard closes without saving.
+- Application Close → Save saves successfully before closing.
+- Application Close → cancelling Save As keeps the application open.
+- Closing an unmodified project requires no confirmation.
+
+MainWindow implements closeEvent() and reuses confirm_unsaved_changes().
+
+All tested behaviours work as expected.
 
 ## 6. Automated Testing
 
