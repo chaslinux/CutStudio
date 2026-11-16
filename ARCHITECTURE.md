@@ -140,6 +140,14 @@ Responsibilities:
 
 The main window coordinates the document model and canvas renderer.
 
+Additional responsibilities:
+
+- Copy selected objects.
+- Cut selected objects.
+- Paste objects into the active layer.
+- Keyboard shortcuts for Copy, Cut, Paste, Undo, Redo, and Duplicate.
+- Coordinate object editing operations with document history.
+
 ### 2.3 Canvas
 
 Location:
@@ -477,6 +485,17 @@ The `UndoHistory` class manages document history independently
 of the graphical user interface.
 
 History uses independent document snapshots created with deepcopy.
+
+### Clipboard and Editing Integration
+
+The main window coordinates clipboard operations with document
+history.
+
+- Copy operations maintain independent clipboard snapshots.
+- Cut operations copy selected objects before deletion.
+- Paste operations create new objects with unique identifiers.
+- Paste operations respect active-layer locking.
+- Cut, Paste, and Duplicate operations integrate with Undo and Redo.
 
 ### History Operations
 

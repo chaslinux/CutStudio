@@ -28,7 +28,7 @@ CutStudio is an early-stage vector design application. Development
 is ongoing, and the application is not yet ready to replace
 commercial cutting software.
 
-Current functionality includes:
+Current implemented functionality includes:
 
 - Rectangle, ellipse, and text creation.
 - Object selection and multi-selection.
@@ -36,14 +36,20 @@ Current functionality includes:
 - Shift-constrained aspect-ratio resizing.
 - Rotation snapping.
 - Object duplication and deletion.
-- Undo and Redo.
+- Copy, Cut, and Paste operations.
+- Keyboard shortcuts for Copy (Ctrl+C), Cut (Ctrl+X),
+  and Paste (Ctrl+V).
+- Undo and Redo, including object editing operations.
 - Multiple layers.
 - Layer visibility and locking.
 - Editable object position, dimensions, and rotation.
 - Native CutStudio project saving and loading.
 - Physical measurement support using millimetres.
 
-The automated test suite currently contains 43 passing tests.
+The Edit menu provides Undo, Redo, Copy, Cut, and Paste actions.
+These actions are registered once during interface initialization.
+
+The automated test suite currently contains 61 passing tests.
 
 Some graphical interactions still require additional manual
 verification.

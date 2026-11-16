@@ -216,21 +216,6 @@ class MainWindow(QMainWindow):
 
         self.update_history_actions()
 
-        self.copy_action = QAction("Copy", self)
-        self.copy_action.setShortcut(QKeySequence.StandardKey.Copy)
-        self.copy_action.triggered.connect(self.copy_selected_objects)
-        self.edit_menu.addAction(self.copy_action)
-
-        self.cut_action = QAction("Cut", self)
-        self.cut_action.setShortcut(QKeySequence.StandardKey.Cut)
-        self.cut_action.triggered.connect(self.cut_selected_objects)
-        self.edit_menu.addAction(self.cut_action)
-
-        self.paste_action = QAction("Paste", self)
-        self.paste_action.setShortcut(QKeySequence.StandardKey.Paste)
-        self.paste_action.triggered.connect(self.paste_objects)
-        self.edit_menu.addAction(self.paste_action)
-
 
     def undo(self):
 
@@ -285,7 +270,6 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(
             "Document restored"
         )
-
 
     def on_objects_positions_changed(self):
 
@@ -592,6 +576,36 @@ class MainWindow(QMainWindow):
         )
         self.redo_action.triggered.connect(self.redo)
         self.edit_menu.addAction(self.redo_action)
+
+        # Copy
+        self.copy_action = QAction("Copy", self)
+        self.copy_action.setShortcut(
+            QKeySequence.StandardKey.Copy
+        )
+        self.copy_action.triggered.connect(
+            self.copy_selected_objects
+        )
+        self.edit_menu.addAction(self.copy_action)
+
+        # Cut
+        self.cut_action = QAction("Cut", self)
+        self.cut_action.setShortcut(
+            QKeySequence.StandardKey.Cut
+        )
+        self.cut_action.triggered.connect(
+            self.cut_selected_objects
+        )
+        self.edit_menu.addAction(self.cut_action)
+
+        # Paste
+        self.paste_action = QAction("Paste", self)
+        self.paste_action.setShortcut(
+            QKeySequence.StandardKey.Paste
+        )
+        self.paste_action.triggered.connect(
+            self.paste_objects
+        )
+        self.edit_menu.addAction(self.paste_action)
 
         self.update_history_actions()
 

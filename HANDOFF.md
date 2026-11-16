@@ -767,5 +767,63 @@ The previous regression baseline was 51 passing tests.
 
 The project has working object creation, selection, duplication, deletion, layer management, document history, Undo/Redo and now initial internal clipboard functionality.
 
-The next immediate task is completing regression testing and manually verifying the clipboard keyboard shortcuts.
+# Latest Development Milestone — November 16, 2026
 
+## Object Editing Improvements
+
+The following functionality has been implemented and tested:
+
+- Copy selected objects.
+- Cut selected objects.
+- Paste copied objects into the active layer.
+- Paste multiple objects.
+- Generate unique identifiers for pasted objects.
+- Repeated pasting creates independent objects.
+- Prevent pasting into locked layers.
+- Cut and Paste operations support Undo and Redo.
+- Duplicate operations support Undo and Redo.
+
+## Keyboard Shortcuts
+
+| Shortcut | Operation |
+|---|---|
+| Ctrl+C | Copy |
+| Ctrl+X | Cut |
+| Ctrl+V | Paste |
+| Ctrl+Z | Undo |
+| Ctrl+Y | Redo |
+| Ctrl+D | Duplicate |
+| Delete | Delete selected objects |
+
+## Edit Menu
+
+The Edit menu contains:
+
+- Undo
+- Redo
+- Copy
+- Cut
+- Paste
+
+Menu actions are initialized once during interface initialization.
+Repeated operations do not create additional menu entries.
+
+## Verification
+
+Latest automated test result:
+
+    python -m pytest -q
+
+    61 passed
+
+All 61 tests passed on November 16, 2026.
+
+## Next Development Priorities
+
+1. Improve object editing workflows.
+2. Expand GUI interaction testing.
+3. Improve selection and editing feedback.
+4. Continue SVG import and export planning.
+5. Begin planning cutting job preparation.
+
+Always run the complete test suite after modifying application functionality.
