@@ -52,7 +52,7 @@ The application currently has:
 
 Current automated test results:
 
-43 tests passing.
+61 tests passing.
 
 The test suite includes six dedicated Undo and Redo history tests.
 The next development stage focuses on improving existing functionality,
@@ -133,7 +133,7 @@ Status: In Progress
 - [x] Implement object identifiers.
 - [x] Implement object validation.
 - [x] Implement Shift + resize aspect-ratio locking.
-- [ ] Implement copy and paste.
+- [x] Implement copy and paste.
 - [x] Implement undo and redo.
 - [ ] Implement grouping and ungrouping.
 - [ ] Implement object alignment.
@@ -312,7 +312,7 @@ Development should follow these principles:
 
 Current baseline:
 
-43 automated tests passing.
+61 automated tests passing.
 
 Six dedicated tests cover Undo and Redo history.
 GUI-level verification remains necessary for mouse-driven operations,
