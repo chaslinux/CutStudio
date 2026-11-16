@@ -230,10 +230,14 @@ class MainWindow(QMainWindow):
 
     def restore_document(self, document):
 
+        selected_object_ids = [
+            item.data(CanvasRenderer.OBJECT_ID_ROLE)
+            for item in self.scene.selectedItems()
+            if item.data(CanvasRenderer.OBJECT_ID_ROLE) is not None
+        ]
+
         self.document = document
         self.renderer.document = document
-
-        self.scene.clearSelection()
 
         self.scene.setSceneRect(
             QRectF(
@@ -245,6 +249,13 @@ class MainWindow(QMainWindow):
         )
 
         self.renderer.rebuild()
+
+        for object_id in selected_object_ids:
+
+            item = self.renderer.items.get(object_id)
+
+            if item is not None:
+                item.setSelected(True)
 
         self.refresh_layer_list()
         self.clear_properties()
@@ -1478,6 +1489,18 @@ class MainWindow(QMainWindow):
         ].setSelected(True)
 
         self.record_history()
+
+
+    # ---------------------------------
+    # Application closing
+    # ---------------------------------
+
+    def closeEvent(self, event):
+
+        if self.confirm_unsaved_changes():
+            event.accept()
+        else:
+            event.ignore()
 
 
 # ============================================================
