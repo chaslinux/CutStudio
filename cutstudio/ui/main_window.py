@@ -1,3 +1,4 @@
+from copy import deepcopy
 # ============================================================
 # CUTSTUDIO
 # Main Application Window
@@ -78,6 +79,7 @@ class MainWindow(QMainWindow):
         # ----------------------------------------------------
 
         self.document = Document()
+        self.clipboard_objects = []
         self.history = UndoHistory(self.document)
 
         # ----------------------------------------------------
@@ -213,6 +215,22 @@ class MainWindow(QMainWindow):
             self.mark_modified()
 
         self.update_history_actions()
+
+        self.copy_action = QAction("Copy", self)
+        self.copy_action.setShortcut(QKeySequence.StandardKey.Copy)
+        self.copy_action.triggered.connect(self.copy_selected_objects)
+        self.edit_menu.addAction(self.copy_action)
+
+        self.cut_action = QAction("Cut", self)
+        self.cut_action.setShortcut(QKeySequence.StandardKey.Cut)
+        self.cut_action.triggered.connect(self.cut_selected_objects)
+        self.edit_menu.addAction(self.cut_action)
+
+        self.paste_action = QAction("Paste", self)
+        self.paste_action.setShortcut(QKeySequence.StandardKey.Paste)
+        self.paste_action.triggered.connect(self.paste_objects)
+        self.edit_menu.addAction(self.paste_action)
+
 
     def undo(self):
 
@@ -1195,6 +1213,84 @@ class MainWindow(QMainWindow):
 # ============================================================
 # SECTION 4B: DUPLICATE SELECTED OBJECTS
 # ============================================================
+
+    def copy_selected_objects(self):
+
+        selected_items = self.scene.selectedItems()
+
+        if not selected_items:
+            self.statusBar().showMessage("No objects selected for copying")
+            return
+
+        self.renderer.sync_to_document()
+
+        selected_ids = {
+            item.data(CanvasRenderer.OBJECT_ID_ROLE)
+            for item in selected_items
+        }
+
+        self.clipboard_objects = [
+            deepcopy(obj)
+            for layer in self.document.layers
+            for obj in layer.objects
+            if obj.object_id in selected_ids
+        ]
+
+        self.statusBar().showMessage(
+            f"Copied {len(self.clipboard_objects)} object(s)"
+        )
+
+    def cut_selected_objects(self):
+
+        self.copy_selected_objects()
+
+        if not self.clipboard_objects:
+            return
+
+        self.delete_selected_objects()
+
+    def paste_objects(self):
+
+        if not self.clipboard_objects:
+            self.statusBar().showMessage("Clipboard is empty")
+            return
+
+        # Paste into the active layer.
+        layer = self.document.active_layer
+
+        if layer.locked:
+            self.statusBar().showMessage(
+                "Cannot paste into a locked layer"
+            )
+            return
+
+        pasted_objects = []
+
+        for original in self.clipboard_objects:
+
+            duplicate = original.duplicate(
+                offset_x=5.0,
+                offset_y=5.0
+            )
+
+            self.renderer.add_object(duplicate, layer)
+            pasted_objects.append(duplicate)
+
+        self.scene.clearSelection()
+
+        for obj in pasted_objects:
+
+            item = self.renderer.items.get(obj.object_id)
+
+            if item is not None:
+                item.setSelected(True)
+
+        self.update_properties()
+        self.record_history()
+
+        self.statusBar().showMessage(
+            f"Pasted {len(pasted_objects)} object(s)"
+        )
 
     def duplicate_selected_objects(self):
 

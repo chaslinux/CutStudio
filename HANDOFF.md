@@ -669,3 +669,103 @@ All eight test modules pass:
 - test_project_file.py
 - test_renderer.py
 - test_units.py
+
+
+## Clipboard Operations (Copy, Cut and Paste)
+
+### Implementation status
+
+Copy, Cut and Paste functionality has been added to the MainWindow.
+
+Files modified:
+- `cutstudio/ui/main_window.py`
+- `tests/test_main_window.py`
+
+### Keyboard shortcuts
+
+The following shortcuts have been registered:
+
+| Shortcut | Operation |
+|---|---|
+| Ctrl+C | Copy selected objects |
+| Ctrl+X | Cut selected objects |
+| Ctrl+V | Paste copied objects |
+| Ctrl+D | Duplicate selected objects |
+| Ctrl+Z | Undo |
+| Ctrl+Y | Redo |
+
+Copy, Cut and Paste actions are registered in the Edit menu.
+
+### Current implementation
+
+- Copy stores independent copies of selected objects in an in-memory clipboard.
+- Multiple objects can be copied simultaneously.
+- Paste creates new objects with unique object IDs.
+- Pasted objects are offset by 5 mm in both X and Y directions.
+- Paste inserts objects into the active layer.
+- Paste rejects locked layers.
+- Cut copies selected objects before deleting them.
+- Paste and Cut operations support Undo/Redo through the existing history system.
+- Repeated Paste operations create independent objects.
+
+The clipboard currently exists only in memory. It is not yet integrated with the operating system clipboard.
+
+### Clipboard testing
+
+Ten new automated tests were added to `tests/test_main_window.py`.
+
+Tests cover:
+
+1. Copying multiple selected objects.
+2. Ensuring copied objects are independent of originals.
+3. Pasting with new object IDs.
+4. Pasting multiple objects.
+5. Repeated Paste operations.
+6. Paste Undo/Redo.
+7. Cutting selected objects.
+8. Cut Undo.
+9. Cutting and subsequently pasting.
+10. Rejecting Paste into locked layers.
+
+### Test results
+
+Command:
+
+`python -m pytest -v -s tests/test_main_window.py -k "copy or paste or cut"`
+
+Result:
+
+- 10 passed
+- 3 deselected
+- 0 failed
+
+The previous regression baseline was 51 passing tests.
+
+**Important:** The complete test suite has not yet been rerun after adding the clipboard tests. The expected total is 61 tests.
+
+### Next steps
+
+1. Run the complete regression suite:
+
+   `python -m pytest -q`
+
+2. Test Ctrl+C, Ctrl+X and Ctrl+V manually in the CutStudio GUI.
+
+3. Verify that keyboard shortcuts work when the canvas has focus.
+
+4. Verify that Copy and Paste work with multiple selected objects.
+
+5. Verify that Cut, Paste, Undo and Redo work correctly together.
+
+6. Check clipboard behavior when switching between layers.
+
+7. Consider implementing clipboard interoperability with other applications in a future development step.
+
+8. Review the implementation before committing the clipboard changes.
+
+### Current development position
+
+The project has working object creation, selection, duplication, deletion, layer management, document history, Undo/Redo and now initial internal clipboard functionality.
+
+The next immediate task is completing regression testing and manually verifying the clipboard keyboard shortcuts.
+

@@ -116,3 +116,192 @@ def test_delete_multiple_objects_undo(main_window):
     main_window.undo()
 
     assert len(main_window.document.active_layer.objects) == 2
+
+
+# ============================================================
+# CLIPBOARD TESTS
+# ============================================================
+
+def select_objects(window, *objects):
+
+    window.scene.clearSelection()
+
+    for obj in objects:
+        window.renderer.items[obj.object_id].setSelected(True)
+
+
+def test_copy_multiple_selected_objects(main_window):
+
+    first = add_rectangle(main_window, 10, 20)
+    second = add_rectangle(main_window, 80, 90)
+
+    select_objects(main_window, first, second)
+
+    main_window.copy_selected_objects()
+
+    assert len(main_window.clipboard_objects) == 2
+    assert len(main_window.document.active_layer.objects) == 2
+
+
+def test_copy_does_not_modify_original_objects(main_window):
+
+    original = add_rectangle(main_window, 10, 20)
+
+    select_objects(main_window, original)
+
+    main_window.copy_selected_objects()
+
+    assert main_window.clipboard_objects[0] is not original
+    assert main_window.clipboard_objects[0].object_id == original.object_id
+
+    assert original.x == pytest.approx(10)
+    assert original.y == pytest.approx(20)
+
+
+def test_paste_creates_new_objects(main_window):
+
+    original = add_rectangle(main_window, 10, 20)
+
+    select_objects(main_window, original)
+
+    main_window.copy_selected_objects()
+    main_window.paste_objects()
+
+    objects = main_window.document.active_layer.objects
+
+    assert len(objects) == 2
+
+    pasted = objects[-1]
+
+    assert pasted.object_id != original.object_id
+    assert pasted.x == pytest.approx(15)
+    assert pasted.y == pytest.approx(25)
+
+
+def test_paste_multiple_objects(main_window):
+
+    first = add_rectangle(main_window, 10, 20)
+    second = add_rectangle(main_window, 80, 90)
+
+    select_objects(main_window, first, second)
+
+    main_window.copy_selected_objects()
+    main_window.paste_objects()
+
+    objects = main_window.document.active_layer.objects
+
+    assert len(objects) == 4
+
+    pasted = objects[2:]
+
+    assert len(pasted) == 2
+
+    assert pasted[0].object_id != first.object_id
+    assert pasted[1].object_id != second.object_id
+
+
+def test_repeated_paste_creates_unique_objects(main_window):
+
+    original = add_rectangle(main_window)
+
+    select_objects(main_window, original)
+
+    main_window.copy_selected_objects()
+
+    main_window.paste_objects()
+    main_window.paste_objects()
+
+    objects = main_window.document.active_layer.objects
+
+    assert len(objects) == 3
+
+    object_ids = [obj.object_id for obj in objects]
+
+    assert len(set(object_ids)) == 3
+
+
+def test_paste_supports_undo_redo(main_window):
+
+    original = add_rectangle(main_window)
+
+    select_objects(main_window, original)
+
+    main_window.copy_selected_objects()
+    main_window.paste_objects()
+
+    assert len(main_window.document.active_layer.objects) == 2
+
+    main_window.undo()
+
+    assert len(main_window.document.active_layer.objects) == 1
+
+    main_window.redo()
+
+    assert len(main_window.document.active_layer.objects) == 2
+
+
+def test_cut_removes_selected_objects(main_window):
+
+    first = add_rectangle(main_window)
+    second = add_rectangle(main_window, 80, 80)
+
+    select_objects(main_window, first, second)
+
+    main_window.cut_selected_objects()
+
+    assert len(main_window.clipboard_objects) == 2
+    assert len(main_window.document.active_layer.objects) == 0
+
+
+def test_cut_supports_undo(main_window):
+
+    first = add_rectangle(main_window)
+    second = add_rectangle(main_window, 80, 80)
+
+    select_objects(main_window, first, second)
+
+    main_window.cut_selected_objects()
+
+    assert len(main_window.document.active_layer.objects) == 0
+
+    main_window.undo()
+
+    assert len(main_window.document.active_layer.objects) == 2
+
+
+def test_cut_then_paste(main_window):
+
+    original = add_rectangle(main_window)
+
+    select_objects(main_window, original)
+
+    main_window.cut_selected_objects()
+
+    assert len(main_window.document.active_layer.objects) == 0
+
+    main_window.paste_objects()
+
+    objects = main_window.document.active_layer.objects
+
+    assert len(objects) == 1
+    assert objects[0].object_id != original.object_id
+
+
+def test_paste_rejects_locked_layer(main_window):
+
+    original = add_rectangle(main_window)
+
+    select_objects(main_window, original)
+
+    main_window.copy_selected_objects()
+
+    layer = main_window.document.active_layer
+
+    main_window.renderer.set_layer_locked(
+        layer.layer_id,
+        True
+    )
+
+    main_window.paste_objects()
+
+    assert len(layer.objects) == 1
