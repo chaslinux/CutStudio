@@ -1223,6 +1223,17 @@ class MainWindow(QMainWindow):
         if not object_ids:
             return
 
+        # Preserve document layer and object ordering.
+        object_order = [
+            obj.object_id
+            for layer in self.document.layers
+            for obj in layer.objects
+        ]
+
+        object_ids.sort(
+            key=object_order.index
+        )
+
         # Synchronize canvas positions before duplication.
         self.renderer.sync_to_document()
 

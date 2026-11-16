@@ -319,9 +319,9 @@ All tested behaviours work as expected.
 
 ## 6. Automated Testing
 
-As of November 14, 2026, the test suite reported:
+As of November 16, 2026, the test suite reported:
 
-    43 passed in 0.16s
+    48 passed in 0.16s
 
 The existing tests cover:
 
@@ -536,7 +536,7 @@ It has progressed beyond its original prototype and now includes:
 - Resizing
 - Project persistence
 
-The existing automated test suite has 43 passing tests.
+The existing automated test suite has 48 passing tests.
 
 Six dedicated tests cover Undo and Redo history.
 
@@ -596,6 +596,76 @@ layer and property panels.
 Six dedicated history tests cover initialization, recording,
 undo, redo, branching, history limits, and clearing history.
 
-The complete test suite currently reports 43 passing tests.
+The complete test suite currently reports 48 passing tests.
 
 GUI-level verification remains necessary.
+
+## Development Testing
+
+### Running the Test Suite
+
+Always run tests from the CutStudio project root with the virtual environment activated:
+
+    cd ~/Code/CutStudio
+    source .venv/bin/activate
+    python -m pytest -v
+
+**Important:** Prefer `python -m pytest` over `pytest` directly.
+
+Running `pytest -v` may result in:
+
+    ModuleNotFoundError: No module named 'cutstudio'
+
+This is an environment/import-path issue, not necessarily an application defect.
+
+### Test Suite Results
+
+The complete automated test suite currently passes.
+
+- Total tests: 51
+- Passed: 51
+- Failed: 0
+- Test framework: pytest 9.2.0
+- Python: 3.12.3
+- GUI framework: PySide6
+
+Run the complete test suite using:
+
+    python -m pytest -v
+
+#### MainWindow GUI Testing
+
+MainWindow tests run using Qt's offscreen platform.
+
+The test fixture resets `document_modified` before closing the
+window to prevent modal unsaved-changes dialogs from blocking
+automated test cleanup.
+
+Run MainWindow tests using:
+
+    python -m pytest -v tests/test_main_window.py
+
+Current result: 3 passed.
+
+#### Test Environment Notes
+
+Use `python -m pytest` rather than `pytest` to ensure the
+project package is correctly resolved in the development
+environment.
+
+### Current Test Status
+
+Latest verified result:
+
+    48 passed in 0.22s
+
+All eight test modules pass:
+
+- test_document.py
+- test_duplication.py
+- test_history.py
+- test_layers.py
+- test_objects.py
+- test_project_file.py
+- test_renderer.py
+- test_units.py

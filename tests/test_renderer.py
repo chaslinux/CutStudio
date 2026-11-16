@@ -260,3 +260,119 @@ def test_duplicate_empty_selection(setup_renderer):
     assert len(document.active_layer.objects) == 0
     assert len(scene.items()) == 0
 
+
+def test_delete_single_object(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    layer = document.active_layer
+    obj = VectorObject(ObjectType.RECTANGLE)
+
+    renderer.add_object(obj, layer)
+
+    deleted = renderer.delete_objects([obj.object_id])
+
+    assert deleted == 1
+    assert layer.find_object(obj.object_id) is None
+    assert obj.object_id not in renderer.items
+    assert len(scene.items()) == 0
+
+
+def test_delete_multiple_objects(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    layer = document.active_layer
+
+    first = VectorObject(ObjectType.RECTANGLE)
+    second = VectorObject(ObjectType.ELLIPSE)
+    third = VectorObject(ObjectType.TEXT)
+
+    for obj in (first, second, third):
+        renderer.add_object(obj, layer)
+
+    deleted = renderer.delete_objects([
+        first.object_id,
+        second.object_id
+    ])
+
+    assert deleted == 2
+    assert len(layer.objects) == 1
+    assert layer.objects[0] is third
+    assert len(scene.items()) == 1
+
+
+def test_delete_objects_across_layers(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    first_layer = document.active_layer
+    second_layer = Layer("Layer 2")
+
+    document.add_layer(second_layer)
+
+    first = VectorObject(ObjectType.RECTANGLE)
+    second = VectorObject(ObjectType.ELLIPSE)
+
+    renderer.add_object(first, first_layer)
+    renderer.add_object(second, second_layer)
+
+    deleted = renderer.delete_objects([
+        first.object_id,
+        second.object_id
+    ])
+
+    assert deleted == 2
+    assert len(first_layer.objects) == 0
+    assert len(second_layer.objects) == 0
+    assert len(scene.items()) == 0
+
+
+def test_delete_rejects_locked_layer_selection(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    unlocked_layer = document.active_layer
+    locked_layer = Layer("Locked Layer")
+
+    document.add_layer(locked_layer)
+
+    first = VectorObject(ObjectType.RECTANGLE)
+    second = VectorObject(ObjectType.ELLIPSE)
+
+    renderer.add_object(first, unlocked_layer)
+    renderer.add_object(second, locked_layer)
+
+    renderer.set_layer_locked(
+        locked_layer.layer_id,
+        True
+    )
+
+    original_count = len(scene.items())
+
+    with pytest.raises(RuntimeError):
+        renderer.delete_objects([
+            first.object_id,
+            second.object_id
+        ])
+
+    # Neither object should have been deleted.
+    assert unlocked_layer.find_object(first.object_id) is first
+    assert locked_layer.find_object(second.object_id) is second
+
+    assert len(scene.items()) == original_count
+
+    assert first.object_id in renderer.items
+    assert second.object_id in renderer.items
+
+
+def test_delete_empty_selection(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    deleted = renderer.delete_objects([])
+
+    assert deleted == 0
+    assert len(document.active_layer.objects) == 0
+    assert len(scene.items()) == 0
+

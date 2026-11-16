@@ -502,39 +502,32 @@ class CanvasRenderer:
                 if item is None:
                     continue
 
-                obj.x = scene_units_to_mm(
-                    item.pos().x()
-                )
+                try:
 
-                obj.y = scene_units_to_mm(
-                    item.pos().y()
-                )
+                    position = item.pos()
+                    rotation = item.rotation()
 
-                obj.rotation = item.rotation()
+                except RuntimeError:
+                    continue
+
+                obj.x = scene_units_to_mm(position.x())
+                obj.y = scene_units_to_mm(position.y())
+
+                obj.rotation = rotation
 
                 if isinstance(item, QGraphicsRectItem):
 
                     rect = item.rect()
 
-                    obj.width = scene_units_to_mm(
-                        rect.width()
-                    )
-
-                    obj.height = scene_units_to_mm(
-                        rect.height()
-                    )
+                    obj.width = scene_units_to_mm(rect.width())
+                    obj.height = scene_units_to_mm(rect.height())
 
                 elif isinstance(item, QGraphicsEllipseItem):
 
                     rect = item.rect()
 
-                    obj.width = scene_units_to_mm(
-                        rect.width()
-                    )
-
-                    obj.height = scene_units_to_mm(
-                        rect.height()
-                    )
+                    obj.width = scene_units_to_mm(rect.width())
+                    obj.height = scene_units_to_mm(rect.height())
 
                 elif isinstance(item, QGraphicsTextItem):
 
