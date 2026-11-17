@@ -300,9 +300,18 @@ class CuttingMat(QGraphicsView):
 
                     obj = self.renderer.find_object(object_id)
 
+                    scene_to_local, invertible = (
+                        item.sceneTransform().inverted()
+                    )
+
+                    if not invertible:
+                        event.accept()
+                        return
+
                     self._resize_state = {
                         "item": item,
                         "object_id": object_id,
+                        "scene_to_local": scene_to_local,
                         "width_mm": obj.width,
                         "height_mm": obj.height,
                         "handle": handle_name,
@@ -411,7 +420,9 @@ class CuttingMat(QGraphicsView):
                 event.position().toPoint()
             )
 
-            local_position = item.mapFromScene(
+            # Always use the original transformation captured
+            # when the resize operation began.
+            local_position = state["scene_to_local"].map(
                 scene_position
             )
 

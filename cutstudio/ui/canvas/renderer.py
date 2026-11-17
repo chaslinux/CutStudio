@@ -42,22 +42,24 @@ class CanvasRenderer:
 
     def update_resize_handles(self, object_id=None):
 
-        self.clear_resize_handles()
-
         if object_id is None:
+            self.clear_resize_handles()
             return
 
         obj, layer = self.find_object_and_layer(object_id)
 
         if obj is None or layer is None:
+            self.clear_resize_handles()
             return
 
         if layer.locked or obj.object_type == ObjectType.TEXT:
+            self.clear_resize_handles()
             return
 
         item = self.items.get(object_id)
 
         if item is None:
+            self.clear_resize_handles()
             return
 
         bounds = item.rect()
@@ -78,6 +80,19 @@ class CanvasRenderer:
             bounds.center().x(),
             bounds.top() - 20
         )
+
+        # Reposition existing handles instead of destroying
+        # and recreating them during every mouse movement.
+        if set(self.resize_handles) == set(positions):
+
+            for name, position in positions.items():
+                self.resize_handles[name].setPos(
+                    item.mapToScene(*position)
+                )
+
+            return
+
+        self.clear_resize_handles()
 
         for name, position in positions.items():
 
