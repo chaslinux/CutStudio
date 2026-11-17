@@ -1,10 +1,12 @@
+import math
 
-from PySide6.QtCore import Qt, QRectF
+from PySide6.QtCore import Qt, QRectF, QPoint, QPointF, QLineF
 from PySide6.QtGui import QColor, QBrush, QFont, QPen
 from PySide6.QtWidgets import (
     QGraphicsRectItem,
     QGraphicsEllipseItem,
     QGraphicsTextItem,
+    QGraphicsLineItem,
 )
 
 from cutstudio.core.objects import ObjectType
@@ -28,6 +30,7 @@ class CanvasRenderer:
 
         # Resize handles are separate from document objects.
         self.resize_handles = {}
+        self.rotation_connector = None
 
     # ---------------------------------
     # Resize Handle Management
@@ -39,6 +42,10 @@ class CanvasRenderer:
             self.scene.removeItem(handle)
 
         self.resize_handles.clear()
+
+        if self.rotation_connector is not None:
+            self.scene.removeItem(self.rotation_connector)
+            self.rotation_connector = None
 
     def update_resize_handles(self, object_id=None):
 
@@ -75,31 +82,117 @@ class CanvasRenderer:
             "w": (bounds.left(), bounds.center().y()),
         }
 
-        # Rotation handle sits above the top-middle handle.
-        positions["rotate"] = (
+        # Position the rotation handle 30 screen pixels
+        # away from the top-middle handle, following the
+        # object's local upward direction.
+
+        top_scene = item.mapToScene(
             bounds.center().x(),
-            bounds.top() - 20
+            bounds.top()
         )
 
-        # Reposition existing handles instead of destroying
-        # and recreating them during every mouse movement.
-        if set(self.resize_handles) == set(positions):
+        direction_scene = item.mapToScene(
+            bounds.center().x(),
+            bounds.top() - 10
+        )
+
+        views = self.scene.views()
+
+        if views:
+            view = views[0]
+            transform = view.viewportTransform()
+
+            viewport_top = transform.map(top_scene)
+            viewport_direction = transform.map(direction_scene)
+
+            direction_x = (
+                viewport_direction.x() - viewport_top.x()
+            )
+            direction_y = (
+                viewport_direction.y() - viewport_top.y()
+            )
+
+            length = math.hypot(direction_x, direction_y)
+
+            if length > 0:
+                offset_x = direction_x / length * 30
+                offset_y = direction_y / length * 30
+            else:
+                offset_x = 0
+                offset_y = -30
+
+            inverse_transform, invertible = transform.inverted()
+
+            if not invertible:
+                return
+
+            rotate_scene = inverse_transform.map(
+                QPointF(
+                    viewport_top.x() + offset_x,
+                    viewport_top.y() + offset_y
+                )
+            )
+
+        else:
+            rotate_scene = item.mapToScene(
+                bounds.center().x(),
+                bounds.top() - 30
+            )
+
+        positions["rotate"] = rotate_scene
+
+        handles_match = (
+            set(self.resize_handles) == set(positions)
+        )
+
+        if not handles_match:
+            self.clear_resize_handles()
+
+        # Draw a thin connector behind the rotation handle.
+        if self.rotation_connector is None:
+
+            connector = QGraphicsLineItem(
+                QLineF(top_scene, rotate_scene)
+            )
+
+            connector_pen = QPen(QColor("#2878c8"))
+            connector_pen.setWidthF(1)
+            connector_pen.setCosmetic(True)
+
+            connector.setPen(connector_pen)
+            connector.setZValue(9999)
+
+            self.scene.addItem(connector)
+            self.rotation_connector = connector
+
+        else:
+            self.rotation_connector.setLine(
+                QLineF(top_scene, rotate_scene)
+            )
+
+        # Reposition existing handles without recreating them.
+        if handles_match:
 
             for name, position in positions.items():
+
+                scene_position = (
+                    position
+                    if name == "rotate"
+                    else item.mapToScene(*position)
+                )
+
                 self.resize_handles[name].setPos(
-                    item.mapToScene(*position)
+                    scene_position
                 )
 
             return
-
-        self.clear_resize_handles()
 
         for name, position in positions.items():
 
             if name == "rotate":
 
                 handle = QGraphicsEllipseItem(
-                    QRectF(-5, -5, 10, 10)
+                    QRectF(-7, -7, 14, 14)
                 )
 
                 handle.setBrush(
@@ -131,7 +224,13 @@ class CanvasRenderer:
 
             handle.setZValue(10000)
 
-            handle.setPos(item.mapToScene(*position))
+            scene_position = (
+                position
+                if name == "rotate"
+                else item.mapToScene(*position)
+            )
+
+            handle.setPos(scene_position)
 
             self.scene.addItem(handle)
             self.resize_handles[name] = handle
