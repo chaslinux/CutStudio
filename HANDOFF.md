@@ -1,6 +1,6 @@
 # CutStudio Development Handoff
 
-Last updated: November 8, 2026
+Last updated: November 17, 2026
 
 ## 1. Project Overview
 
@@ -827,3 +827,102 @@ All 61 tests passed on November 16, 2026.
 5. Begin planning cutting job preparation.
 
 Always run the complete test suite after modifying application functionality.
+
+
+## 12. Latest Development Session — November 17, 2026
+
+### Canvas improvements completed
+
+The following canvas improvements have been implemented:
+
+- Improved resize handle stability.
+- Reduced resize handle flickering.
+- Improved rotation handle positioning.
+- Added a connecting line between the rotation handle
+  and the top-middle resize handle.
+- Increased the rotation handle size.
+- Improved rotation handle mouse hit detection.
+- Fixed rotation handle positioning jitter.
+- Added a live zoom percentage indicator to the status bar.
+- Zoom percentage updates during Ctrl + mouse wheel zoom.
+- Zoom percentage updates when Zoom to Fit is activated.
+
+### Rotation handle stability fix
+
+The rotation handle previously exhibited visible jumping
+during slow object rotation.
+
+The cause was integer coordinate rounding when converting
+between scene and viewport coordinates.
+
+The fix uses the floating-point viewport transformation
+matrix and its inverse when calculating the rotation
+handle position.
+
+The handle now follows the object smoothly while retaining
+its 30-screen-pixel offset.
+
+### Zoom percentage implementation
+
+`CuttingMat` exposes the `zoom_changed` signal.
+
+The signal reports the current horizontal view scale
+as a percentage.
+
+`MainWindow` connects this signal to `update_zoom_label()`,
+which updates a permanent status bar label.
+
+The zoom percentage reflects the actual canvas view
+transformation rather than the cutting mat dimensions.
+
+This is important for future support of different cutting
+mat sizes, including the Brother ScanNCut SDX125.
+
+### Automated testing
+
+Latest verified test result:
+
+    61 passed
+
+Command:
+
+    python -m pytest -q
+
+All 61 tests passed after the rotation handle positioning
+improvement.
+
+### Git history
+
+The following commits were completed and pushed to origin/main:
+
+    ffd1d7a Add canvas zoom percentage indicator
+    b82f295 Fix rotation handle jitter and positioning
+    ecd8ebb Fix canvas resize stability and handle flickering
+
+The working tree was clean at the start of this
+documentation update.
+
+### Recommended next development steps
+
+1. Review the canvas manually at several zoom levels.
+2. Verify rotation and resize behaviour with different
+   object sizes and rotations.
+3. Consider adding dedicated zoom in and zoom out controls.
+4. Consider configurable cutting mat dimensions for
+   additional machines.
+5. Consider measurement rulers and configurable grid spacing.
+6. Continue improving object editing and properties.
+
+### Session starting procedure
+
+    cd ~/Code/CutStudio
+    source .venv/bin/activate
+    python -m cutstudio.main
+
+Run the automated tests before making changes:
+
+    python -m pytest -q
+
+Check repository status:
+
+    git status

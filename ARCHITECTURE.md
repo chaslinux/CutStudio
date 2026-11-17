@@ -542,3 +542,91 @@ History functionality is tested independently of the GUI.
 
 Command-based history may be considered in the future if snapshot
 memory consumption becomes significant.
+
+
+## 3. Canvas Zoom and Manipulation Improvements
+
+### 3.1 Zoom Reporting
+
+The canvas is implemented using `QGraphicsView`.
+
+Zoom is controlled through the view transformation matrix.
+
+The `CuttingMat` class provides a `zoom_changed` signal that
+reports the current zoom percentage.
+
+The zoom percentage is calculated from the horizontal
+transformation scale:
+
+    self.transform().m11() * 100
+
+Zoom changes are reported when:
+
+- Ctrl + mouse wheel changes the zoom.
+- Zoom to Fit is activated.
+
+The main window connects this signal to its status bar,
+where a permanent label displays the current percentage.
+
+The zoom percentage is based on the view transformation,
+not on the physical dimensions of the cutting mat.
+
+This allows future cutting mat profiles, including different
+machine sizes, without tying the zoom display to a particular
+mat dimension.
+
+### 3.2 Resize and Rotation Handles
+
+`CanvasRenderer` manages the selection manipulation handles.
+
+Resize handles are separate graphics items rather than
+children of the document objects.
+
+The renderer maintains the handles and rotation connector
+during updates rather than unnecessarily recreating them.
+
+The rotation control consists of:
+
+- A circular rotation handle.
+- A connecting line.
+- A position calculated relative to the object's local
+  upward direction.
+
+The rotation handle maintains a 30-screen-pixel offset
+from the top-middle resize handle.
+
+The handle and connector follow the object's rotation.
+
+### 3.3 Rotation Handle Positioning
+
+Rotation handle positioning uses the view's viewport
+transformation matrix.
+
+Floating-point coordinates are retained when converting
+between scene and viewport coordinates.
+
+This avoids the integer rounding introduced by
+`mapFromScene()` and prevents visible positional jitter
+during slow rotation.
+
+The rotation handle also receives priority during mouse
+hit detection, with a larger interaction area than the
+resize handles.
+
+### 3.4 Canvas Interaction
+
+Current canvas interaction includes:
+
+- Ctrl + mouse wheel zoom.
+- Zoom percentage reporting.
+- Zoom to Fit.
+- Middle-mouse drag panning.
+- Object selection and multi-selection.
+- Object resizing.
+- Aspect-ratio constrained resizing.
+- Object rotation.
+- Shift-based rotation snapping.
+- Rotation handle and connector positioning.
+
+These features are implemented in `cutting_mat.py`
+and `renderer.py`.

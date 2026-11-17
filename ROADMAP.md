@@ -93,6 +93,7 @@ Status: In Progress
 - [x] Implement cutting mat display.
 - [x] Implement grid display.
 - [x] Implement Ctrl + mouse wheel zoom.
+- [x] Display current zoom percentage in the status bar.
 - [x] Implement canvas selection.
 - [x] Implement rubber-band selection.
 - [ ] Implement dedicated zoom in/out controls.
@@ -126,6 +127,9 @@ Status: In Progress
 - [x] Implement eight resize handles.
 - [x] Implement object rotation.
 - [x] Implement rotation handle.
+- [x] Implement rotation handle connector.
+- [x] Improve rotation handle hit detection.
+- [x] Eliminate rotation handle positioning jitter.
 - [x] Implement rotation snapping with Shift.
 - [x] Implement object duplication.
 - [x] Implement Ctrl+D duplication shortcut.

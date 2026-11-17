@@ -33,8 +33,15 @@ Current implemented functionality includes:
 - Rectangle, ellipse, and text creation.
 - Object selection and multi-selection.
 - Object movement, resizing, and rotation.
+- Eight resize handles for object manipulation.
 - Shift-constrained aspect-ratio resizing.
-- Rotation snapping.
+- Rotation snapping in 15-degree increments.
+- Dedicated rotation handle with connecting line.
+- Smooth rotation handle positioning during rotation.
+- Rotation handle prioritized during mouse hit detection.
+- Canvas zoom using Ctrl + mouse wheel.
+- Zoom to Fit with a 3% cutting mat margin.
+- Live zoom percentage displayed in the status bar.
 - Object duplication and deletion.
 - Copy, Cut, and Paste operations.
 - Keyboard shortcuts for Copy (Ctrl+C), Cut (Ctrl+X),
