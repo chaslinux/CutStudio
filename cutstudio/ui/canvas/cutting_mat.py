@@ -11,6 +11,7 @@ from cutstudio.core.constants import UNITS_PER_INCH
 class CuttingMat(QGraphicsView):
 
     objects_positions_changed = Signal()
+    zoom_changed = Signal(float)
 
     def __init__(self, scene, renderer=None):
 
@@ -109,6 +110,7 @@ class CuttingMat(QGraphicsView):
             )
 
             self.scale(factor, factor)
+            self._emit_zoom_changed()
             event.accept()
 
         else:
@@ -137,6 +139,14 @@ class CuttingMat(QGraphicsView):
             Qt.AspectRatioMode.KeepAspectRatio
         )
 
+        self._emit_zoom_changed()
+
+    def _emit_zoom_changed(self):
+
+        zoom_percentage = self.transform().m11() * 100
+
+        self.zoom_changed.emit(zoom_percentage)
+
     # ---------------------------------
     # Object Resizing
     # ---------------------------------
@@ -146,13 +156,24 @@ class CuttingMat(QGraphicsView):
         if self.renderer is None:
             return None
 
-        for name, handle in self.renderer.resize_handles.items():
+        # Check rotation first so it takes priority over
+        # resize handles when detecting mouse interaction.
+        handle_names = sorted(
+            self.renderer.resize_handles,
+            key=lambda name: name != "rotate"
+        )
+
+        for name in handle_names:
+
+            handle = self.renderer.resize_handles[name]
 
             center = self.mapFromScene(handle.scenePos())
 
+            hit_radius = 10 if name == "rotate" else 8
+
             if (
-                abs(center.x() - viewport_position.x()) <= 8
-                and abs(center.y() - viewport_position.y()) <= 8
+                abs(center.x() - viewport_position.x()) <= hit_radius
+                and abs(center.y() - viewport_position.y()) <= hit_radius
             ):
                 return name
 

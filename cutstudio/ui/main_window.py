@@ -1201,7 +1201,21 @@ class MainWindow(QMainWindow):
             "Ctrl + mouse wheel to zoom"
         )
 
+        self.zoom_label = QLabel("Zoom: --%")
+
+        status.addPermanentWidget(self.zoom_label)
+
+        self.canvas.zoom_changed.connect(
+            self.update_zoom_label
+        )
+
         self.setStatusBar(status)
+
+    def update_zoom_label(self, percentage):
+
+        self.zoom_label.setText(
+            f"Zoom: {percentage:.0f}%"
+        )
 
 # ============================================================
 # CUTSTUDIO
