@@ -2,7 +2,12 @@ import math
 
 from PySide6.QtCore import Qt, QRectF, QPointF, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QGraphicsView
+from PySide6.QtWidgets import QGraphicsView, QWidget
+
+from cutstudio.ui.canvas.rulers import (
+    RulerWidget,
+    RULER_SIZE,
+)
 
 from cutstudio.core.units import mm_to_scene_units
 from cutstudio.core.constants import UNITS_PER_INCH
@@ -51,6 +56,85 @@ class CuttingMat(QGraphicsView):
         self.setResizeAnchor(
             QGraphicsView.ViewportAnchor.AnchorViewCenter
         )
+
+        # Reserve space for measurement rulers.
+        self.setViewportMargins(
+            RULER_SIZE,
+            RULER_SIZE,
+            0,
+            0
+        )
+
+        self.horizontal_ruler = RulerWidget(
+            self,
+            "horizontal",
+            self
+        )
+
+        self.vertical_ruler = RulerWidget(
+            self,
+            "vertical",
+            self
+        )
+
+        self.ruler_corner = QWidget(self)
+
+        self.ruler_corner.setStyleSheet(
+            "background-color: #eeeeee;"
+            "border: 1px solid #aaaaaa;"
+        )
+
+        # Update rulers whenever the canvas scrolls.
+        self.horizontalScrollBar().valueChanged.connect(
+            self._update_rulers
+        )
+
+        self.verticalScrollBar().valueChanged.connect(
+            self._update_rulers
+        )
+
+        self._update_ruler_geometries()
+
+    def _update_ruler_geometries(self):
+        """Position rulers alongside the graphics viewport."""
+
+        frame = self.frameWidth()
+        viewport = self.viewport().geometry()
+
+        self.horizontal_ruler.setGeometry(
+            viewport.x(),
+            frame,
+            viewport.width(),
+            RULER_SIZE
+        )
+
+        self.vertical_ruler.setGeometry(
+            frame,
+            viewport.y(),
+            RULER_SIZE,
+            viewport.height()
+        )
+
+        self.ruler_corner.setGeometry(
+            frame,
+            frame,
+            RULER_SIZE,
+            RULER_SIZE
+        )
+
+        self._update_rulers()
+
+    def _update_rulers(self, *args):
+        """Refresh ruler markings after canvas navigation."""
+
+        self.horizontal_ruler.update()
+        self.vertical_ruler.update()
+
+    def resizeEvent(self, event):
+
+        super().resizeEvent(event)
+
+        self._update_ruler_geometries()
 
     def drawBackground(self, painter, rect):
 
@@ -149,6 +233,7 @@ class CuttingMat(QGraphicsView):
 
         self.setTransformationAnchor(previous_anchor)
 
+        self._update_rulers()
         self._emit_zoom_changed()
 
     def zoom_in(self):
@@ -182,6 +267,7 @@ class CuttingMat(QGraphicsView):
             Qt.AspectRatioMode.KeepAspectRatio
         )
 
+        self._update_rulers()
         self._emit_zoom_changed()
 
     def _emit_zoom_changed(self):
