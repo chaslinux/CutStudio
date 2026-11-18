@@ -63,7 +63,7 @@ verification.
 
 ## Screenshot (current state - very early development)
 
-<img width="1423" height="953" alt="CutStudio" src="https://github.com/user-attachments/assets/f84c3c2e-4ea9-437b-8444-d9c152ab4bfe" />
+<img width="1419" height="954" alt="CutStudio" src="https://github.com/user-attachments/assets/01163a56-d37d-4b4c-a0ac-45b82f42e1c3" />
 
 ## Future Development
 
