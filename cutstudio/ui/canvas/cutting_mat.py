@@ -109,12 +109,55 @@ class CuttingMat(QGraphicsView):
                 else 1 / 1.15
             )
 
-            self.scale(factor, factor)
-            self._emit_zoom_changed()
+            self._zoom_by(
+                factor,
+                QGraphicsView.ViewportAnchor.AnchorUnderMouse
+            )
+
             event.accept()
 
         else:
             super().wheelEvent(event)
+
+    def _zoom_by(self, factor, anchor=None):
+
+        current_scale = self.transform().m11()
+
+        min_scale = 0.1
+        max_scale = 5.0
+
+        new_scale = max(
+            min_scale,
+            min(max_scale, current_scale * factor)
+        )
+
+        factor = new_scale / current_scale
+
+        if abs(factor - 1.0) < 0.0001:
+            return
+
+        previous_anchor = self.transformationAnchor()
+
+        if anchor is None:
+            anchor = (
+                QGraphicsView.ViewportAnchor.AnchorViewCenter
+            )
+
+        self.setTransformationAnchor(anchor)
+
+        self.scale(factor, factor)
+
+        self.setTransformationAnchor(previous_anchor)
+
+        self._emit_zoom_changed()
+
+    def zoom_in(self):
+
+        self._zoom_by(1.2)
+
+    def zoom_out(self):
+
+        self._zoom_by(1 / 1.2)
 
     def zoom_to_fit(self):
 

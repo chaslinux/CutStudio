@@ -521,6 +521,8 @@ class MainWindow(QMainWindow):
         self.addToolBar(toolbar)
 
         actions = [
+            ("Zoom In", self.canvas.zoom_in),
+            ("Zoom Out", self.canvas.zoom_out),
             ("Zoom to Fit", self.canvas.zoom_to_fit),
             ("Select", self.select_tool),
             ("Rectangle", self.add_rectangle),
@@ -562,6 +564,41 @@ class MainWindow(QMainWindow):
         self.addAction(
             self.zoom_to_fit_action
         )
+
+        self.zoom_in_action = QAction(
+            "Zoom In",
+            self
+        )
+
+        self.zoom_in_action.setShortcut(
+            QKeySequence.StandardKey.ZoomIn
+        )
+
+        self.zoom_in_action.triggered.connect(
+            self.canvas.zoom_in
+        )
+
+        self.addAction(
+            self.zoom_in_action
+        )
+
+        self.zoom_out_action = QAction(
+            "Zoom Out",
+            self
+        )
+
+        self.zoom_out_action.setShortcut(
+            QKeySequence.StandardKey.ZoomOut
+        )
+
+        self.zoom_out_action.triggered.connect(
+            self.canvas.zoom_out
+        )
+
+        self.addAction(
+            self.zoom_out_action
+        )
+
 
         self.undo_action = QAction("Undo", self)
         self.undo_action.setShortcut(

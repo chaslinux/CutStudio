@@ -36,9 +36,9 @@ The application should eventually support vector design, editing, document manag
 
 ## 2. Development Environment
 
-The current development environment uses:
+The primary development environment uses:
 
-- Linux Mint
+- Linux Mint 22.3
 - Cinnamon desktop environment
 - X11
 - Python 3.12
@@ -47,6 +47,21 @@ The current development environment uses:
 - pytest
 - Xed text editor
 - Python virtual environment located in .venv
+
+### Temporary Development Environment
+
+A temporary development and compatibility-testing environment
+currently uses:
+
+- Ubuntu 26.04
+- Wayland
+
+CutStudio has launched successfully in this environment.
+
+Linux Mint 22.3 with X11 remains the primary development target.
+
+Wayland compatibility should continue to be considered during
+future GUI development and testing.
 
 Activate the development environment:
 
@@ -926,3 +941,117 @@ Run the automated tests before making changes:
 Check repository status:
 
     git status
+
+
+# Latest Development Milestone — November 17, 2026
+
+## Canvas Zoom Controls
+
+Dedicated Zoom In and Zoom Out controls have been implemented.
+
+### Toolbar
+
+The main toolbar now provides:
+
+- Zoom In
+- Zoom Out
+- Zoom to Fit
+
+### Keyboard Shortcuts
+
+- Qt standard Zoom In shortcut.
+- Qt standard Zoom Out shortcut.
+- Ctrl + 0 for Zoom to Fit.
+
+The exact Zoom In and Zoom Out key combinations may depend
+on the keyboard layout and platform.
+
+### Canvas Implementation
+
+The shared zoom implementation is located in:
+
+    cutstudio/ui/canvas/cutting_mat.py
+
+The `_zoom_by()` method handles zoom transformations for
+toolbar and mouse-wheel operations.
+
+Current zoom limits:
+
+- Minimum interactive zoom: 10%.
+- Maximum interactive zoom: 500%.
+
+Toolbar zoom operations use the viewport centre as their anchor.
+
+Ctrl + mouse wheel zoom uses the mouse position as its anchor.
+
+The existing zoom percentage signal continues to report
+the current canvas transformation scale.
+
+### Main Window Integration
+
+The toolbar controls and keyboard shortcuts are registered in:
+
+    cutstudio/ui/main_window.py
+
+### Verification
+
+The following functionality has been manually verified:
+
+- Zoom In toolbar control.
+- Zoom Out toolbar control.
+- Zoom to Fit.
+- Zoom In keyboard shortcut.
+- Zoom Out keyboard shortcut.
+- Zoom to Fit keyboard shortcut.
+- Zoom percentage updates.
+
+Ctrl + mouse wheel zoom is implemented but still requires
+manual verification on the current laptop.
+
+### Automated Testing
+
+Latest verified complete test result:
+
+    61 passed in 0.23s
+
+Command:
+
+    python -m pytest -q
+
+The existing test suite passes after the zoom control changes.
+
+### Git Status
+
+The zoom implementation modifies:
+
+    cutstudio/ui/canvas/cutting_mat.py
+    cutstudio/ui/main_window.py
+
+The changes have not yet been committed.
+
+### Development Environment Update
+
+The primary development environment remains:
+
+- Linux Mint 22.3.
+- Cinnamon.
+- X11.
+
+A temporary development environment is currently being used:
+
+- Ubuntu 26.04.
+- Wayland.
+
+CutStudio has launched and is functioning in the temporary
+Ubuntu environment.
+
+Wayland compatibility remains an ongoing cross-platform
+testing objective.
+
+### Next Development Priorities
+
+1. Complete manual verification of Ctrl + mouse wheel zoom.
+2. Consider automated tests for zoom limits and notifications.
+3. Implement configurable cutting mat dimensions.
+4. Distinguish physical mat dimensions from usable cutting area.
+5. Establish the foundation for machine-specific mat profiles.

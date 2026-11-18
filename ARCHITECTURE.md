@@ -361,6 +361,9 @@ complete graphical application.
 
 Use PySide6 and Qt abstractions wherever possible.
 
+Maintain compatibility with both X11 and Wayland environments.
+Avoid display-server-specific canvas implementations.
+
 Avoid hardcoded operating-system-specific paths.
 
 ### Maintainability
@@ -618,6 +621,13 @@ resize handles.
 Current canvas interaction includes:
 
 - Ctrl + mouse wheel zoom.
+- Dedicated Zoom In and Zoom Out toolbar controls.
+- Zoom In and Zoom Out keyboard shortcuts using Qt standard key sequences.
+- Shared zoom handling for toolbar and mouse-wheel operations.
+- Interactive zoom limits of 10% minimum and 500% maximum.
+- Toolbar zoom operations use the viewport centre as their anchor.
+- Ctrl + mouse wheel zoom uses the mouse position as its anchor.
+- Zoom percentage notifications after zoom operations.
 - Zoom percentage reporting.
 - Zoom to Fit.
 - Middle-mouse drag panning.

@@ -96,7 +96,7 @@ Status: In Progress
 - [x] Display current zoom percentage in the status bar.
 - [x] Implement canvas selection.
 - [x] Implement rubber-band selection.
-- [ ] Implement dedicated zoom in/out controls.
+- [x] Implement dedicated zoom in/out controls.
 - [x] Implement zoom-to-fit.
 - [x] Implement middle-mouse canvas panning.
 - [ ] Add configurable mat dimensions.
@@ -113,6 +113,10 @@ Canvas navigation:
   beyond the viewport.
 - Ctrl + mouse wheel zooms in and out.
 - Zoom to Fit restores the complete mat to view.
+- Dedicated toolbar buttons provide Zoom In and Zoom Out.
+- Standard Qt keyboard shortcuts provide Zoom In and Zoom Out.
+- Interactive zoom is limited to 10% minimum and 500% maximum.
+- The status bar reports the current zoom percentage.
 
 ### Phase 3: Object Editing
 
@@ -290,6 +294,7 @@ Requirements:
 - Avoid hardcoded developer-specific paths.
 - Detect Qt platform integration automatically.
 - Support X11 and Wayland where available.
+- Verify canvas interaction under both display-server environments.
 - Test Windows independently.
 - Test macOS independently.
 - Document operating-system dependencies.
