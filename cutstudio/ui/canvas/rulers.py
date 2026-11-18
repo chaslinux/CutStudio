@@ -122,10 +122,15 @@ class RulerWidget(QWidget):
 
                 inches = tick / MINOR_DIVISIONS
 
+                text = f"{inches:g}"
+                metrics = painter.fontMetrics()
+
                 painter.drawText(
-                    QRectF(x + 3, 2, 38, 11),
-                    Qt.AlignmentFlag.AlignLeft,
-                    f"{inches:g}"
+                    QPointF(
+                        x + 3,
+                        2 + metrics.ascent()
+                    ),
+                    text
                 )
 
     def _draw_vertical(self, painter):

@@ -413,3 +413,98 @@ def test_cancelling_mat_settings_changes_nothing(
 
     assert main_window.mat_config == original_mat
     assert main_window.document_modified is False
+
+
+
+# ============================================================
+# PERMANENT MAT STATUS TESTS
+# ============================================================
+
+def test_mat_status_label_shows_initial_dimensions(main_window):
+
+    assert main_window.mat_status_label.text() == (
+        "12 x 12 inch mat | Ctrl + mouse wheel to zoom"
+    )
+
+
+def test_temporary_status_message_preserves_mat_dimensions(
+    main_window
+):
+
+    original_text = main_window.mat_status_label.text()
+
+    main_window.statusBar().showMessage(
+        "Document restored"
+    )
+
+    assert main_window.mat_status_label.text() == original_text
+
+
+def test_mat_status_updates_after_changing_preset(
+    main_window,
+    monkeypatch
+):
+
+    custom_mat = CuttingMatConfig(
+        width_mm=304.8,
+        height_mm=609.6
+    )
+
+    class FakeDialog:
+
+        DialogCode = QDialog.DialogCode
+
+        def __init__(self, config, parent):
+            pass
+
+        def exec(self):
+            return QDialog.DialogCode.Accepted
+
+        def get_mat_config(self):
+            return custom_mat
+
+    monkeypatch.setattr(
+        "cutstudio.ui.main_window.MatSettingsDialog",
+        FakeDialog
+    )
+
+    main_window.show_mat_settings()
+
+    assert main_window.mat_status_label.text() == (
+        "12 x 24 inch mat | Ctrl + mouse wheel to zoom"
+    )
+
+
+def test_accepting_unchanged_mat_preserves_status(
+    main_window,
+    monkeypatch
+):
+
+    original_mat = main_window.mat_config
+    original_status = main_window.mat_status_label.text()
+
+    class FakeDialog:
+
+        DialogCode = QDialog.DialogCode
+
+        def __init__(self, config, parent):
+            pass
+
+        def exec(self):
+            return QDialog.DialogCode.Accepted
+
+        def get_mat_config(self):
+            return original_mat
+
+    monkeypatch.setattr(
+        "cutstudio.ui.main_window.MatSettingsDialog",
+        FakeDialog
+    )
+
+    main_window.document_modified = False
+
+    main_window.show_mat_settings()
+
+    assert main_window.mat_config == original_mat
+    assert main_window.mat_status_label.text() == original_status
+    assert main_window.document_modified is False

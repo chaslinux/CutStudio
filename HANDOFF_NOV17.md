@@ -331,3 +331,52 @@ git status --short
 
 The immediate objective is to continue improving the canvas and editing experience while maintaining the existing 99-test passing baseline.
 
+
+## 11. Latest Development: Ruler and Status Bar Fixes
+
+Completed November 17, 2026.
+
+### Horizontal Measurement Ruler
+
+Fixed clipping of measurement numbers on the horizontal ruler.
+
+Implementation:
+- Uses QFontMetrics to position text using font ascent.
+- Avoids fixed-height text rectangles.
+- Vertical ruler implementation remains unchanged.
+
+### Cutting Mat Status Display
+
+Fixed disappearing cutting mat information in the status bar.
+
+Implementation:
+- Mat dimensions now use a permanent QLabel.
+- Zoom percentage remains a permanent status widget.
+- Temporary status messages no longer replace mat information.
+- Mat dimensions update when cutting mat configuration changes.
+- Accepting unchanged mat settings leaves existing information untouched.
+
+### Regression Tests
+
+Five tests added:
+
+- Horizontal ruler text positioning.
+- Initial mat status display.
+- Preservation of mat information during temporary messages.
+- Mat status updates after changing presets.
+- Unchanged mat configuration preserves status information.
+
+### Verification
+
+- Manual GUI verification completed.
+- Horizontal ruler labels display correctly.
+- Vertical ruler verified.
+- Mat settings behaviour verified.
+- Temporary status messages verified.
+- Complete automated test suite: 104 passed.
+
+### Development Status
+
+The ruler and status bar fixes are complete.
+
+The next recommended priority remains configurable grid spacing and grid snapping.

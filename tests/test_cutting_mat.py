@@ -196,3 +196,38 @@ def test_ruler_geometry_updates_after_resize(canvas):
 
     assert canvas.horizontal_ruler.width() == viewport.width()
     assert canvas.vertical_ruler.height() == viewport.height()
+
+
+
+def test_horizontal_ruler_uses_font_metrics(canvas):
+    """Horizontal ruler labels use the font's actual ascent."""
+
+    from PySide6.QtCore import QPointF
+
+    class FakeMetrics:
+        def ascent(self):
+            return 14
+
+    class FakePainter:
+        def __init__(self):
+            self.text_calls = []
+
+        def fontMetrics(self):
+            return FakeMetrics()
+
+        def drawLine(self, *args):
+            pass
+
+        def drawText(self, *args):
+            self.text_calls.append(args)
+
+    painter = FakePainter()
+
+    canvas.horizontal_ruler._draw_horizontal(painter)
+
+    assert painter.text_calls
+
+    for position, text in painter.text_calls:
+        assert isinstance(position, QPointF)
+        assert position.y() == pytest.approx(16)
+        assert isinstance(text, str)

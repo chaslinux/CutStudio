@@ -261,9 +261,7 @@ class MainWindow(QMainWindow):
 
         self.mark_modified()
 
-        self.statusBar().showMessage(
-            self._mat_status_message()
-        )
+        self.update_mat_status()
 
 
     def _update_mat_scene_rect(self):
@@ -1290,13 +1288,12 @@ class MainWindow(QMainWindow):
 # ============================================================
 
     def _mat_status_message(self):
-        """Return the current cutting mat dimensions for the status bar."""
+        """Return the current cutting mat dimensions."""
 
         width_inches = self.mat_config.width_mm / 25.4
         height_inches = self.mat_config.height_mm / 25.4
 
         return (
-            f"Ready | "
             f"{width_inches:g} x {height_inches:g} inch mat | "
             "Ctrl + mouse wheel to zoom"
         )
@@ -1306,9 +1303,11 @@ class MainWindow(QMainWindow):
 
         status = QStatusBar()
 
-        status.showMessage(
+        self.mat_status_label = QLabel(
             self._mat_status_message()
         )
+
+        status.addWidget(self.mat_status_label, 1)
 
         self.zoom_label = QLabel("Zoom: --%")
 
@@ -1319,6 +1318,14 @@ class MainWindow(QMainWindow):
         )
 
         self.setStatusBar(status)
+
+
+    def update_mat_status(self):
+
+        self.mat_status_label.setText(
+            self._mat_status_message()
+        )
+
 
     def update_zoom_label(self, percentage):
 
