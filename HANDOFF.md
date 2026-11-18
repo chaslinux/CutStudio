@@ -12,7 +12,7 @@ Primary language: Python 3.12
 
 GUI framework: PySide6 / Qt 6
 
-Development operating system: Linux Mint
+Primary development operating system: Linux Mint 22.3
 
 Desktop environment: Cinnamon
 
@@ -28,30 +28,31 @@ Application entry point:
 
     python -m cutstudio.main
 
-Development objective:
+CutStudio is a modular vector design and vinyl cutting application inspired by Brother ScanNCut Canvas.
 
-Develop a modular vector design and vinyl cutting application inspired by Brother ScanNCut Canvas.
+The long-term objective is to provide vector design, editing, document management, file import and export, and communication with cutting machines.
 
-The application should eventually support vector design, editing, document management, importing, exporting, and communication with cutting machines.
+The project is particularly intended to provide an accessible vector design and cutting environment for Linux users.
+
+Development is ongoing.
 
 ## 2. Development Environment
 
-The primary development environment uses:
+### Primary Development Environment
 
 - Linux Mint 22.3
 - Cinnamon desktop environment
 - X11
 - Python 3.12
-- PySide6
+- PySide6 / Qt 6
 - Git
 - pytest
 - Xed text editor
-- Python virtual environment located in .venv
+- Python virtual environment located in `.venv`
 
 ### Temporary Development Environment
 
-A temporary development and compatibility-testing environment
-currently uses:
+A temporary development and compatibility-testing environment uses:
 
 - Ubuntu 26.04
 - Wayland
@@ -60,8 +61,9 @@ CutStudio has launched successfully in this environment.
 
 Linux Mint 22.3 with X11 remains the primary development target.
 
-Wayland compatibility should continue to be considered during
-future GUI development and testing.
+Wayland compatibility should continue to be considered during future GUI development and testing.
+
+### Starting Development
 
 Activate the development environment:
 
@@ -72,13 +74,17 @@ Launch the application:
 
     python -m cutstudio.main
 
-Run the test suite:
+Run the complete test suite:
+
+    python -m pytest -q
+
+Run tests with verbose output:
 
     python -m pytest -v
 
 Check Git status:
 
-    git status
+    git status --short
 
 Inspect outstanding changes:
 
@@ -88,11 +94,19 @@ Inspect the change summary:
 
     git diff --stat
 
-## 3. Current Project Structure
+Check whitespace errors:
 
-The project has moved beyond its original prototype structure.
+    git diff --check
 
-Current implementation includes:
+Always run commands from the project root with the virtual environment activated.
+
+Prefer `python -m pytest` rather than invoking `pytest` directly to ensure that the project package is correctly resolved.
+
+## 3. Project Structure
+
+The project has progressed beyond its original prototype structure.
+
+The following is a partial structural overview:
 
     CutStudio/
     |
@@ -100,11 +114,19 @@ Current implementation includes:
     |   +-- __init__.py
     |   +-- main.py
     |   +-- core/
+    |   |   +-- history.py
+    |   |   +-- mat.py
+    |   |   +-- project_file.py
+    |   |
     |   +-- ui/
     |       +-- main_window.py
     |       +-- canvas/
-    |           +-- renderer.py
-    |           +-- cutting_mat.py
+    |       |   +-- renderer.py
+    |       |   +-- cutting_mat.py
+    |       |   +-- rulers.py
+    |       |
+    |       +-- rulers/
+    |       +-- mat_settings_dialog.py
     |
     +-- tests/
     +-- documentation/
@@ -117,13 +139,15 @@ Current implementation includes:
     +-- LICENSE
     +-- requirements.txt
 
-This is a partial structural overview. Inspect the actual filesystem before documenting additional modules.
+This is not a complete filesystem listing.
+
+Inspect the actual filesystem before documenting additional modules or assuming that the structure remains unchanged.
 
 ## 4. Current Application Architecture
 
 The application uses Qt's graphics framework.
 
-Principal graphics components:
+Principal graphics components include:
 
 - QGraphicsView
 - QGraphicsScene
@@ -135,48 +159,70 @@ The architecture separates document objects from their graphical representations
 
 ### Core
 
-The cutstudio/core/ directory contains document-related functionality, including:
+The `cutstudio/core/` directory contains document-related functionality, including:
 
-- Document management
-- Layers
-- Vector objects
-- Object types
-- Physical measurement conversions
-- Project file operations
+- Document management.
+- Layer management.
+- Vector objects.
+- Object types.
+- Physical measurement conversions.
+- Undo and Redo history.
+- Cutting mat configuration.
+- Native project file operations.
 
 ### User Interface
 
-The cutstudio/ui/ directory contains the main application interface.
+The `cutstudio/ui/` directory contains the main application interface.
 
 The main window provides:
 
-- Menus
-- Toolbar
-- Drawing tools
-- Properties panel
-- Layer management
-- Status bar
-- Project operations
+- Menus.
+- Toolbar.
+- Drawing tools.
+- Properties panel.
+- Layer management.
+- Status bar.
+- Project operations.
+- Zoom controls.
+- Mat configuration access.
 
 ### Canvas
 
-The cutstudio/ui/canvas/ directory contains the canvas implementation.
+The `cutstudio/ui/canvas/` directory contains the canvas implementation.
 
-renderer.py handles graphical representations of document objects.
+`renderer.py` handles graphical representations of document objects.
 
-cutting_mat.py handles canvas interaction, including:
+`cutting_mat.py` handles canvas interaction, including:
 
-- Mouse interaction
-- Object selection
-- Object movement
-- Object resizing
-- Object rotation
-- Resize and rotation handles
-- Synchronization between graphics items and document objects
-- Middle-mouse drag panning
-- Scrollbar-based canvas navigation
-- Ctrl + mouse wheel zoom
-- Zoom to Fit
+- Mouse interaction.
+- Object selection.
+- Object movement.
+- Object resizing.
+- Object rotation.
+- Resize and rotation handles.
+- Synchronization between graphics items and document objects.
+- Middle-mouse drag panning.
+- Scrollbar-based canvas navigation.
+- Ctrl + mouse wheel zoom.
+- Toolbar zoom operations.
+- Zoom to Fit.
+- Zoom change notifications.
+
+`rulers.py` provides measurement ruler functionality.
+
+### Physical Measurements
+
+The application uses millimetres for physical document measurements and object properties.
+
+Canvas zoom and navigation are independent of physical document dimensions.
+
+Three concepts must remain separate:
+
+1. Physical cutting mat dimensions.
+2. Document dimensions.
+3. Machine-specific usable cutting area.
+
+Machine-specific usable cutting-area restrictions have not yet been implemented.
 
 ## 5. Confirmed Working Functionality
 
@@ -184,64 +230,69 @@ The following functionality has been implemented and verified during development
 
 ### Application Interface
 
-- Main application window
-- Menu bar
-- Main toolbar
-- Drawing tools
-- Properties panel
-- Layer panel
-- Status bar
-- Graphics scene
-- Graphics view
-- Cutting mat
-- Grid display
-- Zoom to Fit toolbar control
-- Zoom to Fit keyboard shortcut (Ctrl+0)
+- Main application window.
+- Menu bar.
+- Main toolbar.
+- Drawing tools.
+- Properties panel.
+- Layer panel.
+- Status bar.
+- Graphics scene.
+- Graphics view.
+- Cutting mat.
+- Grid display.
+- Zoom controls.
+- Zoom to Fit toolbar control.
+- Zoom to Fit keyboard shortcut (Ctrl+0).
+- Zoom percentage display.
+- Permanent cutting mat dimension display.
 
 ### Drawing
 
-- Rectangle creation
-- Ellipse creation
-- Text creation
+- Rectangle creation.
+- Ellipse creation.
+- Text creation.
 
 Rectangle and ellipse objects can be created using their toolbar controls.
 
 ### Selection and Movement
 
-- Object selection
-- Object movement
-- Rubber-band selection
-- Multiple object selection
-- Selection handles
-- Object position synchronization
+- Object selection.
+- Object movement.
+- Rubber-band selection.
+- Multiple object selection.
+- Selection handles.
+- Object position synchronization.
 
 ### Object Duplication
 
-- Duplicate selected objects
-- Ctrl+D keyboard shortcut
-- Multiple object duplication
-- New object IDs for duplicates
-- Five-millimetre default duplication offset
-- Original objects remain unchanged
+- Duplicate selected objects.
+- Ctrl+D keyboard shortcut.
+- Multiple object duplication.
+- New object IDs for duplicates.
+- Five-millimetre default duplication offset.
+- Original objects remain unchanged.
+- Duplicate operations support Undo and Redo.
 
 ### Object Deletion
 
-- Delete selected objects
-- Multiple object deletion
-- Locked-layer protection
+- Delete selected objects.
+- Multiple object deletion.
+- Locked-layer protection.
+- Deletion supports Undo and Redo.
 
 ### Resizing
 
 Rectangle and ellipse objects support eight resize handles:
 
-- Northwest
-- North
-- Northeast
-- East
-- Southeast
-- South
-- Southwest
-- West
+- Northwest.
+- North.
+- Northeast.
+- East.
+- Southeast.
+- South.
+- Southwest.
+- West.
 
 The resize handles remain functional after object rotation.
 
@@ -258,28 +309,35 @@ Aspect-ratio constrained resizing:
 - Opposite edges and corners remain anchored.
 - Normal unrestricted resizing remains available without Shift.
 
-Manually tested and verified.
+The proportional resizing implementation has been manually tested.
 
 ### Rotation
 
-- Rotation handle
-- Mouse-driven rotation
-- Rotation around object's center
-- Rotation property editing
-- Rotation preserved in document model
-- Shift-assisted rotation snapping
+- Rotation handle.
+- Mouse-driven rotation.
+- Rotation around object's centre.
+- Rotation property editing.
+- Rotation preserved in document model.
+- Shift-assisted rotation snapping.
+- Improved rotation handle positioning.
+- Rotation handle connecting line.
+- Improved mouse hit detection.
 
 Holding Shift during rotation snaps to 15-degree increments.
+
+The rotation handle positioning implementation uses floating-point viewport transformations to prevent visible jumping during slow object rotation.
+
+The rotation handle maintains a 30-screen-pixel offset.
 
 ### Properties Panel
 
 Editable properties include:
 
-- X position
-- Y position
-- Width
-- Height
-- Rotation
+- X position.
+- Y position.
+- Width.
+- Height.
+- Rotation.
 
 Properties are displayed in millimetres and degrees.
 
@@ -287,28 +345,31 @@ Text width and height are currently not directly editable.
 
 ### Layers
 
-- Multiple layers
-- Active layer selection
-- Layer visibility
-- Layer locking
-- Locked layers prevent object movement and editing
-- Locked layers prevent drawing new objects
+- Multiple layers.
+- Active layer selection.
+- Layer visibility.
+- Layer locking.
+- Locked layers prevent object movement and editing.
+- Locked layers prevent drawing new objects.
+- Layer visibility and locking changes support Undo and Redo.
+
+Layer creation, deletion, and reordering remain future development priorities.
 
 ### Project Management
 
-- Create a new project
-- Open an existing project
-- Save a project
-- Save a project under a new filename
-- Project persistence
-- Document loading
-- Document saving
-- Project file validation
-- Unsaved-change detection
+- Create a new project.
+- Open an existing project.
+- Save a project.
+- Save a project under a new filename.
+- Project persistence.
+- Document loading.
+- Document saving.
+- Project file validation.
+- Unsaved-change detection.
 
-Project files use the .cutstudio extension.
+Project files use the `.cutstudio` extension.
 
-Saving and reopening an existing project has been tested.
+Saving and reopening existing projects has been tested.
 
 Saving changes and reopening the changed project has also been tested.
 
@@ -328,79 +389,332 @@ Confirmed behaviour:
 - Application Close → cancelling Save As keeps the application open.
 - Closing an unmodified project requires no confirmation.
 
-MainWindow implements closeEvent() and reuses confirm_unsaved_changes().
+`MainWindow` implements `closeEvent()` and reuses `confirm_unsaved_changes()`.
 
-All tested behaviours work as expected.
+### Undo and Redo
 
-## 6. Automated Testing
+Undo and Redo functionality has been implemented.
 
-As of November 16, 2026, the test suite reported:
+Implementation:
 
-    48 passed in 0.16s
+- History is managed by `cutstudio/core/history.py`.
+- `UndoHistory` stores independent document snapshots.
+- Snapshots use Python deepcopy.
+- Undo restores the previous document state.
+- Redo restores the next available document state.
+- New edits after Undo discard redo history.
+- Identical states are not recorded.
+- The default history limit is 100 operations.
+- History resets when creating or opening a project.
 
-The existing tests cover:
+The Edit menu provides Undo and Redo actions with standard keyboard shortcuts.
 
-- Document creation
-- Layer operations
-- Object creation
-- Object validation
-- Object duplication
-- Project file saving
-- Project file loading
-- Renderer operations
-- Layer visibility
-- Layer locking
-- Position synchronization
-- Measurement conversions
+Actions are enabled or disabled according to available history.
 
-Run the test suite after every significant code change:
+Restoring a snapshot rebuilds the canvas and refreshes the layer and property panels.
+
+Recorded operations include:
+
+- Rectangle creation.
+- Ellipse creation.
+- Text creation.
+- Object duplication.
+- Object deletion.
+- Property changes.
+- Object movement.
+- Resizing.
+- Rotation.
+- Layer visibility changes.
+- Layer locking changes.
+- Cut operations.
+- Paste operations.
+
+### Clipboard Operations
+
+Copy, Cut and Paste functionality has been implemented in `MainWindow`.
+
+Keyboard shortcuts:
+
+| Shortcut | Operation |
+|---|---|
+| Ctrl+C | Copy selected objects |
+| Ctrl+X | Cut selected objects |
+| Ctrl+V | Paste copied objects |
+| Ctrl+D | Duplicate selected objects |
+| Ctrl+Z | Undo |
+| Ctrl+Y | Redo |
+| Delete | Delete selected objects |
+
+Copy, Cut and Paste actions are registered in the Edit menu.
+
+Implementation:
+
+- Copy stores independent copies of selected objects in an in-memory clipboard.
+- Multiple objects can be copied simultaneously.
+- Paste creates new objects with unique object IDs.
+- Pasted objects are offset by 5 mm in both X and Y directions.
+- Paste inserts objects into the active layer.
+- Paste rejects locked layers.
+- Cut copies selected objects before deleting them.
+- Paste and Cut operations support Undo and Redo through the existing history system.
+- Repeated Paste operations create independent objects.
+
+The clipboard currently exists only in memory. It is not yet integrated with the operating system clipboard.
+
+Ten dedicated automated tests cover clipboard functionality.
+
+Manual GUI verification of clipboard operations remains an important part of ongoing development.
+
+## 6. Cutting Mat Configuration
+
+Configurable physical cutting mat dimensions have been implemented.
+
+### Built-in Presets
+
+- 12 × 12 inches.
+- 12 × 24 inches.
+- 12 × 36 inches.
+- 12 × 48 inches.
+
+Custom dimensions are also supported.
+
+### User Interface
+
+Mat settings are accessible through:
+
+    Machine → Mat Settings
+
+Implementation:
+
+- `cutstudio/core/mat.py`
+- `cutstudio/ui/mat_settings_dialog.py`
+
+### Project Persistence
+
+Implementation:
+
+- `cutstudio/core/project_file.py`
+
+Mat configuration is saved with native CutStudio projects.
+
+When loading projects:
+
+- Existing mat configuration is restored.
+- Older projects without mat configuration receive the default configuration.
+- Invalid mat configuration is rejected.
+- Document dimensions remain independent of mat dimensions.
+
+### Important Distinction
+
+Three concepts must remain separate:
+
+1. Physical cutting mat dimensions.
+2. Document dimensions.
+3. Usable cutting area.
+
+Machine-specific usable cutting-area restrictions have not yet been implemented.
+
+### Verification
+
+The following functionality has been implemented:
+
+- Built-in mat presets.
+- Custom mat dimensions.
+- Mat configuration persistence.
+- Restoration of mat configuration when opening projects.
+- Default configuration for older projects.
+- Mat configuration validation.
+
+Manual verification of mat settings and project persistence was completed during the November 17 development session.
+
+## 7. Canvas Navigation and Measurement
+
+### Zoom Controls
+
+Dedicated Zoom In and Zoom Out controls have been implemented.
+
+The main toolbar provides:
+
+- Zoom In.
+- Zoom Out.
+- Zoom to Fit.
+
+Keyboard shortcuts:
+
+- Qt standard Zoom In shortcut.
+- Qt standard Zoom Out shortcut.
+- Ctrl+0 for Zoom to Fit.
+
+The exact Zoom In and Zoom Out key combinations may depend on keyboard layout and platform.
+
+The shared zoom implementation is located in:
+
+    cutstudio/ui/canvas/cutting_mat.py
+
+The `_zoom_by()` method handles zoom transformations for toolbar and mouse-wheel operations.
+
+Current zoom limits:
+
+- Minimum interactive zoom: 10%.
+- Maximum interactive zoom: 500%.
+
+Toolbar zoom operations use the viewport centre as their anchor.
+
+Ctrl + mouse wheel zoom uses the mouse position as its anchor.
+
+### Zoom Percentage
+
+`CuttingMat` exposes the `zoom_changed` signal.
+
+The signal reports the current horizontal view scale as a percentage.
+
+`MainWindow` connects this signal to `update_zoom_label()`, which updates a permanent status bar label.
+
+The zoom percentage reflects the actual canvas view transformation rather than the cutting mat dimensions.
+
+### Horizontal and Vertical Measurement Rulers
+
+Horizontal and vertical measurement rulers have been implemented.
+
+Functionality:
+
+- Horizontal ruler.
+- Vertical ruler.
+- Rulers positioned alongside the canvas viewport.
+- Ruler markings synchronized with canvas scrolling.
+- Ruler markings synchronized with canvas zoom.
+- Inch-based measurements.
+- Quarter-inch subdivisions.
+
+Implementation files:
+
+- `cutstudio/ui/canvas/rulers.py`
+- `cutstudio/ui/rulers/`
+
+Modified integration files include:
+
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+
+### Ruler Text Positioning Fix
+
+The horizontal ruler previously exhibited clipping of measurement numbers.
+
+The problem was corrected using `QFontMetrics` to position text using font ascent rather than relying on fixed-height text rectangles.
+
+The vertical ruler implementation remained unchanged.
+
+### Manual Verification
+
+Completed during the November 17 development session:
+
+- Horizontal ruler display.
+- Horizontal ruler label positioning.
+- Vertical ruler display.
+- Mat settings behaviour.
+- Cutting mat status display.
+- Temporary status message behaviour.
+
+Further verification of ruler alignment and measurement accuracy at different zoom levels and scroll positions remains worthwhile.
+
+### Cutting Mat Status Bar Fix
+
+Cutting mat information previously disappeared when temporary status messages were displayed.
+
+The implementation now uses:
+
+- A permanent `QLabel` for mat dimensions.
+- A permanent status widget for zoom percentage.
+
+Mat dimensions update when cutting mat configuration changes.
+
+Accepting unchanged mat settings leaves existing information untouched.
+
+Temporary status messages no longer replace mat information.
+
+Manual verification of these behaviours was completed.
+
+## 8. Automated Testing
+
+### Latest Verified Test Result
+
+    104 passed
+
+Latest recorded verification date:
+
+    November 17, 2026
+
+Command:
+
+    python -m pytest -q
+
+This is the latest verified complete test result recorded in the development handoff.
+
+It must not be assumed to represent the current working tree without rerunning the tests.
+
+### Test Coverage
+
+The automated test suite includes coverage for:
+
+- Document creation and management.
+- Object creation and validation.
+- Object manipulation.
+- Object duplication.
+- Object deletion.
+- Undo and Redo.
+- Copy, Cut and Paste.
+- Layer management.
+- Project saving and loading.
+- Project file validation.
+- Cutting mat configuration.
+- Mat configuration validation.
+- Legacy project compatibility.
+- Document and mat dimension independence.
+- Canvas interaction.
+- Rendering.
+- Main window integration.
+- Measurement conversions.
+- Ruler and status bar behaviour.
+
+Six dedicated tests cover Undo and Redo history.
+
+Ten dedicated tests cover clipboard operations.
+
+Five additional tests cover ruler and status bar regression fixes.
+
+### Latest Regression Tests
+
+Five tests were added for:
+
+- Horizontal ruler text positioning.
+- Initial mat status display.
+- Preservation of mat information during temporary messages.
+- Mat status updates after changing presets.
+- Unchanged mat configuration preserving status information.
+
+### Testing Requirements
+
+Always run the complete test suite after significant application changes.
+
+A passing automated test suite does not automatically establish that graphical interactions work correctly.
+
+Mouse-driven operations, keyboard shortcuts, layout behaviour, visual alignment, and rendering must also be tested in the running application.
+
+### Running Tests
+
+From the project root:
+
+    cd ~/Code/CutStudio
+    source .venv/bin/activate
+    python -m pytest -q
+
+For verbose output:
 
     python -m pytest -v
 
-A passing test suite does not automatically establish that every graphical interaction works correctly.
+Always report the actual test result rather than relying on a historical result in this document.
 
-Mouse-driven operations, keyboard shortcuts, and visual behaviour must also be tested in the running application.
-
-## 7. Outstanding Work and Known Issues
-
-### High Priority
-
-1. Verify the unsaved-changes Cancel behaviour.
-2. Confirm Shift-constrained resizing and rotation at different zoom levels.
-3. Verify that object movement, resizing, and rotation are correctly marked as document modifications.
-4. Add automated tests for canvas interaction where practical.
-
-### Medium Priority
-
-- Improve object selection behaviour
-- Improve properties panel functionality
-- Improve keyboard shortcut handling
-- Improve document management
-- Improve editing workflows
-- Expand automated testing
-
-### Future Development
-
-Potential future capabilities include:
-
-- SVG importing
-- SVG exporting
-- PDF exporting
-- PNG exporting
-- Additional vector shapes
-- Path editing
-- More advanced text editing
-- Object alignment
-- Object distribution
-- Grouping and ungrouping
-- Additional measurement and layout tools
-- Cutting machine profiles
-- Machine communication
-- Cutting job preparation
-
-These are development objectives, not claims of existing functionality.
-
-## 8. Important Source Files
+## 9. Important Source Files
 
 ### Main Window
 
@@ -408,15 +722,21 @@ These are development objectives, not claims of existing functionality.
 
 Contains:
 
-- Main application interface
-- Menus
-- Toolbar
-- Properties panel
-- Layer management
-- Project operations
-- Drawing operations
-- Duplication
-- Deletion
+- Main application interface.
+- Menus.
+- Toolbar.
+- Properties panel.
+- Layer management.
+- Project operations.
+- Drawing operations.
+- Duplication.
+- Deletion.
+- Clipboard operations.
+- Undo and Redo integration.
+- Zoom controls.
+- Status bar.
+- Ruler integration.
+- Mat settings integration.
 
 ### Canvas Renderer
 
@@ -424,13 +744,13 @@ Contains:
 
 Contains:
 
-- Graphics item creation
-- Object rendering
-- Resize handle creation
-- Graphics-to-document synchronization
-- Layer visibility
-- Layer locking
-- Object duplication and deletion support
+- Graphics item creation.
+- Object rendering.
+- Resize handle creation.
+- Graphics-to-document synchronization.
+- Layer visibility.
+- Layer locking.
+- Object duplication and deletion support.
 
 ### Cutting Mat
 
@@ -438,21 +758,58 @@ Contains:
 
 Contains:
 
-- Canvas mouse interaction
-- Object resizing
-- Object rotation
-- Rotation snapping
-- Resize handle detection
-- Geometry synchronization
-- Modification notifications
-- Zoom to Fit functionality
-- Automatic canvas fitting with a 3% margin around the cutting mat
+- Canvas mouse interaction.
+- Object selection.
+- Object resizing.
+- Object rotation.
+- Rotation snapping.
+- Resize handle detection.
+- Geometry synchronization.
+- Modification notifications.
+- Zoom In and Zoom Out.
+- Zoom to Fit.
+- Zoom change notifications.
+- Automatic canvas fitting with a 3% margin around the cutting mat.
 
-Middle-mouse panning is supported when the cutting mat
-extends beyond the viewport and Qt provides a scrollable area.
+Middle-mouse panning is supported when the cutting mat extends beyond the viewport and Qt provides a scrollable area.
 
-The physical document dimensions are independent of canvas
-zoom and navigation.
+The physical document dimensions are independent of canvas zoom and navigation.
+
+### Measurement Rulers
+
+    cutstudio/ui/canvas/rulers.py
+
+Contains the measurement ruler implementation.
+
+Additional ruler integration files are located in:
+
+    cutstudio/ui/rulers/
+
+Inspect the actual directory contents before modifying ruler functionality.
+
+### Cutting Mat Configuration
+
+    cutstudio/core/mat.py
+
+Contains cutting mat configuration functionality.
+
+### Mat Settings Dialog
+
+    cutstudio/ui/mat_settings_dialog.py
+
+Contains the user interface for configuring cutting mat dimensions.
+
+### Project Persistence
+
+    cutstudio/core/project_file.py
+
+Contains native project saving and loading functionality, including cutting mat configuration persistence and compatibility with older project files.
+
+### History
+
+    cutstudio/core/history.py
+
+Contains Undo and Redo history management.
 
 ### Core
 
@@ -462,46 +819,176 @@ Contains the document model and supporting application logic.
 
 Inspect the directory before modifying core functionality.
 
-## 9. Development Workflow
+## 10. Outstanding Work and Development Priorities
 
-Before making changes:
+The following items are development objectives, not claims of existing functionality.
 
-    cd ~/Code/CutStudio
-    source .venv/bin/activate
-    git status
+### High Priority: Canvas and Navigation
 
-Inspect the relevant source files before editing.
+1. Complete additional manual verification of horizontal and vertical rulers.
+2. Verify ruler synchronization during zooming.
+3. Verify ruler synchronization during horizontal and vertical scrolling.
+4. Verify ruler measurement accuracy.
+5. Implement configurable grid spacing.
+6. Implement grid snapping.
+7. Implement object snapping.
+8. Implement alignment guides.
+9. Improve canvas rendering performance.
 
-Prefer small, controlled modifications rather than replacing entire files unnecessarily.
+### Object Editing
 
-After modifications:
+- Implement grouping and ungrouping.
+- Implement object alignment.
+- Implement object distribution.
+- Improve multi-object manipulation.
+- Improve selection feedback.
+- Improve editing workflows.
 
-    python -m pytest -v
+### Properties and Layers
 
-Launch the application:
+- Implement fill colour editing.
+- Implement stroke colour editing.
+- Implement stroke width editing.
+- Implement font selection.
+- Implement font size editing.
+- Implement layer creation.
+- Implement layer deletion.
+- Implement layer reordering.
 
-    python -m cutstudio.main
+### Document Management
 
-Test the affected functionality manually.
+- Implement autosave.
+- Implement crash recovery.
+- Implement recent project list.
 
-Review changes:
+### Vector Editing
+
+- Implement path objects.
+- Implement freehand drawing.
+- Implement Bézier curves.
+- Implement node editing.
+- Implement path joining.
+- Implement path splitting.
+- Implement boolean operations.
+- Implement improved text editing.
+- Implement text-to-path conversion.
+- Implement compound paths.
+
+### File Import and Export
+
+- Implement SVG export.
+- Implement SVG import.
+- Implement PDF export.
+- Implement PNG export.
+- Preserve physical dimensions during export.
+- Preserve object positions and rotations.
+- Preserve layers where supported.
+
+### Cutting Machine Integration
+
+- Establish cutter communication architecture.
+- Research supported machine protocols.
+- Implement machine configuration profiles.
+- Implement cutting preview.
+- Implement cut job preparation.
+- Implement cutter communication.
+- Implement job status reporting.
+- Implement machine-specific usable cutting areas.
+- Implement Brother ScanNCut SDX125 machine profile.
+- Verify SVG compatibility with Brother ScanNCut workflows.
+
+## 11. Immediate Next Steps
+
+Recommended development sequence:
+
+1. Inspect the actual Git working tree.
+2. Run the complete automated test suite and confirm the current baseline.
+3. Launch CutStudio.
+4. Verify horizontal and vertical ruler alignment.
+5. Verify ruler behaviour during zooming and panning.
+6. Verify measurement accuracy at different zoom levels.
+7. Verify cutting mat presets.
+8. Verify custom cutting mat dimensions.
+9. Verify saving and reopening projects.
+10. Verify older project compatibility.
+11. Begin implementing configurable grid spacing.
+12. Implement grid snapping.
+
+The next major canvas development objective is configurable grid spacing and grid snapping.
+
+## 12. Git and Repository Management
+
+Historical Git information must not be treated as the current repository state.
+
+Previous development sessions recorded commits for canvas resizing, rotation handle positioning, and zoom functionality.
+
+The November 17 handoff also recorded documentation and application source changes that required further inspection.
+
+A previous working-tree inspection reported the following modified files:
+
+- `ARCHITECTURE.md`
+- `HANDOFF.md`
+- `README.md`
+- `ROADMAP.md`
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+- `cutstudio/ui/mat_settings_dialog.py`
+
+New files included:
+
+- `cutstudio/ui/canvas/rulers.py`
+- `cutstudio/ui/rulers/`
+- `tests/test_cutting_mat.py`
+
+Backup files were also previously present:
+
+- `ARCHITECTURE.md.bak`
+- `HANDOFF.md.bak`
+- `README.md.bak`
+- `ROADMAP.md.bak`
+
+These are historical observations, not confirmed current Git status.
+
+### Important Git Instructions
+
+Always inspect the actual working tree before making changes.
+
+Use:
+
+    git status --short
+
+Inspect differences:
 
     git diff
 
+Inspect tracked changes:
+
+    git diff --stat
+
+Check whitespace errors:
+
+    git diff --check
+
+Do not assume that previously recorded modifications still exist.
+
+Do not discard application source changes when restoring documentation.
+
+Do not restore, reset, or overwrite files without first inspecting their current contents and Git status.
+
 Do not commit changes until the user has reviewed and approved them.
 
-## 10. Documentation Requirements
+## 13. Documentation Requirements
 
-These requirements are mandatory for all future documentation work and handoffs.
+These requirements are mandatory for future documentation work and development handoffs.
 
 ### Markdown Source Requirements
 
 - Provide documentation as raw Markdown source.
 - Do not render documentation as rich-text or formatted prose.
 - Preserve literal Markdown characters.
-- Use actual Markdown heading markers such as #, ##, and ###.
-- Use literal Markdown list markers such as -.
-- Use literal task markers such as [ ] and [x].
+- Use actual Markdown heading markers such as `#`, `##`, and `###`.
+- Use literal Markdown list markers such as `-`.
+- Use literal task markers such as `[ ]` and `[x]`.
 - Use fenced code blocks with their original backticks.
 - Preserve Markdown tables where appropriate.
 - Documents must be directly copyable into Xed, vi, vim, or another plain-text editor.
@@ -514,6 +1001,10 @@ These requirements are mandatory for all future documentation work and handoffs.
 - Do not invent implemented functionality.
 - Clearly distinguish completed, tested, untested, and planned functionality.
 - Keep documentation synchronized with actual source code.
+- Consolidate development handoffs into the normal `HANDOFF.md`.
+- Avoid maintaining separate dated handoff documents as competing sources of truth.
+- Preserve relevant historical information where it helps explain implementation decisions or compatibility requirements.
+- Update the Last updated date when making substantive documentation changes.
 
 ### Development Communication Requirements
 
@@ -521,537 +1012,71 @@ These requirements are mandatory for all future documentation work and handoffs.
 - Identify the correct project directory.
 - Identify the correct source file before requesting modifications.
 - Provide exact insertion or replacement locations.
-- Prefer Python scripts or clearly identified editing instructions when larger replacements are necessary.
+- Prefer small, controlled modifications rather than unnecessary whole-file replacements.
+- Do not use Python heredocs to update Markdown documentation.
 - Avoid ambiguous instructions that could damage working code.
 - Do not assume that an earlier proposed architecture matches the current implementation.
+- Inspect relevant source files before proposing changes.
 
-## 11. Current Development Priorities
+## 14. Development Policy
 
-1. Complete and verify project documentation.
-2. Verify the unsaved-changes cancellation workflow.
-3. Verify resizing and rotation at different zoom levels.
-4. Verify document modification tracking for canvas operations.
-5. Improve the ScanNCut-inspired editing workflow.
+- Preserve existing functionality.
+- Avoid unnecessary architectural changes.
+- Do not rewrite established documentation unnecessarily when updating development status.
+- Update the handoff document when significant features are completed.
+- Only report functionality as complete when verified.
+- Include automated tests for significant functionality.
+- Supplement automated testing with manual GUI verification.
+- Keep physical mat dimensions separate from document dimensions and usable cutting areas.
+- Verify application behaviour in the primary Linux Mint environment.
+- Consider Wayland compatibility during GUI development.
+- Always inspect current source code before assuming a feature is implemented or a proposed change is still necessary.
 
-The primary project documentation has been updated. Remaining
-development priorities focus on GUI verification, interaction
-reliability, and continued editing workflow improvements.
-
-## 12. Current Development State
+## 15. Current Development State
 
 CutStudio is a functioning early-stage vector design application.
 
-It has progressed beyond its original prototype and now includes:
-
-- A document model
-- Layers
-- Object editing
-- Duplication
-- Rotation
-- Resizing
-- Project persistence
-
-The existing automated test suite has 48 passing tests.
-
-Six dedicated tests cover Undo and Redo history.
-
-Shift-constrained proportional resizing and Undo/Redo have been
-implemented. GUI-level verification remains necessary.
-
-The immediate goal is to verify outstanding graphical interactions
-and continue development without regressing existing functionality.
-
-Important:
-
-Always inspect the current source code before assuming that a feature is implemented or that a proposed change is still necessary.
-
-
-## 13. Undo and Redo
-
-Undo and Redo functionality has been implemented.
-
-### Implementation
-
-- History is managed by `cutstudio/core/history.py`.
-- `UndoHistory` stores independent document snapshots.
-- Snapshots use Python deepcopy.
-- Undo restores the previous document state.
-- Redo restores the next available document state.
-- New edits after Undo discard redo history.
-- Identical states are not recorded.
-- The default history limit is 100 operations.
-- History resets when creating or opening a project.
-
-### User Interface
-
-The Edit menu provides Undo and Redo actions with standard
-keyboard shortcuts.
-
-Actions are enabled or disabled according to available history.
-
-Restoring a snapshot rebuilds the canvas and refreshes the
-layer and property panels.
-
-### Recorded Operations
-
-- Rectangle creation
-- Ellipse creation
-- Text creation
-- Object duplication
-- Object deletion
-- Property changes
-- Object movement
-- Resizing
-- Rotation
-- Layer visibility changes
-- Layer locking changes
-
-### Automated Testing
-
-Six dedicated history tests cover initialization, recording,
-undo, redo, branching, history limits, and clearing history.
-
-The complete test suite currently reports 48 passing tests.
-
-GUI-level verification remains necessary.
-
-## Development Testing
-
-### Running the Test Suite
-
-Always run tests from the CutStudio project root with the virtual environment activated:
-
-    cd ~/Code/CutStudio
-    source .venv/bin/activate
-    python -m pytest -v
-
-**Important:** Prefer `python -m pytest` over `pytest` directly.
-
-Running `pytest -v` may result in:
-
-    ModuleNotFoundError: No module named 'cutstudio'
-
-This is an environment/import-path issue, not necessarily an application defect.
-
-### Test Suite Results
-
-The complete automated test suite currently passes.
-
-- Total tests: 51
-- Passed: 51
-- Failed: 0
-- Test framework: pytest 9.2.0
-- Python: 3.12.3
-- GUI framework: PySide6
-
-Run the complete test suite using:
-
-    python -m pytest -v
-
-#### MainWindow GUI Testing
-
-MainWindow tests run using Qt's offscreen platform.
-
-The test fixture resets `document_modified` before closing the
-window to prevent modal unsaved-changes dialogs from blocking
-automated test cleanup.
-
-Run MainWindow tests using:
-
-    python -m pytest -v tests/test_main_window.py
-
-Current result: 3 passed.
-
-#### Test Environment Notes
-
-Use `python -m pytest` rather than `pytest` to ensure the
-project package is correctly resolved in the development
-environment.
-
-### Current Test Status
-
-Latest verified result:
-
-    48 passed in 0.22s
-
-All eight test modules pass:
-
-- test_document.py
-- test_duplication.py
-- test_history.py
-- test_layers.py
-- test_objects.py
-- test_project_file.py
-- test_renderer.py
-- test_units.py
-
-
-## Clipboard Operations (Copy, Cut and Paste)
-
-### Implementation status
-
-Copy, Cut and Paste functionality has been added to the MainWindow.
-
-Files modified:
-- `cutstudio/ui/main_window.py`
-- `tests/test_main_window.py`
-
-### Keyboard shortcuts
-
-The following shortcuts have been registered:
-
-| Shortcut | Operation |
-|---|---|
-| Ctrl+C | Copy selected objects |
-| Ctrl+X | Cut selected objects |
-| Ctrl+V | Paste copied objects |
-| Ctrl+D | Duplicate selected objects |
-| Ctrl+Z | Undo |
-| Ctrl+Y | Redo |
-
-Copy, Cut and Paste actions are registered in the Edit menu.
-
-### Current implementation
-
-- Copy stores independent copies of selected objects in an in-memory clipboard.
-- Multiple objects can be copied simultaneously.
-- Paste creates new objects with unique object IDs.
-- Pasted objects are offset by 5 mm in both X and Y directions.
-- Paste inserts objects into the active layer.
-- Paste rejects locked layers.
-- Cut copies selected objects before deleting them.
-- Paste and Cut operations support Undo/Redo through the existing history system.
-- Repeated Paste operations create independent objects.
-
-The clipboard currently exists only in memory. It is not yet integrated with the operating system clipboard.
-
-### Clipboard testing
-
-Ten new automated tests were added to `tests/test_main_window.py`.
-
-Tests cover:
-
-1. Copying multiple selected objects.
-2. Ensuring copied objects are independent of originals.
-3. Pasting with new object IDs.
-4. Pasting multiple objects.
-5. Repeated Paste operations.
-6. Paste Undo/Redo.
-7. Cutting selected objects.
-8. Cut Undo.
-9. Cutting and subsequently pasting.
-10. Rejecting Paste into locked layers.
-
-### Test results
-
-Command:
-
-`python -m pytest -v -s tests/test_main_window.py -k "copy or paste or cut"`
-
-Result:
-
-- 10 passed
-- 3 deselected
-- 0 failed
-
-The previous regression baseline was 51 passing tests.
-
-**Important:** The complete test suite has not yet been rerun after adding the clipboard tests. The expected total is 61 tests.
-
-### Next steps
-
-1. Run the complete regression suite:
-
-   `python -m pytest -q`
-
-2. Test Ctrl+C, Ctrl+X and Ctrl+V manually in the CutStudio GUI.
-
-3. Verify that keyboard shortcuts work when the canvas has focus.
-
-4. Verify that Copy and Paste work with multiple selected objects.
-
-5. Verify that Cut, Paste, Undo and Redo work correctly together.
-
-6. Check clipboard behavior when switching between layers.
-
-7. Consider implementing clipboard interoperability with other applications in a future development step.
-
-8. Review the implementation before committing the clipboard changes.
-
-### Current development position
-
-The project has working object creation, selection, duplication, deletion, layer management, document history, Undo/Redo and now initial internal clipboard functionality.
-
-# Latest Development Milestone — November 16, 2026
-
-## Object Editing Improvements
-
-The following functionality has been implemented and tested:
-
-- Copy selected objects.
-- Cut selected objects.
-- Paste copied objects into the active layer.
-- Paste multiple objects.
-- Generate unique identifiers for pasted objects.
-- Repeated pasting creates independent objects.
-- Prevent pasting into locked layers.
-- Cut and Paste operations support Undo and Redo.
-- Duplicate operations support Undo and Redo.
-
-## Keyboard Shortcuts
-
-| Shortcut | Operation |
-|---|---|
-| Ctrl+C | Copy |
-| Ctrl+X | Cut |
-| Ctrl+V | Paste |
-| Ctrl+Z | Undo |
-| Ctrl+Y | Redo |
-| Ctrl+D | Duplicate |
-| Delete | Delete selected objects |
-
-## Edit Menu
-
-The Edit menu contains:
-
-- Undo
-- Redo
-- Copy
-- Cut
-- Paste
-
-Menu actions are initialized once during interface initialization.
-Repeated operations do not create additional menu entries.
-
-## Verification
-
-Latest automated test result:
-
-    python -m pytest -q
-
-    61 passed
-
-All 61 tests passed on November 16, 2026.
-
-## Next Development Priorities
-
-1. Improve object editing workflows.
-2. Expand GUI interaction testing.
-3. Improve selection and editing feedback.
-4. Continue SVG import and export planning.
-5. Begin planning cutting job preparation.
-
-Always run the complete test suite after modifying application functionality.
-
-
-## 12. Latest Development Session — November 17, 2026
-
-### Canvas improvements completed
-
-The following canvas improvements have been implemented:
-
-- Improved resize handle stability.
-- Reduced resize handle flickering.
-- Improved rotation handle positioning.
-- Added a connecting line between the rotation handle
-  and the top-middle resize handle.
-- Increased the rotation handle size.
-- Improved rotation handle mouse hit detection.
-- Fixed rotation handle positioning jitter.
-- Added a live zoom percentage indicator to the status bar.
-- Zoom percentage updates during Ctrl + mouse wheel zoom.
-- Zoom percentage updates when Zoom to Fit is activated.
-
-### Rotation handle stability fix
-
-The rotation handle previously exhibited visible jumping
-during slow object rotation.
-
-The cause was integer coordinate rounding when converting
-between scene and viewport coordinates.
-
-The fix uses the floating-point viewport transformation
-matrix and its inverse when calculating the rotation
-handle position.
-
-The handle now follows the object smoothly while retaining
-its 30-screen-pixel offset.
-
-### Zoom percentage implementation
-
-`CuttingMat` exposes the `zoom_changed` signal.
-
-The signal reports the current horizontal view scale
-as a percentage.
-
-`MainWindow` connects this signal to `update_zoom_label()`,
-which updates a permanent status bar label.
-
-The zoom percentage reflects the actual canvas view
-transformation rather than the cutting mat dimensions.
-
-This is important for future support of different cutting
-mat sizes, including the Brother ScanNCut SDX125.
-
-### Automated testing
-
-Latest verified test result:
-
-    61 passed
-
-Command:
-
-    python -m pytest -q
-
-All 61 tests passed after the rotation handle positioning
-improvement.
-
-### Git history
-
-The following commits were completed and pushed to origin/main:
-
-    ffd1d7a Add canvas zoom percentage indicator
-    b82f295 Fix rotation handle jitter and positioning
-    ecd8ebb Fix canvas resize stability and handle flickering
-
-The working tree was clean at the start of this
-documentation update.
-
-### Recommended next development steps
-
-1. Review the canvas manually at several zoom levels.
-2. Verify rotation and resize behaviour with different
-   object sizes and rotations.
-3. Consider adding dedicated zoom in and zoom out controls.
-4. Consider configurable cutting mat dimensions for
-   additional machines.
-5. Consider measurement rulers and configurable grid spacing.
-6. Continue improving object editing and properties.
-
-### Session starting procedure
-
-    cd ~/Code/CutStudio
-    source .venv/bin/activate
-    python -m cutstudio.main
-
-Run the automated tests before making changes:
-
-    python -m pytest -q
-
-Check repository status:
-
-    git status
-
-
-# Latest Development Milestone — November 17, 2026
-
-## Canvas Zoom Controls
-
-Dedicated Zoom In and Zoom Out controls have been implemented.
-
-### Toolbar
-
-The main toolbar now provides:
-
-- Zoom In
-- Zoom Out
-- Zoom to Fit
-
-### Keyboard Shortcuts
-
-- Qt standard Zoom In shortcut.
-- Qt standard Zoom Out shortcut.
-- Ctrl + 0 for Zoom to Fit.
-
-The exact Zoom In and Zoom Out key combinations may depend
-on the keyboard layout and platform.
-
-### Canvas Implementation
-
-The shared zoom implementation is located in:
-
-    cutstudio/ui/canvas/cutting_mat.py
-
-The `_zoom_by()` method handles zoom transformations for
-toolbar and mouse-wheel operations.
-
-Current zoom limits:
-
-- Minimum interactive zoom: 10%.
-- Maximum interactive zoom: 500%.
-
-Toolbar zoom operations use the viewport centre as their anchor.
-
-Ctrl + mouse wheel zoom uses the mouse position as its anchor.
-
-The existing zoom percentage signal continues to report
-the current canvas transformation scale.
-
-### Main Window Integration
-
-The toolbar controls and keyboard shortcuts are registered in:
-
-    cutstudio/ui/main_window.py
-
-### Verification
-
-The following functionality has been manually verified:
-
-- Zoom In toolbar control.
-- Zoom Out toolbar control.
-- Zoom to Fit.
-- Zoom In keyboard shortcut.
-- Zoom Out keyboard shortcut.
-- Zoom to Fit keyboard shortcut.
-- Zoom percentage updates.
-
-Ctrl + mouse wheel zoom is implemented but still requires
-manual verification on the current laptop.
-
-### Automated Testing
-
-Latest verified complete test result:
-
-    61 passed in 0.23s
-
-Command:
-
-    python -m pytest -q
-
-The existing test suite passes after the zoom control changes.
-
-### Git Status
-
-The zoom implementation modifies:
-
-    cutstudio/ui/canvas/cutting_mat.py
-    cutstudio/ui/main_window.py
-
-The changes have not yet been committed.
-
-### Development Environment Update
-
-The primary development environment remains:
-
-- Linux Mint 22.3.
-- Cinnamon.
-- X11.
-
-A temporary development environment is currently being used:
-
-- Ubuntu 26.04.
-- Wayland.
-
-CutStudio has launched and is functioning in the temporary
-Ubuntu environment.
-
-Wayland compatibility remains an ongoing cross-platform
-testing objective.
-
-### Next Development Priorities
-
-1. Complete manual verification of Ctrl + mouse wheel zoom.
-2. Consider automated tests for zoom limits and notifications.
-3. Implement configurable cutting mat dimensions.
-4. Distinguish physical mat dimensions from usable cutting area.
-5. Establish the foundation for machine-specific mat profiles.
+The application has progressed substantially beyond its original prototype.
+
+Implemented functionality includes:
+
+- Modular document architecture.
+- Qt graphics-based canvas.
+- Rectangle, ellipse, and text objects.
+- Object selection and multi-selection.
+- Object movement, resizing, and rotation.
+- Eight resize handles.
+- Shift-constrained aspect-ratio resizing.
+- Rotation snapping in 15-degree increments.
+- Object duplication and deletion.
+- Copy, Cut, and Paste.
+- Undo and Redo history.
+- Editable object properties.
+- Layer visibility and locking.
+- Native project saving and loading.
+- Configurable physical cutting mat dimensions.
+- Built-in cutting mat presets.
+- Custom cutting mat dimensions.
+- Cutting mat configuration persistence.
+- Zoom controls and Zoom to Fit.
+- Horizontal and vertical measurement rulers.
+- Canvas panning.
+- Physical measurement support using millimetres.
+- Permanent zoom percentage display.
+- Permanent cutting mat dimension display.
+
+Latest recorded automated test result:
+
+    104 passed
+
+Verification date:
+
+    November 17, 2026
+
+Ruler and status bar fixes have been manually verified.
+
+Further manual GUI verification remains appropriate for ruler alignment, measurement accuracy, zooming, and panning.
+
+The immediate objective is to continue improving the canvas and editing experience while maintaining the existing automated test baseline.
+
+Always inspect the current source code and Git working tree before making development decisions.
