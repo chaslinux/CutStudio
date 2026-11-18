@@ -4,7 +4,10 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QDialog
+
+from cutstudio.core.mat import CuttingMatConfig
+from cutstudio.core.units import mm_to_scene_units
 
 from cutstudio.core.objects import ObjectType, VectorObject
 from cutstudio.ui.main_window import MainWindow
@@ -305,3 +308,108 @@ def test_paste_rejects_locked_layer(main_window):
     main_window.paste_objects()
 
     assert len(layer.objects) == 1
+
+
+# ============================================================
+# CUTTING MAT TESTS
+# ============================================================
+
+def test_default_cutting_mat_on_startup(main_window):
+
+    assert main_window.mat_config == CuttingMatConfig()
+
+    rect = main_window.scene.sceneRect()
+
+    assert rect.width() == pytest.approx(
+        mm_to_scene_units(304.8)
+    )
+
+    assert rect.height() == pytest.approx(
+        mm_to_scene_units(304.8)
+    )
+
+
+def test_custom_mat_updates_scene_rectangle(main_window):
+
+    main_window.mat_config = CuttingMatConfig(
+        width_mm=304.8,
+        height_mm=609.6
+    )
+
+    main_window._update_mat_scene_rect()
+
+    rect = main_window.scene.sceneRect()
+
+    assert rect.width() == pytest.approx(
+        mm_to_scene_units(304.8)
+    )
+
+    assert rect.height() == pytest.approx(
+        mm_to_scene_units(609.6)
+    )
+
+
+def test_accepting_mat_settings_marks_project_modified(
+    main_window,
+    monkeypatch
+):
+
+    custom_mat = CuttingMatConfig(
+        width_mm=304.8,
+        height_mm=609.6
+    )
+
+    class FakeDialog:
+
+        DialogCode = QDialog.DialogCode
+
+        def __init__(self, config, parent):
+            pass
+
+        def exec(self):
+            return QDialog.DialogCode.Accepted
+
+        def get_mat_config(self):
+            return custom_mat
+
+    monkeypatch.setattr(
+        "cutstudio.ui.main_window.MatSettingsDialog",
+        FakeDialog
+    )
+
+    main_window.document_modified = False
+
+    main_window.show_mat_settings()
+
+    assert main_window.mat_config == custom_mat
+    assert main_window.document_modified is True
+
+
+def test_cancelling_mat_settings_changes_nothing(
+    main_window,
+    monkeypatch
+):
+
+    original_mat = main_window.mat_config
+
+    class FakeDialog:
+
+        DialogCode = QDialog.DialogCode
+
+        def __init__(self, config, parent):
+            pass
+
+        def exec(self):
+            return QDialog.DialogCode.Rejected
+
+    monkeypatch.setattr(
+        "cutstudio.ui.main_window.MatSettingsDialog",
+        FakeDialog
+    )
+
+    main_window.document_modified = False
+
+    main_window.show_mat_settings()
+
+    assert main_window.mat_config == original_mat
+    assert main_window.document_modified is False

@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from cutstudio.core.document import Document
+from cutstudio.core.mat import CuttingMatConfig
 from cutstudio.core.layer import Layer
 from cutstudio.core.objects import ObjectType, VectorObject
 
@@ -14,12 +15,12 @@ class ProjectFileError(Exception):
     """Raised when a CutStudio project cannot be saved or loaded."""
 
 
-def document_to_dict(document):
+def document_to_dict(document, mat_config=None):
     """Convert a Document into a JSON-compatible dictionary."""
 
     document.validate()
 
-    return {
+    data = {
         "format": "cutstudio",
         "version": PROJECT_FORMAT_VERSION,
         "document": {
@@ -57,8 +58,16 @@ def document_to_dict(document):
         },
     }
 
+    if mat_config is not None:
+        data["mat"] = {
+            "width_mm": mat_config.width_mm,
+            "height_mm": mat_config.height_mm,
+        }
 
-def document_from_dict(data):
+    return data
+
+
+def document_from_dict(data, include_mat_config=False):
     """Reconstruct a Document from a project dictionary."""
 
     if not isinstance(data, dict):
@@ -114,7 +123,7 @@ def document_from_dict(data):
 
             layers.append(layer)
 
-        return Document(
+        document = Document(
             width_mm=document_data["width_mm"],
             height_mm=document_data["height_mm"],
             layers=layers,
@@ -122,19 +131,36 @@ def document_from_dict(data):
             active_layer_id=document_data["active_layer_id"],
         )
 
+        mat_data = data.get("mat", {})
+
+        if not isinstance(mat_data, dict):
+            raise ProjectFileError(
+                "Invalid project data: mat configuration must be an object"
+            )
+
+        mat_config = CuttingMatConfig(
+            width_mm=mat_data.get("width_mm", 304.8),
+            height_mm=mat_data.get("height_mm", 304.8),
+        )
+
+        if include_mat_config:
+            return document, mat_config
+
+        return document
+
     except (KeyError, TypeError, ValueError, RuntimeError) as error:
         raise ProjectFileError(
             f"Invalid project data: {error}"
         ) from error
 
 
-def save_project(document, filename):
+def save_project(document, filename, mat_config=None):
     """Save a CutStudio document as JSON."""
 
     path = Path(filename)
 
     try:
-        data = document_to_dict(document)
+        data = document_to_dict(document, mat_config)
 
         path.parent.mkdir(
             parents=True,
@@ -152,7 +178,7 @@ def save_project(document, filename):
         ) from error
 
 
-def load_project(filename):
+def load_project(filename, include_mat_config=False):
     """Load a CutStudio project from disk."""
 
     path = Path(filename)
@@ -162,7 +188,7 @@ def load_project(filename):
             path.read_text(encoding="utf-8")
         )
 
-        return document_from_dict(data)
+        return document_from_dict(data, include_mat_config)
 
     except (OSError, json.JSONDecodeError) as error:
         raise ProjectFileError(

@@ -39,9 +39,9 @@ from PySide6.QtWidgets import (
 # CutStudio core imports
 # ------------------------------------------------------------
 
-from cutstudio.core.constants import MAT_INCHES
 from cutstudio.core.document import Document
 from cutstudio.core.history import UndoHistory
+from cutstudio.core.mat import CuttingMatConfig
 from cutstudio.core.objects import ObjectType, VectorObject
 from cutstudio.core.project_file import (
     ProjectFileError,
@@ -56,6 +56,7 @@ from cutstudio.core.units import mm_to_scene_units
 
 from cutstudio.ui.canvas.cutting_mat import CuttingMat
 from cutstudio.ui.canvas.renderer import CanvasRenderer
+from cutstudio.ui.mat_settings_dialog import MatSettingsDialog
 
 
 # ============================================================
@@ -79,6 +80,11 @@ class MainWindow(QMainWindow):
         # ----------------------------------------------------
 
         self.document = Document()
+
+        # Physical cutting mat configuration.
+        # Independent of document dimensions and history.
+        self.mat_config = CuttingMatConfig()
+
         self.clipboard_objects = []
         self.history = UndoHistory(self.document)
 
@@ -97,18 +103,7 @@ class MainWindow(QMainWindow):
 
         self.scene = QGraphicsScene(self)
 
-        self.scene.setSceneRect(
-            QRectF(
-                0,
-                0,
-                mm_to_scene_units(
-                    self.document.width_mm
-                ),
-                mm_to_scene_units(
-                    self.document.height_mm
-                ),
-            )
-        )
+        self._update_mat_scene_rect()
 
         # ----------------------------------------------------
         # Canvas renderer
@@ -231,6 +226,63 @@ class MainWindow(QMainWindow):
         if document is not None:
             self.restore_document(document)
 
+    def show_mat_settings(self):
+
+        dialog = MatSettingsDialog(
+            self.mat_config,
+            self
+        )
+
+        if dialog.exec() != dialog.DialogCode.Accepted:
+            return
+
+        try:
+
+            new_config = dialog.get_mat_config()
+
+        except ValueError as error:
+
+            QMessageBox.warning(
+                self,
+                "Invalid Mat Dimensions",
+                str(error)
+            )
+
+            return
+
+        if new_config == self.mat_config:
+            return
+
+        self.mat_config = new_config
+
+        self._update_mat_scene_rect()
+
+        self.canvas.zoom_to_fit()
+
+        self.mark_modified()
+
+        self.statusBar().showMessage(
+            "Cutting mat dimensions updated"
+        )
+
+
+    def _update_mat_scene_rect(self):
+        """
+        Set scene dimensions from the physical cutting mat.
+
+        Document dimensions remain independent.
+        """
+
+        self.scene.setSceneRect(
+            QRectF(
+                0,
+                0,
+                mm_to_scene_units(self.mat_config.width_mm),
+                mm_to_scene_units(self.mat_config.height_mm),
+            )
+        )
+
+
     def restore_document(self, document):
 
         selected_object_ids = [
@@ -242,14 +294,7 @@ class MainWindow(QMainWindow):
         self.document = document
         self.renderer.document = document
 
-        self.scene.setSceneRect(
-            QRectF(
-                0,
-                0,
-                mm_to_scene_units(document.width_mm),
-                mm_to_scene_units(document.height_mm),
-            )
-        )
+        self._update_mat_scene_rect()
 
         self.renderer.rebuild()
 
@@ -328,6 +373,27 @@ class MainWindow(QMainWindow):
         for name in ("View", "Machine", "Help"):
             menu_bar.addMenu(name)
 
+        machine_menu = menu_bar.actions()
+
+        machine_menu = next(
+            action.menu()
+            for action in machine_menu
+            if action.text() == "Machine"
+        )
+
+        self.mat_settings_action = QAction(
+            "Mat Settings...",
+            self
+        )
+
+        self.mat_settings_action.triggered.connect(
+            self.show_mat_settings
+        )
+
+        machine_menu.addAction(
+            self.mat_settings_action
+        )
+
         # Objects menu
         self.object_menu = menu_bar.addMenu("Objects")
 
@@ -373,14 +439,7 @@ class MainWindow(QMainWindow):
         self.current_filename = None
         self.document_modified = False
 
-        self.scene.setSceneRect(
-            QRectF(
-                0,
-                0,
-                mm_to_scene_units(self.document.width_mm),
-                mm_to_scene_units(self.document.height_mm),
-            )
-        )
+        self._update_mat_scene_rect()
 
         self.renderer.rebuild()
 
@@ -409,9 +468,13 @@ class MainWindow(QMainWindow):
 
         try:
 
-            document = load_project(filename)
+            document, mat_config = load_project(
+                filename,
+                include_mat_config=True
+            )
 
             self.document = document
+            self.mat_config = mat_config
             self.history.clear(document)
             self.update_history_actions()
             self.renderer.document = document
@@ -419,14 +482,7 @@ class MainWindow(QMainWindow):
             self.current_filename = filename
             self.document_modified = False
 
-            self.scene.setSceneRect(
-                QRectF(
-                    0,
-                    0,
-                    mm_to_scene_units(document.width_mm),
-                    mm_to_scene_units(document.height_mm),
-                )
-            )
+            self._update_mat_scene_rect()
 
             self.renderer.rebuild()
 
@@ -457,7 +513,8 @@ class MainWindow(QMainWindow):
 
             save_project(
                 self.document,
-                self.current_filename
+                self.current_filename,
+                self.mat_config
             )
 
             self.document_modified = False
@@ -1234,7 +1291,9 @@ class MainWindow(QMainWindow):
         status = QStatusBar()
 
         status.showMessage(
-            f"Ready | {MAT_INCHES} x {MAT_INCHES} inch mat | "
+            f"Ready | "
+            f"{self.mat_config.width_mm / 25.4:g} x "
+            f"{self.mat_config.height_mm / 25.4:g} inch mat | "
             "Ctrl + mouse wheel to zoom"
         )
 
