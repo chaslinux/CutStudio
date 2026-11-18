@@ -503,18 +503,6 @@ class CuttingMat(QGraphicsView):
             event.accept()
             return
 
-            if abs(scale_x) > 1e-9 and abs(scale_y) > 1e-9:
-
-                self.translate(
-                    delta.x() / scale_x,
-                    delta.y() / scale_y
-                )
-
-            self._pan_position = current
-
-            event.accept()
-            return
-
         if self._rotation_state is not None:
 
             state = self._rotation_state

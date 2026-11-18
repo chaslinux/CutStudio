@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         self.mark_modified()
 
         self.statusBar().showMessage(
-            "Cutting mat dimensions updated"
+            self._mat_status_message()
         )
 
 
@@ -491,7 +491,10 @@ class MainWindow(QMainWindow):
             self.update_window_title()
 
             self.statusBar().showMessage(
-                f"Opened {filename}"
+                f"Ready | "
+                f"{self.mat_config.width_mm / 25.4:g} x "
+                f"{self.mat_config.height_mm / 25.4:g} inch mat | "
+                "Ctrl + mouse wheel to zoom"
             )
 
         except ProjectFileError as error:
@@ -1286,15 +1289,25 @@ class MainWindow(QMainWindow):
 # SECTION 3E: STATUS BAR
 # ============================================================
 
+    def _mat_status_message(self):
+        """Return the current cutting mat dimensions for the status bar."""
+
+        width_inches = self.mat_config.width_mm / 25.4
+        height_inches = self.mat_config.height_mm / 25.4
+
+        return (
+            f"Ready | "
+            f"{width_inches:g} x {height_inches:g} inch mat | "
+            "Ctrl + mouse wheel to zoom"
+        )
+
+
     def create_status_bar(self):
 
         status = QStatusBar()
 
         status.showMessage(
-            f"Ready | "
-            f"{self.mat_config.width_mm / 25.4:g} x "
-            f"{self.mat_config.height_mm / 25.4:g} inch mat | "
-            "Ctrl + mouse wheel to zoom"
+            self._mat_status_message()
         )
 
         self.zoom_label = QLabel("Zoom: --%")
