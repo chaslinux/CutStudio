@@ -210,6 +210,47 @@ The `cutstudio/ui/canvas/` directory contains the canvas implementation.
 
 `rulers.py` provides measurement ruler functionality.
 
+## Canvas Coordinate System
+
+The canvas uses a consistent physical measurement model.
+
+- Document object positions are stored in millimetres.
+- Document object dimensions are stored in millimetres.
+- Scene coordinates use 96 units per inch.
+- Conversion between millimetres and scene units is handled by the core unit conversion functions.
+- The cutting mat origin is at the top-left: X = 0, Y = 0.
+- X increases to the right.
+- Y increases downward.
+
+Object X/Y coordinates represent the geometric object origin, not the visible stroke boundary.
+
+The geometric path determines the object's dimensions and position. Stroke thickness is a visual property and must not silently alter reported object geometry.
+
+## Grid and Snapping
+
+Current implementation:
+
+- Grid visibility is controlled independently from snapping.
+- Default grid spacing is 24 scene units (6.35 mm / quarter inch).
+- Major grid lines appear every four minor grid intervals.
+- Grid visibility defaults to enabled.
+- Snap to Grid defaults to disabled.
+- Grid spacing can be configured in inches.
+
+Snapping implementation currently resides in:
+
+- `cutstudio/ui/canvas/cutting_mat.py`
+
+Important implementation detail:
+
+The current `_snap_selected_group()` implementation uses `sceneBoundingRect()` to calculate selection bounds.
+
+This may include visual stroke expansion. The intended professional behaviour is geometry-based snapping that does not allow stroke thickness to affect object coordinates.
+
+Multiple selected objects should retain their relative positions when snapped together.
+
+Further work is required to verify snapping behaviour for rotated objects, resizing, and multi-object selections.
+
 ### Physical Measurements
 
 The application uses millimetres for physical document measurements and object properties.
@@ -896,6 +937,33 @@ The following items are development objectives, not claims of existing functiona
 - Implement machine-specific usable cutting areas.
 - Implement Brother ScanNCut SDX125 machine profile.
 - Verify SVG compatibility with Brother ScanNCut workflows.
+
+## Outstanding Work – Geometry and Measurement
+
+The following items have been identified but have not yet been changed:
+
+1. Default rectangle dimensions currently calculate to approximately 26.46 × 26.46 mm.
+2. Default ellipse dimensions currently calculate to approximately 26.46 × 26.46 mm.
+3. The intended default dimensions are 25 × 25 mm.
+4. Verify that object coordinates consistently represent geometric origins.
+5. Investigate the small apparent coordinate discrepancy (approximately 0.26 mm in X and Y).
+6. Review snapping to ensure geometric rather than stroke-expanded bounds are used where appropriate.
+
+Important:
+
+Do not change the underlying 96-units-per-inch coordinate conversion simply to correct these discrepancies. The existing conversion model is internally consistent.
+
+### Intended Professional Behaviour
+
+CutStudio should follow established vector-design and cutting-software conventions:
+
+- Exact physical dimensions.
+- Predictable millimetre-based positioning.
+- Geometry-based coordinates.
+- Independent visual stroke properties.
+- Reliable grid snapping.
+- No unexpected movement when toggling snapping.
+- Consistent exported vector geometry.
 
 ## 11. Immediate Next Steps
 

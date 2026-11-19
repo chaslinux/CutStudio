@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QMessageBox,
+    QInputDialog,
 )
 
 
@@ -368,8 +369,43 @@ class MainWindow(QMainWindow):
 
         self.edit_menu = edit_menu
 
-        for name in ("View", "Machine", "Help"):
-            menu_bar.addMenu(name)
+        view_menu = menu_bar.addMenu("View")
+
+        self.grid_visible_action = QAction(
+            "Show Grid",
+            self
+        )
+        self.grid_visible_action.setCheckable(True)
+        self.grid_visible_action.setChecked(True)
+        self.grid_visible_action.triggered.connect(
+            self.canvas.set_grid_visible
+        )
+        view_menu.addAction(self.grid_visible_action)
+
+        self.snap_grid_action = QAction(
+            "Snap to Grid",
+            self
+        )
+        self.snap_grid_action.setCheckable(True)
+        self.snap_grid_action.setChecked(False)
+        self.snap_grid_action.triggered.connect(
+            self.canvas.set_snap_to_grid
+        )
+        view_menu.addAction(self.snap_grid_action)
+
+        view_menu.addSeparator()
+
+        self.grid_spacing_action = QAction(
+            "Grid Spacing...",
+            self
+        )
+        self.grid_spacing_action.triggered.connect(
+            self.change_grid_spacing
+        )
+        view_menu.addAction(self.grid_spacing_action)
+
+        menu_bar.addMenu("Machine")
+        menu_bar.addMenu("Help")
 
         machine_menu = menu_bar.actions()
 
@@ -394,6 +430,31 @@ class MainWindow(QMainWindow):
 
         # Objects menu
         self.object_menu = menu_bar.addMenu("Objects")
+
+    def change_grid_spacing(self):
+
+        current_inches = (
+            self.canvas.grid_spacing / 96.0
+        )
+
+        inches, accepted = QInputDialog.getDouble(
+            self,
+            "Grid Spacing",
+            "Grid spacing (inches):",
+            current_inches,
+            0.0625,
+            12.0,
+            4
+        )
+
+        if not accepted:
+            return
+
+        self.canvas.set_grid_spacing_inches(inches)
+
+        self.statusBar().showMessage(
+            f"Grid spacing set to {inches:g} inches"
+        )
 
     # ---------------------------------
     # Project file operations

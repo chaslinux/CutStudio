@@ -29,6 +29,11 @@ class CuttingMat(QGraphicsView):
         self._geometry_before = None
         self._pan_position = None
 
+        # Grid settings. Scene coordinates use 96 units per inch.
+        self.grid_visible = True
+        self.grid_spacing = 24.0       # Quarter inch
+        self.snap_to_grid = False
+
         self.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
@@ -145,31 +150,52 @@ class CuttingMat(QGraphicsView):
             QColor("#ffffff")
         )
 
-        grid_pen = QPen(
-            QColor("#dedede")
-        )
+        if self.grid_visible and self.grid_spacing > 0:
 
-        grid_pen.setWidthF(0)
+            spacing = self.grid_spacing
+            major_spacing = spacing * 4
 
-        painter.setPen(grid_pen)
+            first_x = math.ceil(mat.left() / spacing)
+            last_x = math.floor(mat.right() / spacing)
 
-        spacing = UNITS_PER_INCH
+            first_y = math.ceil(mat.top() / spacing)
+            last_y = math.floor(mat.bottom() / spacing)
 
-        start_x = math.floor(mat.left() / spacing) * spacing
-        end_x = math.ceil(mat.right() / spacing) * spacing
+            for index in range(first_x, last_x + 1):
 
-        start_y = math.floor(mat.top() / spacing) * spacing
-        end_y = math.ceil(mat.bottom() / spacing) * spacing
+                x = index * spacing
 
-        for x in range(start_x, end_x + 1, spacing):
-            painter.drawLine(
-                x, mat.top(), x, mat.bottom()
-            )
+                is_major = index % 4 == 0
 
-        for y in range(start_y, end_y + 1, spacing):
-            painter.drawLine(
-                mat.left(), y, mat.right(), y
-            )
+                grid_pen = QPen(
+                    QColor("#b8bec6" if is_major else "#eeeeee")
+                )
+
+                grid_pen.setWidthF(0)
+                painter.setPen(grid_pen)
+
+                painter.drawLine(
+                    QPointF(x, mat.top()),
+                    QPointF(x, mat.bottom())
+                )
+
+            for index in range(first_y, last_y + 1):
+
+                y = index * spacing
+
+                is_major = index % 4 == 0
+
+                grid_pen = QPen(
+                    QColor("#b8bec6" if is_major else "#eeeeee")
+                )
+
+                grid_pen.setWidthF(0)
+                painter.setPen(grid_pen)
+
+                painter.drawLine(
+                    QPointF(mat.left(), y),
+                    QPointF(mat.right(), y)
+                )
 
         border_pen = QPen(
             QColor("#3285c7")
@@ -179,6 +205,73 @@ class CuttingMat(QGraphicsView):
 
         painter.setPen(border_pen)
         painter.drawRect(mat)
+
+    def set_grid_visible(self, visible):
+
+        self.grid_visible = bool(visible)
+        self.viewport().update()
+
+    def set_grid_spacing_inches(self, inches):
+
+        if not math.isfinite(inches) or inches <= 0:
+            raise ValueError("Grid spacing must be positive.")
+
+        self.grid_spacing = inches * UNITS_PER_INCH
+        self.viewport().update()
+
+    def set_snap_to_grid(self, enabled):
+
+        self.snap_to_grid = bool(enabled)
+
+    def _snap_value(self, value):
+
+        if not self.snap_to_grid:
+            return value
+
+        spacing = self.grid_spacing
+
+        if spacing <= 0:
+            return value
+
+        return round(value / spacing) * spacing
+
+    def _snap_selected_group(self):
+
+        if not self.snap_to_grid:
+            return
+
+        selected = self.scene().selectedItems()
+
+        if not selected:
+            return
+
+        # Snap the entire selection together so the relative
+        # positions of multiple objects are preserved.
+        bounds = selected[0].sceneBoundingRect()
+
+        for item in selected[1:]:
+            bounds = bounds.united(item.sceneBoundingRect())
+
+        mat = self.scene().sceneRect()
+
+        target_x = mat.left() + self._snap_value(
+            bounds.left() - mat.left()
+        )
+
+        target_y = mat.top() + self._snap_value(
+            bounds.top() - mat.top()
+        )
+
+        delta = QPointF(
+            target_x - bounds.left(),
+            target_y - bounds.top()
+        )
+
+        if delta.isNull():
+            return
+
+        for item in selected:
+            item.setPos(item.pos() + delta)
 
     def wheelEvent(self, event):
 
@@ -678,6 +771,37 @@ class CuttingMat(QGraphicsView):
                     else:
                         new_anchor_y = height / 2
 
+            # Snap resized dimensions to the configured grid.
+            # Only snap dimensions controlled by the active handle.
+            if self.snap_to_grid:
+
+                if horizontal is not None:
+                    width = max(
+                        minimum_size,
+                        self._snap_value(width)
+                    )
+
+                if vertical is not None:
+                    height = max(
+                        minimum_size,
+                        self._snap_value(height)
+                    )
+
+                # Recalculate the stationary anchor after snapping.
+                if horizontal == "w":
+                    new_anchor_x = width
+                elif horizontal == "e":
+                    new_anchor_x = 0
+                else:
+                    new_anchor_x = width / 2
+
+                if vertical == "n":
+                    new_anchor_y = height
+                elif vertical == "s":
+                    new_anchor_y = 0
+                else:
+                    new_anchor_y = height / 2
+
             item.setRect(
                 QRectF(0, 0, width, height)
             )
@@ -775,6 +899,8 @@ class CuttingMat(QGraphicsView):
         super().mouseReleaseEvent(event)
 
         if self.renderer is not None:
+
+            self._snap_selected_group()
 
             self.renderer.sync_to_document()
 
