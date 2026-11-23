@@ -228,28 +228,46 @@ The geometric path determines the object's dimensions and position. Stroke thick
 
 ## Grid and Snapping
 
+The canvas supports configurable grid spacing and major grid lines.
+
 Current implementation:
 
 - Grid visibility is controlled independently from snapping.
-- Default grid spacing is 24 scene units (6.35 mm / quarter inch).
-- Major grid lines appear every four minor grid intervals.
 - Grid visibility defaults to enabled.
 - Snap to Grid defaults to disabled.
-- Grid spacing can be configured in inches.
+- Default grid spacing is 6.35 mm (1/4 inch).
+- Grid spacing can be configured in inches or millimetres.
+- Grid spacing presets are provided.
+- Major grid line intervals are configurable.
+- Available major intervals include 2, 4, 5, and 10 minor grid intervals.
+- Major grid lines are visually distinguished from minor grid lines.
+- Grid settings are configured through the View menu.
 
-Snapping implementation currently resides in:
+Implementation files:
 
 - `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/grid_settings_dialog.py`
+- `cutstudio/ui/main_window.py`
 
-Important implementation detail:
+Snapping functionality includes:
 
-The current `_snap_selected_group()` implementation uses `sceneBoundingRect()` to calculate selection bounds.
+- Grid snapping for selected objects.
+- Group snapping that preserves relative positions of multiple selected objects.
+- Grid-based resizing.
+- Configurable grid spacing used by snapping calculations.
 
-This may include visual stroke expansion. The intended professional behaviour is geometry-based snapping that does not allow stroke thickness to affect object coordinates.
+Important implementation details:
 
-Multiple selected objects should retain their relative positions when snapped together.
+- Scene coordinates use 96 units per inch.
+- Physical grid spacing is converted into scene units.
+- Grid display and snapping use the same configured spacing.
+- Object coordinates remain stored in millimetres.
 
-Further work is required to verify snapping behaviour for rotated objects, resizing, and multi-object selections.
+The current group-snapping implementation uses `sceneBoundingRect()` to calculate selection bounds.
+
+This may include visual stroke expansion. Geometry-based snapping that does not allow stroke thickness to affect object coordinates remains an area for investigation.
+
+Further manual verification is required for rotated objects, resizing, and multi-object selections.
 
 ### Physical Measurements
 
@@ -282,6 +300,12 @@ The following functionality has been implemented and verified during development
 - Graphics view.
 - Cutting mat.
 - Grid display.
+- Configurable grid spacing.
+- Inch and millimetre grid units.
+- Grid spacing presets.
+- Configurable major grid line intervals.
+- Visually differentiated major and minor grid lines.
+- Grid snapping controls.
 - Zoom controls.
 - Zoom to Fit toolbar control.
 - Zoom to Fit keyboard shortcut (Ctrl+0).
@@ -675,23 +699,62 @@ Temporary status messages no longer replace mat information.
 
 Manual verification of these behaviours was completed.
 
+### Configurable Grid
+
+The canvas supports configurable grid spacing and major grid intervals.
+
+Grid settings are accessed through:
+
+    View → Grid Spacing...
+
+The Grid Settings dialog provides:
+
+- Inches and millimetres as display units.
+- Preset grid spacing options.
+- Major grid interval selection.
+- Automatic conversion between inches and millimetres.
+
+Default configuration:
+
+- Grid spacing: 6.35 mm (1/4 inch).
+- Major interval: 4 minor grid intervals.
+- Major line spacing: 25.4 mm (1 inch).
+- Grid visible: enabled.
+- Snap to Grid: disabled.
+
+Grid rendering distinguishes major lines from minor lines.
+
+Grid spacing and snapping use the same underlying physical measurement.
+
+Implementation:
+
+- `cutstudio/ui/grid_settings_dialog.py`
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+
+Automated tests cover grid defaults, spacing conversions, preset intervals, and invalid settings.
+
+Further GUI verification should confirm visual clarity at different zoom levels and correct snapping behaviour.
+
 ## 8. Automated Testing
 
 ### Latest Verified Test Result
 
-    104 passed
+    114 passed
 
-Latest recorded verification date:
+Latest verification date:
 
-    November 17, 2026
+    November 23, 2026
 
 Command:
 
     python -m pytest -q
 
-This is the latest verified complete test result recorded in the development handoff.
+The complete automated test suite passed following implementation of configurable grid settings and snapping improvements.
 
-It must not be assumed to represent the current working tree without rerunning the tests.
+This result was obtained before the latest grid improvements were committed.
+
+A new test run is required after subsequent source changes.
 
 ### Test Coverage
 
@@ -716,22 +779,29 @@ The automated test suite includes coverage for:
 - Main window integration.
 - Measurement conversions.
 - Ruler and status bar behaviour.
-
-Six dedicated tests cover Undo and Redo history.
-
-Ten dedicated tests cover clipboard operations.
-
-Five additional tests cover ruler and status bar regression fixes.
+- Grid settings defaults.
+- Grid spacing presets.
+- Inch-to-millimetre conversion.
+- Millimetre grid spacing.
+- Major grid interval configuration.
+- Grid settings validation.
 
 ### Latest Regression Tests
 
-Five tests were added for:
+The grid settings test suite is located at:
 
-- Horizontal ruler text positioning.
-- Initial mat status display.
-- Preservation of mat information during temporary messages.
-- Mat status updates after changing presets.
-- Unchanged mat configuration preserving status information.
+    tests/test_grid_settings_dialog.py
+
+It verifies:
+
+- Default grid spacing of 6.35 mm.
+- Default major interval of four.
+- Available major interval options.
+- Inch-based spacing conversion.
+- Millimetre-based spacing.
+- Custom major interval selection.
+- Rejection of invalid initial spacing.
+- Rejection of invalid major intervals.
 
 ### Testing Requirements
 
@@ -816,6 +886,26 @@ Middle-mouse panning is supported when the cutting mat extends beyond the viewpo
 
 The physical document dimensions are independent of canvas zoom and navigation.
 
+### Grid Settings Dialog
+
+    cutstudio/ui/grid_settings_dialog.py
+
+Contains the configurable grid settings interface.
+
+Provides:
+
+- Inches and millimetres selection.
+- Grid spacing presets.
+- Major grid interval selection.
+- Physical measurement conversion.
+- Grid configuration retrieval.
+
+### Grid Settings Tests
+
+    tests/test_grid_settings_dialog.py
+
+Contains automated tests for grid configuration, measurement conversion, preset selection, and validation.
+
 ### Measurement Rulers
 
     cutstudio/ui/canvas/rulers.py
@@ -866,15 +956,20 @@ The following items are development objectives, not claims of existing functiona
 
 ### High Priority: Canvas and Navigation
 
-1. Complete additional manual verification of horizontal and vertical rulers.
-2. Verify ruler synchronization during zooming.
-3. Verify ruler synchronization during horizontal and vertical scrolling.
-4. Verify ruler measurement accuracy.
-5. Implement configurable grid spacing.
-6. Implement grid snapping.
-7. Implement object snapping.
-8. Implement alignment guides.
-9. Improve canvas rendering performance.
+### High Priority: Canvas and Navigation
+
+1. Complete manual verification of configurable grid appearance.
+2. Verify grid visibility at different zoom levels.
+3. Verify major and minor grid line visibility and contrast.
+4. Verify grid spacing accuracy in inches and millimetres.
+5. Verify grid snapping with individual objects.
+6. Verify group snapping with multiple selected objects.
+7. Verify snapping behaviour with rotated objects.
+8. Verify resizing with grid snapping enabled.
+9. Investigate geometry-based snapping independent of stroke expansion.
+10. Implement object-to-object snapping.
+11. Implement alignment guides.
+12. Improve canvas rendering performance.
 
 ### Object Editing
 
@@ -967,55 +1062,67 @@ CutStudio should follow established vector-design and cutting-software conventio
 
 ## 11. Immediate Next Steps
 
-Recommended development sequence:
+The configurable grid and snapping implementation has been completed and committed.
 
-1. Inspect the actual Git working tree.
-2. Run the complete automated test suite and confirm the current baseline.
-3. Launch CutStudio.
-4. Verify horizontal and vertical ruler alignment.
-5. Verify ruler behaviour during zooming and panning.
-6. Verify measurement accuracy at different zoom levels.
-7. Verify cutting mat presets.
-8. Verify custom cutting mat dimensions.
-9. Verify saving and reopening projects.
-10. Verify older project compatibility.
-11. Begin implementing configurable grid spacing.
-12. Implement grid snapping.
+Recommended next steps:
 
-The next major canvas development objective is configurable grid spacing and grid snapping.
+1. Inspect the current Git working tree.
+2. Run the complete automated test suite.
+3. Launch CutStudio and inspect the grid visually.
+4. Verify grid visibility and contrast at different zoom levels.
+5. Verify inch and millimetre grid spacing.
+6. Verify major grid intervals.
+7. Test individual object snapping.
+8. Test multiple-object group snapping.
+9. Test snapping with rotated objects.
+10. Test resizing with snapping enabled.
+11. Investigate geometry-based snapping versus stroke-expanded bounds.
+12. Begin development of object-to-object snapping and alignment guides.
+
+Maintain the existing physical measurement model and 96-units-per-inch scene coordinate system.
+
+Do not introduce changes to coordinate conversion without first investigating their impact on existing geometry, rulers, rendering, and project persistence.
 
 ## 12. Git and Repository Management
 
-Historical Git information must not be treated as the current repository state.
+### Latest Grid and Snapping Commit
 
-Previous development sessions recorded commits for canvas resizing, rotation handle positioning, and zoom functionality.
+Latest recorded commit:
 
-The November 17 handoff also recorded documentation and application source changes that required further inspection.
+    c938055 Improve configurable grid and snapping
 
-A previous working-tree inspection reported the following modified files:
+The commit includes:
 
-- `ARCHITECTURE.md`
-- `HANDOFF.md`
-- `README.md`
-- `ROADMAP.md`
-- `cutstudio/ui/canvas/cutting_mat.py`
-- `cutstudio/ui/main_window.py`
-- `cutstudio/ui/mat_settings_dialog.py`
+- Configurable grid rendering improvements.
+- Grid settings dialog.
+- Grid spacing configuration.
+- Major grid interval configuration.
+- Grid snapping improvements.
+- Automated grid settings tests.
 
-New files included:
+Commit summary:
 
-- `cutstudio/ui/canvas/rulers.py`
-- `cutstudio/ui/rulers/`
-- `tests/test_cutting_mat.py`
+    4 files changed
+    268 insertions(+)
+    30 deletions(-)
 
-Backup files were also previously present:
+The commit was created on November 23, 2026.
 
-- `ARCHITECTURE.md.bak`
-- `HANDOFF.md.bak`
-- `README.md.bak`
-- `ROADMAP.md.bak`
+### Repository State at Last Inspection
 
-These are historical observations, not confirmed current Git status.
+The local main branch was one commit ahead of origin/main.
+
+Untracked files included:
+
+    backups/
+
+The backup directory contained timestamped source backups.
+
+The backup files should not be committed automatically.
+
+Last recorded automated test result:
+
+    114 passed
 
 ### Important Git Instructions
 
@@ -1100,6 +1207,7 @@ These requirements are mandatory for future documentation work and development h
 - Consider Wayland compatibility during GUI development.
 - Always inspect current source code before assuming a feature is implemented or a proposed change is still necessary.
 
+
 ## 15. Current Development State
 
 CutStudio is a functioning early-stage vector design application.
@@ -1132,19 +1240,99 @@ Implemented functionality includes:
 - Physical measurement support using millimetres.
 - Permanent zoom percentage display.
 - Permanent cutting mat dimension display.
+- Configurable grid spacing.
+- Grid spacing presets in inches and millimetres.
+- Configurable major grid line intervals.
+- Improved grid line contrast.
+- Independent grid visibility control.
+- Snap to Grid for object movement.
+- Snap to Grid for object resizing.
+
+### Grid and Snapping
+
+Grid settings are available through:
+
+    View → Grid Spacing...
+
+Supported spacing presets include fractional inches and millimetres.
+
+Major grid line intervals can be configured to:
+
+    2, 4, 5, or 10 minor grid intervals.
+
+The default grid spacing is 1/4 inch (6.35 mm), with major lines every four minor intervals (1 inch).
+
+Grid visibility and snapping operate independently.
+
+Grid rendering was corrected following a regression involving an undefined major_spacing variable. The canvas appearance and resizing behavior have since been manually verified.
+
+Object movement and resizing with snapping enabled and disabled have also been manually verified.
+
+### Automated Testing
 
 Latest recorded automated test result:
 
-    104 passed
+    114 passed
 
 Verification date:
 
-    November 17, 2026
+    November 23, 2026
 
-Ruler and status bar fixes have been manually verified.
+The complete automated test suite passes.
 
-Further manual GUI verification remains appropriate for ruler alignment, measurement accuracy, zooming, and panning.
+Git whitespace checking also passes.
 
-The immediate objective is to continue improving the canvas and editing experience while maintaining the existing automated test baseline.
+### Latest Git Commit
+
+Commit:
+
+    c938055
+
+Message:
+
+    Improve configurable grid and snapping
+
+Branch:
+
+    main
+
+The commit includes the configurable grid settings dialog, canvas rendering changes, main window integration, and associated tests.
+
+The commit is local and has not yet been pushed to origin/main.
+
+The only remaining untracked files are backup files in:
+
+    backups/
+
+Do not accidentally include these backup files in future commits.
+
+### Current Development Priorities
+
+The configurable grid and snapping milestone is complete.
+
+The immediate next objective is to improve object alignment and positioning tools.
+
+Proposed functionality:
+
+- Align Left.
+- Align Right.
+- Align Top.
+- Align Bottom.
+- Align Horizontal Centre.
+- Align Vertical Centre.
+- Distribute Evenly Horizontally.
+- Distribute Evenly Vertically.
+
+Alignment operations should work with multiple selected objects and preserve object dimensions and rotations.
+
+Before implementing these features:
+
+- Inspect the current renderer and object model.
+- Review selection handling.
+- Review undo/redo integration.
+- Add automated tests.
+- Verify functionality manually in the GUI.
+
+Do not begin the next milestone until the current grid and snapping commit has been pushed to GitHub.
 
 Always inspect the current source code and Git working tree before making development decisions.
