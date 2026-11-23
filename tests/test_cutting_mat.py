@@ -231,3 +231,103 @@ def test_horizontal_ruler_uses_font_metrics(canvas):
         assert isinstance(position, QPointF)
         assert position.y() == pytest.approx(16)
         assert isinstance(text, str)
+
+
+# ------------------------------------------------------------
+# Grid spacing and snapping regression tests
+# ------------------------------------------------------------
+
+def test_grid_spacing_can_be_set_in_inches(canvas):
+
+    canvas.set_grid_spacing_inches(0.25)
+
+    assert canvas.grid_spacing == pytest.approx(24.0)
+
+
+def test_grid_spacing_can_be_set_in_millimetres(canvas):
+
+    canvas.set_grid_spacing_mm(6.35)
+
+    assert canvas.grid_spacing == pytest.approx(24.0)
+
+
+@pytest.mark.parametrize(
+    "spacing",
+    [0, -1, float("inf"), float("nan")]
+)
+def test_invalid_grid_spacing_is_rejected(canvas, spacing):
+
+    with pytest.raises(ValueError):
+        canvas.set_grid_spacing_mm(spacing)
+
+
+@pytest.mark.parametrize("interval", [2, 4, 5, 10])
+def test_valid_major_grid_intervals(canvas, interval):
+
+    canvas.set_grid_major_interval(interval)
+
+    assert canvas.grid_major_interval == interval
+
+
+@pytest.mark.parametrize("interval", [0, 1, 3, 6, 20])
+def test_invalid_major_grid_intervals_are_rejected(canvas, interval):
+
+    with pytest.raises(ValueError):
+        canvas.set_grid_major_interval(interval)
+
+
+def test_group_snapping_preserves_relative_object_positions(canvas):
+
+    scene = canvas.scene()
+
+    first = scene.addRect(0, 0, 10, 10)
+    second = scene.addRect(0, 0, 10, 10)
+
+    first.setFlag(first.GraphicsItemFlag.ItemIsSelectable)
+    second.setFlag(second.GraphicsItemFlag.ItemIsSelectable)
+
+    first.setPos(26, 30)
+    second.setPos(50, 45)
+
+    first.setSelected(True)
+    second.setSelected(True)
+
+    original_difference = second.pos() - first.pos()
+
+    canvas.set_grid_spacing_inches(0.25)
+    canvas.set_snap_to_grid(True)
+
+    canvas._snap_selected_group()
+
+    new_difference = second.pos() - first.pos()
+
+    assert new_difference.x() == pytest.approx(
+        original_difference.x()
+    )
+    assert new_difference.y() == pytest.approx(
+        original_difference.y()
+    )
+
+    bounds = first.sceneBoundingRect().united(
+        second.sceneBoundingRect()
+    )
+
+    assert bounds.left() == pytest.approx(24.0)
+    assert bounds.top() == pytest.approx(24.0)
+
+
+def test_group_does_not_move_when_snapping_is_disabled(canvas):
+
+    scene = canvas.scene()
+
+    item = scene.addRect(0, 0, 10, 10)
+    item.setFlag(item.GraphicsItemFlag.ItemIsSelectable)
+    item.setPos(26, 30)
+    item.setSelected(True)
+
+    original_position = item.pos()
+
+    canvas.set_snap_to_grid(False)
+    canvas._snap_selected_group()
+
+    assert item.pos() == original_position

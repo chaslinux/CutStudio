@@ -738,9 +738,10 @@ Further GUI verification should confirm visual clarity at different zoom levels 
 
 ## 8. Automated Testing
 
+
 ### Latest Verified Test Result
 
-    114 passed
+    131 passed
 
 Latest verification date:
 
@@ -750,11 +751,21 @@ Command:
 
     python -m pytest -q
 
-The complete automated test suite passed following implementation of configurable grid settings and snapping improvements.
+The complete automated test suite passed following implementation of configurable grid settings and additional grid and snapping regression tests.
 
-This result was obtained before the latest grid improvements were committed.
+The latest regression tests cover:
 
-A new test run is required after subsequent source changes.
+- Grid spacing configuration in inches.
+- Grid spacing configuration in millimetres.
+- Invalid grid spacing rejection.
+- Valid major grid intervals.
+- Invalid major grid interval rejection.
+- Multi-object group snapping.
+- Preservation of relative object positions during group snapping.
+- Snapping disabled behaviour.
+
+The complete test suite was verified with 131 passing tests.
+
 
 ### Test Coverage
 
@@ -1248,25 +1259,32 @@ Implemented functionality includes:
 - Snap to Grid for object movement.
 - Snap to Grid for object resizing.
 
+
 ### Grid and Snapping
 
-Grid settings are available through:
+Implemented functionality:
 
-    View → Grid Spacing...
+- Configurable grid spacing.
+- Inches and millimetres display units.
+- Preset grid spacing options.
+- Configurable major grid intervals.
+- Major and minor grid line rendering.
+- Grid visibility control.
+- Snap to Grid support.
+- Grid-aligned resizing.
+- Multi-object group snapping that preserves relative positions.
 
-Supported spacing presets include fractional inches and millimetres.
+Default configuration:
 
-Major grid line intervals can be configured to:
+- Grid spacing: 6.35 mm (1/4 inch).
+- Major interval: 4 minor grid intervals.
+- Major line spacing: 25.4 mm (1 inch).
+- Grid visible: enabled.
+- Snap to Grid: disabled.
 
-    2, 4, 5, or 10 minor grid intervals.
+Additional automated regression tests cover grid configuration, validation, and group snapping.
 
-The default grid spacing is 1/4 inch (6.35 mm), with major lines every four minor intervals (1 inch).
-
-Grid visibility and snapping operate independently.
-
-Grid rendering was corrected following a regression involving an undefined major_spacing variable. The canvas appearance and resizing behavior have since been manually verified.
-
-Object movement and resizing with snapping enabled and disabled have also been manually verified.
+Further manual GUI verification is recommended for visual clarity at different zoom levels and snapping behaviour with rotated objects and multi-object selections.
 
 ### Automated Testing
 
