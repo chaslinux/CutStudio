@@ -87,11 +87,42 @@ def document_from_dict(data, include_mat_config=False):
     try:
         layers = []
 
+        layer_ids = set()
+        object_ids = set()
+
         for layer_data in document_data["layers"]:
+
+            layer_id = layer_data["layer_id"]
+
+            if layer_id in layer_ids:
+                raise ValueError(
+                    f"Duplicate layer ID: {layer_id}"
+                )
+
+            layer_ids.add(layer_id)
+
+            if type(layer_data["visible"]) is not bool:
+                raise ValueError(
+                    "Layer visibility must be a boolean"
+                )
+
+            if type(layer_data["locked"]) is not bool:
+                raise ValueError(
+                    "Layer locking must be a boolean"
+                )
 
             objects = []
 
             for object_data in layer_data["objects"]:
+
+                object_id = object_data["object_id"]
+
+                if object_id in object_ids:
+                    raise ValueError(
+                        f"Duplicate object ID: {object_id}"
+                    )
+
+                object_ids.add(object_id)
 
                 obj = VectorObject(
                     object_type=ObjectType(

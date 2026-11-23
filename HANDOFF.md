@@ -1,6 +1,6 @@
 # CutStudio Development Handoff
 
-Last updated: November 17, 2026
+Last updated: November 23, 2026
 
 ## 1. Project Overview
 
@@ -1407,3 +1407,67 @@ Run the complete test suite:
 Run individual test modules when investigating regressions.
 
 Always verify the full suite before committing changes.
+
+### Project Persistence Validation Improvements — November 23, 2026
+
+#### Completed
+
+Additional project persistence validation and regression testing
+have been implemented.
+
+Changes to `cutstudio/core/project_file.py`:
+
+- Added duplicate layer ID detection during project loading.
+- Added duplicate object ID detection across all document layers.
+- Added strict boolean validation for layer visibility.
+- Added strict boolean validation for layer locking.
+- Invalid project data continues to be reported through
+  `ProjectFileError`.
+
+Additional regression tests in `tests/test_project_file.py`:
+
+- Round-trip preservation of layer state.
+- Round-trip preservation of object properties.
+- Round-trip preservation of multiple layers and objects.
+- Document dimension preservation.
+- Duplicate layer ID rejection.
+- Duplicate object ID rejection.
+- Non-finite document dimension rejection.
+- Invalid layer visibility rejection.
+- Invalid layer locking rejection.
+- Invalid JSON rejection.
+
+#### Latest Test Results
+
+Full automated test suite:
+
+    152 passed
+
+Command:
+
+    python -m pytest -q
+
+Formatting verification:
+
+    git diff --check
+
+No formatting errors remain following the final newline correction.
+
+#### Current Development State
+
+The project persistence implementation and associated regression
+tests are complete and have passed the automated test suite.
+
+The changes remain uncommitted.
+
+The working tree also contains backup files that must not be
+included in the persistence commit without further review.
+
+The next commit should contain:
+
+- `cutstudio/core/project_file.py`
+- `tests/test_project_file.py`
+- `HANDOFF.md`
+
+The earlier Undo/Redo improvements and selection restoration
+remain recorded in commits `82802d8` and `13938cb`.
