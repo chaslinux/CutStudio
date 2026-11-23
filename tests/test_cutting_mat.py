@@ -331,3 +331,137 @@ def test_group_does_not_move_when_snapping_is_disabled(canvas):
     canvas._snap_selected_group()
 
     assert item.pos() == original_position
+
+
+# ------------------------------------------------------------
+# Locked-layer resize protection
+# ------------------------------------------------------------
+
+def test_locked_layer_objects_cannot_be_resized(
+    canvas, monkeypatch
+):
+    from types import SimpleNamespace
+    from PySide6.QtCore import QPointF
+
+    scene = canvas.scene()
+
+    item = scene.addRect(0, 0, 100, 100)
+
+    item.setFlag(
+        item.GraphicsItemFlag.ItemIsSelectable,
+        True
+    )
+
+    item.setData(0x100, "locked-object")
+    item.setSelected(True)
+
+    assert item in scene.selectedItems()
+
+    original_rect = item.rect()
+
+    locked_layer = SimpleNamespace(locked=True)
+    obj = SimpleNamespace(object_id="locked-object")
+
+    canvas.renderer = SimpleNamespace(
+        OBJECT_ID_ROLE=0x100,
+        find_object_and_layer=lambda object_id: (
+            obj, locked_layer
+        ),
+        sync_to_document=lambda: None,
+    )
+
+    monkeypatch.setattr(
+        canvas,
+        "_handle_at",
+        lambda position: "se"
+    )
+
+    class FakeEvent:
+
+        def button(self):
+            return Qt.MouseButton.LeftButton
+
+        def position(self):
+            return QPointF(10, 10)
+
+        def accept(self):
+            self.accepted = True
+
+    event = FakeEvent()
+    event.accepted = False
+
+    canvas.mousePressEvent(event)
+
+    assert event.accepted
+    assert item.rect() == original_rect
+
+
+# ------------------------------------------------------------
+# Mixed locked/unlocked group snapping regression
+# ------------------------------------------------------------
+
+def test_group_snapping_does_not_move_locked_objects(canvas):
+
+    from types import SimpleNamespace
+
+    scene = canvas.scene()
+
+    first = scene.addRect(0, 0, 10, 10)
+    second = scene.addRect(0, 0, 10, 10)
+    locked = scene.addRect(0, 0, 10, 10)
+
+    role = 0x100
+
+    objects = {
+        "first": (
+            SimpleNamespace(object_id="first"),
+            SimpleNamespace(locked=False),
+        ),
+        "second": (
+            SimpleNamespace(object_id="second"),
+            SimpleNamespace(locked=False),
+        ),
+        "locked": (
+            SimpleNamespace(object_id="locked"),
+            SimpleNamespace(locked=True),
+        ),
+    }
+
+    for item, object_id, position in (
+        (first, "first", (26, 30)),
+        (second, "second", (50, 45)),
+        (locked, "locked", (100, 100)),
+    ):
+        item.setData(role, object_id)
+        item.setFlag(item.GraphicsItemFlag.ItemIsSelectable)
+        item.setPos(*position)
+        item.setSelected(True)
+
+    original_difference = second.pos() - first.pos()
+    locked_position = locked.pos()
+
+    canvas.renderer = SimpleNamespace(
+        OBJECT_ID_ROLE=role,
+        find_object_and_layer=lambda object_id: objects.get(
+            object_id, (None, None)
+        ),
+    )
+
+    canvas.set_grid_spacing_inches(0.25)
+    canvas.set_snap_to_grid(True)
+
+    canvas._snap_selected_group()
+
+    assert locked.pos() == locked_position
+
+    assert first.sceneBoundingRect().left() == pytest.approx(24)
+    assert first.sceneBoundingRect().top() == pytest.approx(24)
+
+    new_difference = second.pos() - first.pos()
+
+    assert new_difference.x() == pytest.approx(
+        original_difference.x()
+    )
+    assert new_difference.y() == pytest.approx(
+        original_difference.y()
+    )

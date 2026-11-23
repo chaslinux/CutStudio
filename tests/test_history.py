@@ -111,3 +111,67 @@ def test_clear_history():
     assert not history.can_undo
     assert not history.can_redo
 
+
+def test_locked_layer_state_survives_undo_redo():
+
+    document = Document()
+    history = UndoHistory(document)
+
+    layer = document.active_layer
+    layer.locked = True
+
+    assert history.record(document)
+
+    restored = history.undo()
+
+    assert restored.active_layer.locked is False
+
+    restored = history.redo()
+
+    assert restored.active_layer.locked is True
+
+
+def test_layer_visibility_survives_undo_redo():
+
+    document = Document()
+    history = UndoHistory(document)
+
+    layer = document.active_layer
+    layer.visible = False
+
+    assert history.record(document)
+
+    restored = history.undo()
+
+    assert restored.active_layer.visible is True
+
+    restored = history.redo()
+
+    assert restored.active_layer.visible is False
+
+
+def test_history_snapshots_are_independent():
+
+    document = Document()
+    history = UndoHistory(document)
+
+    obj = VectorObject(
+        object_type=ObjectType.RECTANGLE
+    )
+
+    document.active_layer.add_object(obj)
+    history.record(document)
+
+    restored = history.undo()
+
+    restored.active_layer.add_object(
+        VectorObject(ObjectType.ELLIPSE)
+    )
+
+    # Modifying a restored snapshot must not affect
+    # the original document or stored redo state.
+    assert len(document.active_layer.objects) == 1
+
+    redone = history.redo()
+
+    assert len(redone.active_layer.objects) == 1

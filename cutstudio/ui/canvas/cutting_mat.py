@@ -266,6 +266,28 @@ class CuttingMat(QGraphicsView):
 
         selected = self.scene().selectedItems()
 
+        if self.renderer is not None:
+            movable = []
+
+            for item in selected:
+                object_id = item.data(
+                    self.renderer.OBJECT_ID_ROLE
+                )
+
+                if object_id is None:
+                    continue
+
+                obj, layer = self.renderer.find_object_and_layer(
+                    object_id
+                )
+
+                if obj is None or layer is None or layer.locked:
+                    continue
+
+                movable.append(item)
+
+            selected = movable
+
         if not selected:
             return
 
@@ -526,6 +548,14 @@ class CuttingMat(QGraphicsView):
                             "geometry_before": self._document_geometry(),
                         }
 
+                        event.accept()
+                        return
+
+                    obj, layer = self.renderer.find_object_and_layer(
+                        object_id
+                    )
+
+                    if obj is None or layer is None or layer.locked:
                         event.accept()
                         return
 

@@ -376,3 +376,66 @@ def test_delete_empty_selection(setup_renderer):
     assert len(document.active_layer.objects) == 0
     assert len(scene.items()) == 0
 
+
+
+def test_layer_locking_preserves_selection_and_restores_movement(
+    setup_renderer
+):
+
+    document, scene, renderer = setup_renderer
+
+    layer = document.active_layer
+    obj = VectorObject(ObjectType.RECTANGLE)
+
+    renderer.add_object(obj, layer)
+
+    item = renderer.items[obj.object_id]
+
+    movable = item.GraphicsItemFlag.ItemIsMovable
+    selectable = item.GraphicsItemFlag.ItemIsSelectable
+
+    # Initially, the object can be selected and moved.
+    assert item.flags() & movable
+    assert item.flags() & selectable
+
+    item.setSelected(True)
+
+    # Lock the layer.
+    renderer.set_layer_locked(layer.layer_id, True)
+
+    assert layer.locked
+    assert item.flags() & selectable
+    assert not item.flags() & movable
+    assert item.isSelected()
+
+    # Unlock the layer.
+    renderer.set_layer_locked(layer.layer_id, False)
+
+    assert not layer.locked
+    assert item.flags() & selectable
+    assert item.flags() & movable
+    assert item.isSelected()
+
+
+def test_delete_objects_from_unlocked_layer(setup_renderer):
+
+    document, scene, renderer = setup_renderer
+
+    obj = VectorObject(ObjectType.RECTANGLE)
+
+    renderer.add_object(
+        obj,
+        document.active_layer
+    )
+
+    deleted = renderer.delete_objects([
+        obj.object_id
+    ])
+
+    assert deleted == 1
+    assert document.active_layer.find_object(
+        obj.object_id
+    ) is None
+
+    assert obj.object_id not in renderer.items
+    assert len(scene.items()) == 0

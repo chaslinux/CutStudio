@@ -1133,7 +1133,7 @@ The backup files should not be committed automatically.
 
 Last recorded automated test result:
 
-    114 passed
+    131 passed
 
 ### Important Git Instructions
 
@@ -1354,3 +1354,56 @@ Before implementing these features:
 Do not begin the next milestone until the current grid and snapping commit has been pushed to GitHub.
 
 Always inspect the current source code and Git working tree before making development decisions.
+
+## Latest Development Update — November 23, 2026
+
+### Completed
+
+- Canvas horizontal and vertical rulers.
+- Canvas zoom controls, zoom-to-fit and scale limits.
+- Ruler updates following scrolling and resizing.
+- Grid spacing configurable in inches and millimetres.
+- Configurable major grid intervals.
+- Group snapping preserves relative object positions.
+- Layer visibility and locking.
+- Locked layers prevent object modification.
+- Resize and rotation protection for locked-layer objects.
+- Multi-object duplication across layers.
+- Duplication rejects locked-layer selections atomically.
+- Multi-object deletion across layers.
+- Deletion rejects locked-layer selections atomically.
+- Hidden-layer visibility preserved when duplicating.
+- Document snapshot-based Undo/Redo history.
+- History limits and redo-branch invalidation.
+- Main window Undo/Redo integration.
+- Document restoration rebuilds canvas graphics items.
+- Selection restoration after Undo/Redo where objects still exist.
+
+### Latest Test Results
+
+- Renderer tests: 17 passed.
+- History tests: 9 passed.
+- Full test suite: 138 passed.
+
+### Current Development Focus
+
+Continue strengthening Undo/Redo integration.
+
+Recommended next regression tests:
+
+1. Undo restores layer visibility and locking.
+2. Redo restores layer visibility and locking.
+3. Undo/Redo preserves object IDs.
+4. Restored graphics items correctly reflect layer properties.
+5. Undo/Redo action enabled states remain synchronized.
+6. Selection restoration works when objects are removed or restored.
+
+### Development Workflow
+
+Run the complete test suite:
+
+    python -m pytest -q
+
+Run individual test modules when investigating regressions.
+
+Always verify the full suite before committing changes.
