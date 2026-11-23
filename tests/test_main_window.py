@@ -121,6 +121,120 @@ def test_delete_multiple_objects_undo(main_window):
     assert len(main_window.document.active_layer.objects) == 2
 
 
+def test_undo_redo_restores_layer_visibility_in_graphics(main_window):
+
+    obj = add_rectangle(main_window)
+
+    layer = main_window.document.active_layer
+    item = main_window.renderer.items[obj.object_id]
+
+    main_window.renderer.set_layer_visibility(
+        layer.layer_id,
+        False
+    )
+
+    main_window.record_history()
+
+    assert not item.isVisible()
+
+    main_window.undo()
+
+    restored_item = main_window.renderer.items[obj.object_id]
+
+    assert main_window.document.active_layer.visible is True
+    assert restored_item.isVisible()
+
+    main_window.redo()
+
+    restored_item = main_window.renderer.items[obj.object_id]
+
+    assert main_window.document.active_layer.visible is False
+    assert not restored_item.isVisible()
+
+
+def test_undo_redo_restores_layer_locking_in_graphics(main_window):
+
+    obj = add_rectangle(main_window)
+
+    layer = main_window.document.active_layer
+
+    main_window.renderer.set_layer_locked(
+        layer.layer_id,
+        True
+    )
+
+    main_window.record_history()
+
+    item = main_window.renderer.items[obj.object_id]
+
+    assert not (
+        item.flags()
+        & item.GraphicsItemFlag.ItemIsMovable
+    )
+
+    main_window.undo()
+
+    restored_item = main_window.renderer.items[obj.object_id]
+
+    assert main_window.document.active_layer.locked is False
+
+    assert (
+        restored_item.flags()
+        & restored_item.GraphicsItemFlag.ItemIsMovable
+    )
+
+    main_window.redo()
+
+    restored_item = main_window.renderer.items[obj.object_id]
+
+    assert main_window.document.active_layer.locked is True
+
+    assert not (
+        restored_item.flags()
+        & restored_item.GraphicsItemFlag.ItemIsMovable
+    )
+
+
+def test_undo_redo_preserves_object_ids(main_window):
+
+    first = add_rectangle(main_window)
+    second = add_rectangle(main_window, 80, 80)
+
+    original_ids = {
+        first.object_id,
+        second.object_id
+    }
+
+    main_window.undo()
+
+    main_window.redo()
+
+    restored_ids = {
+        obj.object_id
+        for obj in main_window.document.active_layer.objects
+    }
+
+    assert restored_ids == original_ids
+
+    assert set(main_window.renderer.items.keys()) >= original_ids
+
+
+def test_undo_restores_selection_after_object_deletion(main_window):
+
+    obj = add_rectangle(main_window)
+
+    select_objects(main_window, obj)
+
+    main_window.delete_selected_objects()
+
+    assert len(main_window.document.active_layer.objects) == 0
+
+    main_window.undo()
+
+    restored_item = main_window.renderer.items[obj.object_id]
+
+    assert restored_item.isSelected()
+
 # ============================================================
 # CLIPBOARD TESTS
 # ============================================================

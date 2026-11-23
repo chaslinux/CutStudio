@@ -88,6 +88,7 @@ class MainWindow(QMainWindow):
 
         self.clipboard_objects = []
         self.history = UndoHistory(self.document)
+        self._history_selections = {0: set()}
 
         # ----------------------------------------------------
         # Project file tracking
@@ -207,7 +208,24 @@ class MainWindow(QMainWindow):
 
     def record_history(self):
 
+        selected_ids = {
+            item.data(CanvasRenderer.OBJECT_ID_ROLE)
+            for item in self.scene.selectedItems()
+            if item.data(CanvasRenderer.OBJECT_ID_ROLE) is not None
+        }
+
         if self.history.record(self.document):
+
+            self._history_selections[
+                self.history.undo_count
+            ] = selected_ids
+
+            self._history_selections = {
+                index: selection
+                for index, selection in self._history_selections.items()
+                if index <= self.history.undo_count
+            }
+
             self.mark_modified()
 
         self.update_history_actions()
@@ -218,14 +236,26 @@ class MainWindow(QMainWindow):
         document = self.history.undo()
 
         if document is not None:
-            self.restore_document(document)
+            self.restore_document(
+                document,
+                self._history_selections.get(
+                    self.history.undo_count,
+                    set()
+                )
+            )
 
     def redo(self):
 
         document = self.history.redo()
 
         if document is not None:
-            self.restore_document(document)
+            self.restore_document(
+                document,
+                self._history_selections.get(
+                    self.history.undo_count,
+                    set()
+                )
+            )
 
     def show_mat_settings(self):
 
@@ -282,13 +312,10 @@ class MainWindow(QMainWindow):
         )
 
 
-    def restore_document(self, document):
+    def restore_document(self, document, selected_object_ids=None):
 
-        selected_object_ids = [
-            item.data(CanvasRenderer.OBJECT_ID_ROLE)
-            for item in self.scene.selectedItems()
-            if item.data(CanvasRenderer.OBJECT_ID_ROLE) is not None
-        ]
+        if selected_object_ids is None:
+            selected_object_ids = set()
 
         self.document = document
         self.renderer.document = document
@@ -490,6 +517,7 @@ class MainWindow(QMainWindow):
 
         self.document = Document()
         self.history.clear(self.document)
+        self._history_selections = {0: set()}
         self.update_history_actions()
 
         self.renderer.document = self.document
@@ -1606,6 +1634,11 @@ class MainWindow(QMainWindow):
 
         # Synchronize document positions first.
         self.renderer.sync_to_document()
+
+        # Preserve selection on the pre-deletion history state.
+        self._history_selections[
+            self.history.undo_count
+        ] = set(object_ids)
 
         try:
 
