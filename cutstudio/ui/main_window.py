@@ -214,17 +214,32 @@ class MainWindow(QMainWindow):
             if item.data(CanvasRenderer.OBJECT_ID_ROLE) is not None
         }
 
+        previous_index = self.history.undo_count
+        had_redo = self.history.can_redo
+        history_was_full = (
+            previous_index == self.history.max_steps
+            and not had_redo
+        )
+
         if self.history.record(self.document):
 
-            self._history_selections[
-                self.history.undo_count
-            ] = selected_ids
+            if history_was_full:
+                self._history_selections = {
+                    index - 1: selection
+                    for index, selection
+                    in self._history_selections.items()
+                    if index > 0
+                }
 
             self._history_selections = {
                 index: selection
                 for index, selection in self._history_selections.items()
-                if index <= self.history.undo_count
+                if index <= previous_index
             }
+
+            self._history_selections[
+                self.history.undo_count
+            ] = selected_ids
 
             self.mark_modified()
 
@@ -562,6 +577,7 @@ class MainWindow(QMainWindow):
             self.document = document
             self.mat_config = mat_config
             self.history.clear(document)
+            self._history_selections = {0: set()}
             self.update_history_actions()
             self.renderer.document = document
 
