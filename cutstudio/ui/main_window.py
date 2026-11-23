@@ -58,7 +58,7 @@ from cutstudio.core.units import mm_to_scene_units
 from cutstudio.ui.canvas.cutting_mat import CuttingMat
 from cutstudio.ui.canvas.renderer import CanvasRenderer
 from cutstudio.ui.mat_settings_dialog import MatSettingsDialog
-
+from cutstudio.ui.grid_settings_dialog import GridSettingsDialog
 
 # ============================================================
 # MAIN WINDOW
@@ -433,27 +433,26 @@ class MainWindow(QMainWindow):
 
     def change_grid_spacing(self):
 
-        current_inches = (
-            self.canvas.grid_spacing / 96.0
+        dialog = GridSettingsDialog(
+            spacing_mm=(
+                self.canvas.grid_spacing * 25.4 / 96.0
+            ),
+            major_interval=self.canvas.grid_major_interval,
+            parent=self
         )
 
-        inches, accepted = QInputDialog.getDouble(
-            self,
-            "Grid Spacing",
-            "Grid spacing (inches):",
-            current_inches,
-            0.0625,
-            12.0,
-            4
-        )
-
-        if not accepted:
+        if dialog.exec() != GridSettingsDialog.DialogCode.Accepted:
             return
 
-        self.canvas.set_grid_spacing_inches(inches)
+        spacing_mm, major_interval = dialog.get_settings()
+
+        self.canvas.set_grid_spacing_mm(spacing_mm)
+
+        self.canvas.set_grid_major_interval(major_interval)
 
         self.statusBar().showMessage(
-            f"Grid spacing set to {inches:g} inches"
+            f"Grid spacing set to {spacing_mm:g} mm; "
+            f"major interval: {major_interval}"
         )
 
     # ---------------------------------

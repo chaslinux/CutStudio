@@ -31,7 +31,8 @@ class CuttingMat(QGraphicsView):
 
         # Grid settings. Scene coordinates use 96 units per inch.
         self.grid_visible = True
-        self.grid_spacing = 24.0       # Quarter inch
+        self.grid_spacing = 24.0       # 6.35 mm (1/4 inch)
+        self.grid_major_interval = 4   # Major line every 1 inch
         self.snap_to_grid = False
 
         self.setHorizontalScrollBarPolicy(
@@ -142,6 +143,7 @@ class CuttingMat(QGraphicsView):
         self._update_ruler_geometries()
 
     def drawBackground(self, painter, rect):
+        """Draw the cutting mat and its configurable grid."""
 
         mat = self.scene().sceneRect()
 
@@ -153,7 +155,8 @@ class CuttingMat(QGraphicsView):
         if self.grid_visible and self.grid_spacing > 0:
 
             spacing = self.grid_spacing
-            major_spacing = spacing * 4
+            interval = max(1, int(self.grid_major_interval))
+            major_spacing = spacing * interval
 
             first_x = math.ceil(mat.left() / spacing)
             last_x = math.floor(mat.right() / spacing)
@@ -161,18 +164,20 @@ class CuttingMat(QGraphicsView):
             first_y = math.ceil(mat.top() / spacing)
             last_y = math.floor(mat.bottom() / spacing)
 
+            # Draw minor and major grid lines.
             for index in range(first_x, last_x + 1):
 
                 x = index * spacing
+                is_major = index % interval == 0
 
-                is_major = index % 4 == 0
-
-                grid_pen = QPen(
-                    QColor("#b8bec6" if is_major else "#eeeeee")
+                pen = QPen(
+                    QColor(
+                        "#929da8" if is_major else "#d1d6dc"
+                    )
                 )
 
-                grid_pen.setWidthF(0)
-                painter.setPen(grid_pen)
+                pen.setWidthF(0)
+                painter.setPen(pen)
 
                 painter.drawLine(
                     QPointF(x, mat.top()),
@@ -182,21 +187,23 @@ class CuttingMat(QGraphicsView):
             for index in range(first_y, last_y + 1):
 
                 y = index * spacing
+                is_major = index % interval == 0
 
-                is_major = index % 4 == 0
-
-                grid_pen = QPen(
-                    QColor("#b8bec6" if is_major else "#eeeeee")
+                pen = QPen(
+                    QColor(
+                        "#929da8" if is_major else "#d1d6dc"
+                    )
                 )
 
-                grid_pen.setWidthF(0)
-                painter.setPen(grid_pen)
+                pen.setWidthF(0)
+                painter.setPen(pen)
 
                 painter.drawLine(
                     QPointF(mat.left(), y),
                     QPointF(mat.right(), y)
                 )
 
+        # Cutting mat boundary.
         border_pen = QPen(
             QColor("#3285c7")
         )
@@ -217,6 +224,23 @@ class CuttingMat(QGraphicsView):
             raise ValueError("Grid spacing must be positive.")
 
         self.grid_spacing = inches * UNITS_PER_INCH
+        self.viewport().update()
+
+    def set_grid_spacing_mm(self, millimetres):
+
+        if not math.isfinite(millimetres) or millimetres <= 0:
+            raise ValueError("Grid spacing must be positive.")
+
+        self.grid_spacing = mm_to_scene_units(millimetres)
+        self.viewport().update()
+
+
+    def set_grid_major_interval(self, interval):
+
+        if interval not in (2, 4, 5, 10):
+            raise ValueError("Invalid major grid interval.")
+
+        self.grid_major_interval = interval
         self.viewport().update()
 
     def set_snap_to_grid(self, enabled):
