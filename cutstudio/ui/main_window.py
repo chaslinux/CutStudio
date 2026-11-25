@@ -43,6 +43,7 @@ from PySide6.QtWidgets import (
 from cutstudio.core.document import Document
 from cutstudio.core.history import UndoHistory
 from cutstudio.core.mat import CuttingMatConfig
+from cutstudio.core.alignment import align_objects, distribute_objects
 from cutstudio.core.objects import ObjectType, VectorObject
 from cutstudio.core.project_file import (
     ProjectFileError,
@@ -472,6 +473,35 @@ class MainWindow(QMainWindow):
 
         # Objects menu
         self.object_menu = menu_bar.addMenu("Objects")
+
+        align_menu = self.object_menu.addMenu("Align")
+        for label, mode in [
+            ("Align Left", "left"),
+            ("Align Horizontal Centre", "h_center"),
+            ("Align Right", "right"),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(lambda checked=False, m=mode: self.align_selected_objects(m))
+            align_menu.addAction(act)
+
+        align_menu.addSeparator()
+        for label, mode in [
+            ("Align Top", "top"),
+            ("Align Vertical Centre", "v_center"),
+            ("Align Bottom", "bottom"),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(lambda checked=False, m=mode: self.align_selected_objects(m))
+            align_menu.addAction(act)
+
+        distribute_menu = self.object_menu.addMenu("Distribute")
+        for label, axis in [
+            ("Distribute Evenly Horizontally", "horizontal"),
+            ("Distribute Evenly Vertically", "vertical"),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(lambda checked=False, a=axis: self.distribute_selected_objects(a))
+            distribute_menu.addAction(act)
 
     def change_grid_spacing(self):
 
@@ -1700,6 +1730,93 @@ class MainWindow(QMainWindow):
             center.y()
             - mm_to_scene_units(height_mm) / 2,
         )
+
+
+# ============================================================
+# SECTION 4D: ALIGN AND DISTRIBUTE SELECTED OBJECTS
+# ============================================================
+
+    def _collect_unlocked_selected_objects(self, minimum_count, action_label):
+
+        selected_items = self.scene.selectedItems()
+
+        if len(selected_items) < minimum_count:
+            self.statusBar().showMessage(
+                f"Select at least {minimum_count} objects to {action_label}"
+            )
+            return None
+
+        self.renderer.sync_to_document()
+
+        selected_objects = []
+
+        for item in selected_items:
+            object_id = item.data(
+                CanvasRenderer.OBJECT_ID_ROLE
+            )
+
+            if object_id is None:
+                continue
+
+            obj, layer = self.renderer.find_object_and_layer(
+                object_id
+            )
+
+            if obj is None or layer is None:
+                continue
+
+            if layer.locked:
+                self.statusBar().showMessage(
+                    f"Cannot {action_label} objects on a locked layer"
+                )
+                return None
+
+            selected_objects.append(obj)
+
+        if len(selected_objects) < minimum_count:
+            self.statusBar().showMessage(
+                f"Select at least {minimum_count} objects to {action_label}"
+            )
+            return None
+
+        return selected_objects
+
+    def _refresh_aligned_objects(self, objects):
+
+        for obj in objects:
+            self.renderer.update_item_from_object(obj)
+
+        if len(objects) == 1:
+            self.renderer.update_resize_handles(objects.object_id)
+        else:
+            self.renderer.clear_resize_handles()
+
+        self.update_properties()
+        self.record_history()
+
+    def align_selected_objects(self, mode):
+
+        objects = self._collect_unlocked_selected_objects(2, "align")
+        if objects is None:
+            return
+
+        if not align_objects(objects, mode):
+            return
+
+        self._refresh_aligned_objects(objects)
+        self.statusBar().showMessage(f"Aligned {len(objects)} object(s)")
+
+    def distribute_selected_objects(self, axis):
+
+        objects = self._collect_unlocked_selected_objects(3, "distribute")
+        if objects is None:
+            return
+
+        if not distribute_objects(objects, axis):
+            return
+
+        self._refresh_aligned_objects(objects)
+        self.statusBar().showMessage(f"Distributed {len(objects)} object(s)")
 
 
 # ============================================================
