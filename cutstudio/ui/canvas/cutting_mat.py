@@ -2,7 +2,12 @@ import math
 
 from PySide6.QtCore import Qt, QRectF, QPointF, Signal
 from PySide6.QtGui import QColor, QPainter, QPen
-from PySide6.QtWidgets import QGraphicsView, QWidget
+from PySide6.QtWidgets import (
+    QGraphicsEllipseItem,
+    QGraphicsRectItem,
+    QGraphicsView,
+    QWidget,
+)
 
 from cutstudio.ui.canvas.rulers import (
     RulerWidget,
@@ -259,6 +264,14 @@ class CuttingMat(QGraphicsView):
 
         return round(value / spacing) * spacing
 
+    def _item_geometric_scene_bounds(self, item):
+        if isinstance(item, (QGraphicsRectItem, QGraphicsEllipseItem)):
+            local_bounds = item.rect()
+        else:
+            local_bounds = item.boundingRect()
+
+        return item.sceneTransform().mapRect(local_bounds)
+
     def _snap_selected_group(self):
 
         if not self.snap_to_grid:
@@ -291,12 +304,15 @@ class CuttingMat(QGraphicsView):
         if not selected:
             return
 
-        # Snap the entire selection together so the relative
+        # Snap the entire selection together using geometric bounds
+        # (independent of visual stroke expansion) so relative
         # positions of multiple objects are preserved.
-        bounds = selected[0].sceneBoundingRect()
+        bounds = self._item_geometric_scene_bounds(selected[0])
 
         for item in selected[1:]:
-            bounds = bounds.united(item.sceneBoundingRect())
+            bounds = bounds.united(
+                self._item_geometric_scene_bounds(item)
+            )
 
         mat = self.scene().sceneRect()
 

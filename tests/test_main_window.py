@@ -622,3 +622,16 @@ def test_accepting_unchanged_mat_preserves_status(
     assert main_window.mat_config == original_mat
     assert main_window.mat_status_label.text() == original_status
     assert main_window.document_modified is False
+
+
+def test_default_rectangle_and_ellipse_dimensions_are_25mm(main_window):
+
+    main_window.add_rectangle()
+    rect = main_window.document.active_layer.objects[-1]
+    assert rect.width == pytest.approx(25.0)
+    assert rect.height == pytest.approx(25.0)
+
+    main_window.add_ellipse()
+    ellipse = main_window.document.active_layer.objects[-1]
+    assert ellipse.width == pytest.approx(25.0)
+    assert ellipse.height == pytest.approx(25.0)

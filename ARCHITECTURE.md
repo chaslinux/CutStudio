@@ -141,6 +141,7 @@ The UI package contains the graphical application.
 
 Current modules:
 
+- grid_settings_dialog.py
 - main_window.py
 - mat_settings_dialog.py
 
@@ -151,7 +152,7 @@ Responsibilities:
 - Toolbars.
 - Drawing tool activation.
 - Zoom to Fit toolbar action and keyboard shortcut (Ctrl+0).
-- Object creation.
+- Object creation (25.0 × 25.0 mm default rectangle and ellipse dimensions).
 - Object selection.
 - Object duplication.
 - Object deletion.
@@ -173,6 +174,7 @@ Additional responsibilities:
 - Maintain physical cutting mat configuration.
 - Update graphics scene dimensions when mat configuration changes.
 - Update the cutting mat dimensions displayed in the status bar.
+- Coordinate grid visibility, spacing, major intervals, and snapping settings.
 - Coordinate canvas zoom and navigation.
 - Display the current canvas zoom percentage.
 - Preserve selected objects when restoring document history.
@@ -203,6 +205,18 @@ millimetres.
 The main window applies accepted mat configuration changes
 independently of document dimensions and document history.
 
+Grid settings:
+
+The `grid_settings_dialog.py` module provides the configurable
+grid settings interface.
+
+Current functionality:
+
+- Configure grid spacing in inches or millimetres.
+- Select from built-in spacing presets or enter custom values.
+- Configure major grid line intervals (2, 4, 5, or 10 minor divisions).
+- Validate positive finite spacing and supported major intervals.
+
 ### 2.3 Canvas
 
 Location:
@@ -222,7 +236,7 @@ Responsible for canvas interaction.
 Current functionality:
 
 - Display the cutting mat.
-- Display the canvas grid.
+- Display the canvas grid with configurable spacing and major intervals.
 - Zoom using Ctrl + mouse wheel.
 - Dedicated Zoom In and Zoom Out controls.
 - Zoom In and Zoom Out keyboard shortcuts.
@@ -235,7 +249,8 @@ Current functionality:
 - Object selection.
 - Rubber-band selection.
 - Object movement.
-- Object resizing.
+- Grid snapping and multi-object group snapping using stroke-independent geometric scene bounds (`_item_geometric_scene_bounds()`).
+- Object resizing (including grid-aligned resizing).
 - Shift-based aspect-ratio constrained resizing.
 - Object rotation.
 - Resize handle interaction.
@@ -300,7 +315,6 @@ Ruler markings update when the canvas is zoomed or panned.
 
 The ruler implementation follows the physical cutting mat
 coordinate system.
-
 ---
 
 ## 4. Current Application Workflow
@@ -361,7 +375,7 @@ mat dimensions from the usable cutting area.
 
 CutStudio uses millimetres as its primary document measurement unit.
 
-Qt graphics items operate using scene coordinates.
+Qt graphics items operate using scene coordinates (96 units per inch).
 
 The units module provides conversions between these systems.
 
@@ -450,13 +464,14 @@ Location:
 
 tests/
 
-The project currently uses pytest.
+The project currently uses pytest (155 passing tests as of November 25, 2026).
 
 Existing test modules:
 
 - test_cutting_mat.py
 - test_document.py
 - test_duplication.py
+- test_grid_settings_dialog.py
 - test_history.py
 - test_layers.py
 - test_main_window.py
@@ -472,18 +487,21 @@ The tests currently cover:
 - Document dimensions.
 - Layer creation and removal.
 - Layer locking.
-- Object creation.
+- Object creation (including exact 25.0 × 25.0 mm default rectangle and ellipse dimensions).
 - Object validation.
 - Object identifiers.
 - Object duplication.
 - Undo and Redo history.
 - Project saving and loading.
+- Project validation (duplicate layer/object ID rejection, strict boolean checks).
 - Renderer operations.
 - Position synchronization.
 - Unit conversions.
 - Cutting mat configuration.
 - Cutting mat dimension validation.
 - Project persistence of cutting mat dimensions.
+- Grid settings configuration, conversions, and validation.
+- Stroke-independent geometric snapping (including rotated objects).
 - Canvas zoom and navigation behavior.
 - Main window functionality.
 
@@ -585,7 +603,6 @@ Keep the document model authoritative.
 Avoid duplicating document state between the model and renderer.
 
 Preserve existing functionality when introducing new features.
-
 ---
 
 ## 8. Planned Architectural Expansion
@@ -668,8 +685,6 @@ Potential future modules:
 - Additional drawing tool panels.
 - Machine configuration interface.
 - Configurable ruler units.
-- Configurable grid spacing.
-- Snapping controls.
 
 These modules should only be introduced when their responsibilities
 justify separation from the existing main window.
@@ -678,9 +693,7 @@ justify separation from the existing main window.
 
 Planned functionality:
 
-- Configurable grid spacing.
-- Grid snapping.
-- Object snapping.
+- Object-to-object snapping.
 - Alignment guides.
 - Improved canvas rendering performance.
 - Additional measurement units.
@@ -839,10 +852,9 @@ initial history implementation.
 
 Command-based history may be considered in the future if
 snapshot memory consumption becomes significant.
-
 ---
 
-## 12. Canvas Zoom and Manipulation Improvements
+## 12. Canvas Zoom, Grid, and Manipulation Improvements
 
 ### 12.1 Zoom Reporting
 
@@ -1003,7 +1015,27 @@ The rotation handle also receives priority during mouse
 hit detection, with a larger interaction area than the
 resize handles.
 
-### 12.8 Canvas Interaction
+### 12.8 Configurable Grid and Stroke-Independent Geometric Snapping
+
+`CuttingMat` renders a configurable physical grid and performs
+grid snapping using geometric bounds rather than Qt's stroke-expanded
+`sceneBoundingRect()`.
+
+- Default grid spacing is 6.35 mm (1/4 inch) with major lines every
+  4 minor divisions (25.4 mm / 1 inch).
+- `GridSettingsDialog` (`cutstudio/ui/grid_settings_dialog.py`) allows
+  configuring spacing in inches or millimetres, selecting presets, and
+  choosing major line intervals (2, 4, 5, or 10).
+- `_item_geometric_scene_bounds(item)` maps the unstroked local
+  geometry (`item.rect()` for `QGraphicsRectItem` and `QGraphicsEllipseItem`,
+  and `item.boundingRect()` for `QGraphicsTextItem`) through
+  `item.sceneTransform().mapRect(...)`, ensuring grid snapping and
+  multi-object group snapping remain accurate for both unrotated and
+  rotated objects regardless of `QPen` stroke width.
+- Default rectangle and ellipse creation (`MainWindow.add_rectangle()` and
+  `MainWindow.add_ellipse()`) uses exact `25.0 × 25.0 mm` dimensions.
+
+### 12.9 Canvas Interaction
 
 Current canvas interaction includes:
 
@@ -1017,6 +1049,7 @@ Current canvas interaction includes:
 - Zoom percentage notifications.
 - Middle-mouse-button panning.
 - Horizontal and vertical measurement rulers.
+- Configurable grid display and stroke-independent grid snapping.
 - Object selection and multi-selection.
 - Object movement.
 - Object resizing.
@@ -1030,6 +1063,7 @@ These features are implemented in:
 - `cutstudio/ui/canvas/cutting_mat.py`
 - `cutstudio/ui/canvas/renderer.py`
 - `cutstudio/ui/canvas/rulers.py`
+- `cutstudio/ui/grid_settings_dialog.py`
 
 The main window coordinates canvas controls and status
 information through:

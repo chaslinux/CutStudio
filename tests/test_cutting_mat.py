@@ -308,8 +308,8 @@ def test_group_snapping_preserves_relative_object_positions(canvas):
         original_difference.y()
     )
 
-    bounds = first.sceneBoundingRect().united(
-        second.sceneBoundingRect()
+    bounds = canvas._item_geometric_scene_bounds(first).united(
+        canvas._item_geometric_scene_bounds(second)
     )
 
     assert bounds.left() == pytest.approx(24.0)
@@ -454,8 +454,8 @@ def test_group_snapping_does_not_move_locked_objects(canvas):
 
     assert locked.pos() == locked_position
 
-    assert first.sceneBoundingRect().left() == pytest.approx(24)
-    assert first.sceneBoundingRect().top() == pytest.approx(24)
+    assert first.pos().x() == pytest.approx(24.0)
+    assert first.pos().y() == pytest.approx(24.0)
 
     new_difference = second.pos() - first.pos()
 
@@ -465,3 +465,57 @@ def test_group_snapping_does_not_move_locked_objects(canvas):
     assert new_difference.y() == pytest.approx(
         original_difference.y()
     )
+
+
+def test_snapping_ignores_stroke_width(canvas):
+
+    from PySide6.QtGui import QPen
+
+    scene = canvas.scene()
+
+    item = scene.addRect(0, 0, 20, 20)
+    pen = QPen()
+    pen.setWidthF(20.0)
+    item.setPen(pen)
+    item.setFlag(item.GraphicsItemFlag.ItemIsSelectable)
+    item.setPos(26.0, 30.0)
+    item.setSelected(True)
+
+    canvas.set_grid_spacing_inches(0.25)
+    canvas.set_snap_to_grid(True)
+
+    canvas._snap_selected_group()
+
+    assert item.pos().x() == pytest.approx(24.0)
+    assert item.pos().y() == pytest.approx(24.0)
+
+
+def test_snapping_rotated_object_uses_geometric_bounds(canvas):
+
+    from PySide6.QtGui import QPen
+
+    scene = canvas.scene()
+
+    # 20x10 rect rotated 90 degrees around its center (10, 5):
+    # rotated local bounds occupy [5, 15] x [-5, 15].
+    # At pos (26, 30), geometric scene bounds are [31, 41] x.
+    item = scene.addRect(0, 0, 20, 10)
+    pen = QPen()
+    pen.setWidthF(12.0)
+    item.setPen(pen)
+    item.setTransformOriginPoint(item.rect().center())
+    item.setRotation(90.0)
+    item.setFlag(item.GraphicsItemFlag.ItemIsSelectable)
+    item.setPos(26.0, 30.0)
+    item.setSelected(True)
+
+    canvas.set_grid_spacing_inches(0.25)
+    canvas.set_snap_to_grid(True)
+
+    canvas._snap_selected_group()
+
+    bounds = canvas._item_geometric_scene_bounds(item)
+    assert bounds.left() == pytest.approx(24.0)
+    assert bounds.top() == pytest.approx(24.0)
+    assert item.pos().x() == pytest.approx(19.0)
+    assert item.pos().y() == pytest.approx(29.0)

@@ -1,6 +1,6 @@
 # CutStudio Development Handoff
 
-Last updated: November 23, 2026
+Last updated: November 25, 2026
 
 ## 1. Project Overview
 
@@ -114,6 +114,7 @@ The following is a partial structural overview:
     |   +-- __init__.py
     |   +-- main.py
     |   +-- core/
+
     |   |   +-- history.py
     |   |   +-- mat.py
     |   |   +-- project_file.py
@@ -121,6 +122,7 @@ The following is a partial structural overview:
     |   +-- ui/
     |       +-- main_window.py
     |       +-- canvas/
+
     |       |   +-- renderer.py
     |       |   +-- cutting_mat.py
     |       |   +-- rulers.py
@@ -253,6 +255,7 @@ Snapping functionality includes:
 
 - Grid snapping for selected objects.
 - Group snapping that preserves relative positions of multiple selected objects.
+- Geometry-based snapping using `_item_geometric_scene_bounds()` (`item.sceneTransform().mapRect(item.rect())` for shapes and `item.boundingRect()` for text), eliminating visual stroke expansion from snap calculations.
 - Grid-based resizing.
 - Configurable grid spacing used by snapping calculations.
 
@@ -263,11 +266,7 @@ Important implementation details:
 - Grid display and snapping use the same configured spacing.
 - Object coordinates remain stored in millimetres.
 
-The current group-snapping implementation uses `sceneBoundingRect()` to calculate selection bounds.
-
-This may include visual stroke expansion. Geometry-based snapping that does not allow stroke thickness to affect object coordinates remains an area for investigation.
-
-Further manual verification is required for rotated objects, resizing, and multi-object selections.
+Further manual GUI verification is required for rotated objects, resizing, and multi-object selections.
 
 ### Physical Measurements
 
@@ -314,8 +313,8 @@ The following functionality has been implemented and verified during development
 
 ### Drawing
 
-- Rectangle creation.
-- Ellipse creation.
+- Rectangle creation (25.0 × 25.0 mm default dimensions).
+- Ellipse creation (25.0 × 25.0 mm default dimensions).
 - Text creation.
 
 Rectangle and ellipse objects can be created using their toolbar controls.
@@ -741,30 +740,19 @@ Further GUI verification should confirm visual clarity at different zoom levels 
 
 ### Latest Verified Test Result
 
-    131 passed
+    155 passed
 
 Latest verification date:
 
-    November 23, 2026
+    November 25, 2026
 
 Command:
 
     python -m pytest -q
 
-The complete automated test suite passed following implementation of configurable grid settings and additional grid and snapping regression tests.
+The complete automated test suite passed following implementation of exact `25.0 × 25.0 mm` default rectangle and ellipse creation and stroke-independent geometric snapping (`_item_geometric_scene_bounds()`), along with associated regression tests.
 
-The latest regression tests cover:
-
-- Grid spacing configuration in inches.
-- Grid spacing configuration in millimetres.
-- Invalid grid spacing rejection.
-- Valid major grid intervals.
-- Invalid major grid interval rejection.
-- Multi-object group snapping.
-- Preservation of relative object positions during group snapping.
-- Snapping disabled behaviour.
-
-The complete test suite was verified with 131 passing tests.
+The complete test suite was verified with 155 passing tests.
 
 
 ### Test Coverage
@@ -773,6 +761,7 @@ The automated test suite includes coverage for:
 
 - Document creation and management.
 - Object creation and validation.
+- Default rectangle and ellipse physical dimensions (25.0 × 25.0 mm).
 - Object manipulation.
 - Object duplication.
 - Object deletion.
@@ -786,6 +775,7 @@ The automated test suite includes coverage for:
 - Legacy project compatibility.
 - Document and mat dimension independence.
 - Canvas interaction.
+- Stroke-independent geometric snapping (including rotated objects).
 - Rendering.
 - Main window integration.
 - Measurement conversions.
@@ -799,20 +789,17 @@ The automated test suite includes coverage for:
 
 ### Latest Regression Tests
 
-The grid settings test suite is located at:
+The geometry and snapping regression tests are located in:
 
-    tests/test_grid_settings_dialog.py
+- `tests/test_cutting_mat.py`
+- `tests/test_main_window.py`
 
-It verifies:
+They verify:
 
-- Default grid spacing of 6.35 mm.
-- Default major interval of four.
-- Available major interval options.
-- Inch-based spacing conversion.
-- Millimetre-based spacing.
-- Custom major interval selection.
-- Rejection of invalid initial spacing.
-- Rejection of invalid major intervals.
+- Default rectangle and ellipse creation produces exact `25.0 × 25.0 mm` dimensions.
+- Group and single-object snapping ignore visual stroke width expansion (`QPen`).
+- Rotated object snapping aligns the geometric scene bounding box without stroke offset.
+- Multi-object group snapping preserves relative object positions while excluding locked objects.
 
 ### Testing Requirements
 
@@ -850,7 +837,7 @@ Contains:
 - Properties panel.
 - Layer management.
 - Project operations.
-- Drawing operations.
+- Drawing operations (25.0 × 25.0 mm default rectangle and ellipse creation).
 - Duplication.
 - Deletion.
 - Clipboard operations.
@@ -887,6 +874,7 @@ Contains:
 - Rotation snapping.
 - Resize handle detection.
 - Geometry synchronization.
+- Stroke-independent geometric snapping (`_item_geometric_scene_bounds()`).
 - Modification notifications.
 - Zoom In and Zoom Out.
 - Zoom to Fit.
@@ -967,8 +955,6 @@ The following items are development objectives, not claims of existing functiona
 
 ### High Priority: Canvas and Navigation
 
-### High Priority: Canvas and Navigation
-
 1. Complete manual verification of configurable grid appearance.
 2. Verify grid visibility at different zoom levels.
 3. Verify major and minor grid line visibility and contrast.
@@ -977,7 +963,7 @@ The following items are development objectives, not claims of existing functiona
 6. Verify group snapping with multiple selected objects.
 7. Verify snapping behaviour with rotated objects.
 8. Verify resizing with grid snapping enabled.
-9. Investigate geometry-based snapping independent of stroke expansion.
+9. Perform manual GUI verification of `25.0 × 25.0 mm` default shapes and stroke-independent geometric snapping.
 10. Implement object-to-object snapping.
 11. Implement alignment guides.
 12. Improve canvas rendering performance.
@@ -1044,20 +1030,17 @@ The following items are development objectives, not claims of existing functiona
 - Implement Brother ScanNCut SDX125 machine profile.
 - Verify SVG compatibility with Brother ScanNCut workflows.
 
-## Outstanding Work – Geometry and Measurement
+## Geometry and Measurement — Status and Requirements
 
-The following items have been identified but have not yet been changed:
+### Resolved on November 25, 2026
 
-1. Default rectangle dimensions currently calculate to approximately 26.46 × 26.46 mm.
-2. Default ellipse dimensions currently calculate to approximately 26.46 × 26.46 mm.
-3. The intended default dimensions are 25 × 25 mm.
-4. Verify that object coordinates consistently represent geometric origins.
-5. Investigate the small apparent coordinate discrepancy (approximately 0.26 mm in X and Y).
-6. Review snapping to ensure geometric rather than stroke-expanded bounds are used where appropriate.
+1. Default rectangle and ellipse dimensions in `cutstudio/ui/main_window.py` were updated from `100 * 25.4 / 96` (`~26.46 mm`) to exact `25.0 × 25.0 mm`.
+2. `_snap_selected_group()` in `cutstudio/ui/canvas/cutting_mat.py` was updated to use `_item_geometric_scene_bounds()` (`item.sceneTransform().mapRect(item.rect())` for shapes and `item.boundingRect()` for text) instead of `item.sceneBoundingRect()`, eliminating the `0.26 mm` (`1 px` half-stroke) coordinate offset during snapping.
+3. The underlying 96-units-per-inch coordinate conversion was preserved unchanged.
 
-Important:
+### Remaining Verification
 
-Do not change the underlying 96-units-per-inch coordinate conversion simply to correct these discrepancies. The existing conversion model is internally consistent.
+- Perform manual GUI verification in the running application (`python -m cutstudio.main`) for default rectangle/ellipse dimensions (`25.00 × 25.00 mm`), rotated-object snapping, and resizing with snapping enabled.
 
 ### Intended Professional Behaviour
 
@@ -1073,22 +1056,15 @@ CutStudio should follow established vector-design and cutting-software conventio
 
 ## 11. Immediate Next Steps
 
-The configurable grid and snapping implementation has been completed and committed.
+The geometry and stroke-independent snapping fixes have been implemented and verified with automated tests (`155 passed`).
 
 Recommended next steps:
 
-1. Inspect the current Git working tree.
-2. Run the complete automated test suite.
-3. Launch CutStudio and inspect the grid visually.
-4. Verify grid visibility and contrast at different zoom levels.
-5. Verify inch and millimetre grid spacing.
-6. Verify major grid intervals.
-7. Test individual object snapping.
-8. Test multiple-object group snapping.
-9. Test snapping with rotated objects.
-10. Test resizing with snapping enabled.
-11. Investigate geometry-based snapping versus stroke-expanded bounds.
-12. Begin development of object-to-object snapping and alignment guides.
+1. Perform manual GUI verification in CutStudio (`python -m cutstudio.main`) of `25.0 × 25.0 mm` default shapes and stroke-independent snapping.
+2. Review `git diff` and commit the geometry and snapping changes once verified.
+3. Begin implementation of object alignment and distribution tools (`Align Left`, `Align Right`, `Align Top`, `Align Bottom`, `Align Horizontal Centre`, `Align Vertical Centre`, `Distribute Evenly Horizontally`, `Distribute Evenly Vertically`) with Undo/Redo support.
+4. Continue manual verification of grid visibility, contrast, and rotated-object snapping.
+5. Begin development of object-to-object snapping and alignment guides.
 
 Maintain the existing physical measurement model and 96-units-per-inch scene coordinate system.
 
@@ -1096,44 +1072,38 @@ Do not introduce changes to coordinate conversion without first investigating th
 
 ## 12. Git and Repository Management
 
-### Latest Grid and Snapping Commit
+### Latest Committed History
 
-Latest recorded commit:
+Latest recorded commit on `main` / `origin/main`:
 
-    c938055 Improve configurable grid and snapping
+    bd866c9 Update ROADMAP.md to match progress made up to November 23, 2026.
 
-The commit includes:
+Preceding recent commits:
 
-- Configurable grid rendering improvements.
-- Grid settings dialog.
-- Grid spacing configuration.
-- Major grid interval configuration.
-- Grid snapping improvements.
-- Automated grid settings tests.
+    0278bb6 Strengthen project persistence validation
+    13938cb Improve undo redo history and selection restoration
+    82802d8 Fix undo redo layer state and selection restoration
 
-Commit summary:
+### Repository State at Last Inspection (November 25, 2026)
 
-    4 files changed
-    268 insertions(+)
-    30 deletions(-)
+Uncommitted tracked modifications (4 files changed, 95 insertions, 12 deletions):
 
-The commit was created on November 23, 2026.
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+- `tests/test_cutting_mat.py`
+- `tests/test_main_window.py`
 
-### Repository State at Last Inspection
+Untracked backup files:
 
-The local main branch was one commit ahead of origin/main.
+- `backups/`
+- `cutstudio/core/project_file.py.bak`
+- `cutstudio/ui/main_window.py.before_selection_fix`
 
-Untracked files included:
+The backup files must be preserved unless explicitly approved for removal after inspection, and should not be committed automatically.
 
-    backups/
+Latest verified automated test result:
 
-The backup directory contained timestamped source backups.
-
-The backup files should not be committed automatically.
-
-Last recorded automated test result:
-
-    131 passed
+    155 passed
 
 ### Important Git Instructions
 
@@ -1229,7 +1199,7 @@ Implemented functionality includes:
 
 - Modular document architecture.
 - Qt graphics-based canvas.
-- Rectangle, ellipse, and text objects.
+- Rectangle, ellipse, and text objects (`25.0 × 25.0 mm` default rectangle and ellipse dimensions).
 - Object selection and multi-selection.
 - Object movement, resizing, and rotation.
 - Eight resize handles.
@@ -1256,7 +1226,7 @@ Implemented functionality includes:
 - Configurable major grid line intervals.
 - Improved grid line contrast.
 - Independent grid visibility control.
-- Snap to Grid for object movement.
+- Snap to Grid for object movement using geometric scene bounds (independent of visual stroke expansion).
 - Snap to Grid for object resizing.
 
 
@@ -1270,7 +1240,7 @@ Implemented functionality:
 - Configurable major grid intervals.
 - Major and minor grid line rendering.
 - Grid visibility control.
-- Snap to Grid support.
+- Snap to Grid support using geometric bounds (`_item_geometric_scene_bounds()`).
 - Grid-aligned resizing.
 - Multi-object group snapping that preserves relative positions.
 
@@ -1282,19 +1252,19 @@ Default configuration:
 - Grid visible: enabled.
 - Snap to Grid: disabled.
 
-Additional automated regression tests cover grid configuration, validation, and group snapping.
+Additional automated regression tests cover grid configuration, validation, group snapping, stroke-independent snapping, rotated-object snapping, and `25.0 × 25.0 mm` default object creation.
 
 Further manual GUI verification is recommended for visual clarity at different zoom levels and snapping behaviour with rotated objects and multi-object selections.
 
 ### Automated Testing
 
-Latest recorded automated test result:
+Latest verified automated test result:
 
-    114 passed
+    155 passed
 
 Verification date:
 
-    November 23, 2026
+    November 25, 2026
 
 The complete automated test suite passes.
 
@@ -1304,31 +1274,30 @@ Git whitespace checking also passes.
 
 Commit:
 
-    c938055
+    bd866c9
 
 Message:
 
-    Improve configurable grid and snapping
+    Update ROADMAP.md to match progress made up to November 23, 2026.
 
 Branch:
 
     main
 
-The commit includes the configurable grid settings dialog, canvas rendering changes, main window integration, and associated tests.
+Uncommitted changes in working tree:
 
-The commit is local and has not yet been pushed to origin/main.
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+- `tests/test_cutting_mat.py`
+- `tests/test_main_window.py`
 
-The only remaining untracked files are backup files in:
-
-    backups/
-
-Do not accidentally include these backup files in future commits.
+Untracked backup files exist in `backups/` and as `.bak` / `.before_selection_fix` files; do not accidentally include backup files in future commits.
 
 ### Current Development Priorities
 
-The configurable grid and snapping milestone is complete.
+The configurable grid, geometric snapping, and `25.0 × 25.0 mm` default shape dimension fixes are implemented and passing automated tests (`155 passed`).
 
-The immediate next objective is to improve object alignment and positioning tools.
+The immediate next objective is to perform manual GUI verification, commit these changes, and implement object alignment and positioning tools.
 
 Proposed functionality:
 
@@ -1350,8 +1319,6 @@ Before implementing these features:
 - Review undo/redo integration.
 - Add automated tests.
 - Verify functionality manually in the GUI.
-
-Do not begin the next milestone until the current grid and snapping commit has been pushed to GitHub.
 
 Always inspect the current source code and Git working tree before making development decisions.
 
@@ -1456,18 +1423,26 @@ No formatting errors remain following the final newline correction.
 #### Current Development State
 
 The project persistence implementation and associated regression
-tests are complete and have passed the automated test suite.
+tests were committed prior to the November 25, 2026 geometry and snapping updates.
 
-The changes remain uncommitted.
+### Geometry and Geometric Snapping Fixes — November 25, 2026
 
-The working tree also contains backup files that must not be
-included in the persistence commit without further review.
+#### Completed
 
-The next commit should contain:
+- Updated `MainWindow.add_rectangle()` and `MainWindow.add_ellipse()` in `cutstudio/ui/main_window.py` to create exact `25.0 × 25.0 mm` default objects instead of `100 * 25.4 / 96` (`~26.46 mm`).
+- Added `CuttingMat._item_geometric_scene_bounds()` in `cutstudio/ui/canvas/cutting_mat.py` and updated `_snap_selected_group()` to snap using geometric scene bounds (`item.sceneTransform().mapRect(item.rect())` for shapes and `item.boundingRect()` for text) rather than `item.sceneBoundingRect()`, eliminating the `0.26 mm` half-stroke coordinate offset.
+- Added regression tests in `tests/test_cutting_mat.py` and `tests/test_main_window.py` covering `25.0 × 25.0 mm` default object dimensions, stroke-width independence during snapping, and rotated-object geometric snapping.
 
-- `cutstudio/core/project_file.py`
-- `tests/test_project_file.py`
-- `HANDOFF.md`
+#### Latest Test Results
 
-The earlier Undo/Redo improvements and selection restoration
-remain recorded in commits `82802d8` and `13938cb`.
+Full automated test suite:
+
+    155 passed
+
+Command:
+
+    python -m pytest -q
+
+Formatting verification:
+
+    git diff --check

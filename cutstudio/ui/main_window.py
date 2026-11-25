@@ -1719,8 +1719,8 @@ class MainWindow(QMainWindow):
 
             return
 
-        width = 100 * 25.4 / 96
-        height = 100 * 25.4 / 96
+        width = 25.0
+        height = 25.0
 
         x, y = self.get_object_position(
             width,
@@ -1770,8 +1770,8 @@ class MainWindow(QMainWindow):
 
             return
 
-        width = 100 * 25.4 / 96
-        height = 100 * 25.4 / 96
+        width = 25.0
+        height = 25.0
 
         x, y = self.get_object_position(
             width,

@@ -1,6 +1,6 @@
 # CutStudio Development Roadmap
 
-Last updated: November 24, 2026
+Last updated: November 25, 2026
 
 ## 1. Project Vision
 
@@ -95,7 +95,7 @@ The application currently includes:
 - Configurable major grid line intervals.
 - Visually differentiated major and minor grid lines.
 - Grid visibility control.
-- Grid snapping.
+- Grid snapping using stroke-independent geometric scene bounds (`_item_geometric_scene_bounds()`).
 - Multi-object group snapping.
 - Zoom In and Zoom Out.
 - Zoom to Fit.
@@ -108,8 +108,8 @@ The application currently includes:
 
 ### Object Editing
 
-- Rectangle objects.
-- Ellipse objects.
+- Rectangle objects (25.0 × 25.0 mm default dimensions).
+- Ellipse objects (25.0 × 25.0 mm default dimensions).
 - Text objects.
 - Object selection and multi-selection.
 - Object movement.
@@ -141,11 +141,11 @@ The application currently includes:
 
 Latest verified automated test result:
 
-    152 passed
+    155 passed
 
 Verification date:
 
-    November 24, 2026
+    November 25, 2026
 
 Command:
 
@@ -153,8 +153,9 @@ Command:
 
 The automated test suite covers core document functionality,
 object editing, canvas integration, project persistence, history,
-clipboard operations, grid configuration, and other application
-functionality.
+clipboard operations, grid configuration, exact default object
+dimensions, stroke-independent geometric snapping, and other
+application functionality.
 
 Automated test success does not replace manual verification of
 interactive GUI behaviour.
@@ -177,7 +178,7 @@ Further manual verification remains necessary for:
 - Grid appearance at different zoom levels.
 - Grid spacing accuracy.
 - Major and minor grid line visibility.
-- Individual and group snapping.
+- Individual and group snapping (including the November 25, 2026 geometric snapping and 25.0 × 25.0 mm default shape fixes).
 - Snapping with rotated objects.
 - Resizing with snapping enabled.
 - Ruler alignment and measurement accuracy.
@@ -250,6 +251,7 @@ Status: Substantially Complete
 - [x] Distinguish major and minor grid lines.
 - [x] Implement independent grid visibility control.
 - [x] Implement grid snapping.
+- [x] Implement geometry-based snapping independent of stroke expansion (`_item_geometric_scene_bounds()`).
 - [x] Implement grid-aligned object resizing.
 - [x] Implement multi-object group snapping.
 - [x] Preserve relative object positions during group snapping.
@@ -275,8 +277,6 @@ Status: Substantially Complete
 - [ ] Verify multi-object group snapping.
 - [ ] Verify snapping with rotated objects.
 - [ ] Verify resizing with snapping enabled.
-- [ ] Investigate geometry-based snapping independently of stroke
-      expansion.
 - [ ] Implement object-to-object snapping.
 - [ ] Implement alignment guides.
 - [ ] Improve canvas rendering performance.
@@ -329,8 +329,8 @@ Status: In Progress
 
 #### Implemented
 
-- [x] Implement rectangle objects.
-- [x] Implement ellipse objects.
+- [x] Implement rectangle objects (25.0 × 25.0 mm default dimensions).
+- [x] Implement ellipse objects (25.0 × 25.0 mm default dimensions).
 - [x] Implement text objects.
 - [x] Implement object selection.
 - [x] Implement multi-selection.
@@ -376,7 +376,6 @@ Status: In Progress
 - [ ] Improve text editing.
 - [ ] Implement additional vector object types.
 - [ ] Improve geometry consistency across different zoom levels.
-- [ ] Investigate object positioning discrepancies.
 - [ ] Implement more advanced object transformation workflows.
 
 #### Multi-Object Editing
@@ -418,7 +417,6 @@ The clipboard currently exists in application memory.
 
 Operating system clipboard integration remains a possible future
 improvement.
-
 ### Phase 4: Properties and Layers
 
 Status: Partially Complete
@@ -555,7 +553,6 @@ appropriate backward-compatibility tests.
 
 Project persistence must remain reliable as new object types,
 properties, layers, and vector editing capabilities are introduced.
-
 ### Phase 6: Vector Editing
 
 Status: Planned
@@ -726,7 +723,6 @@ automatically equivalent to the usable cutting area.
 
 Physical machine testing will be required before declaring
 machine communication functionality complete.
-
 ---
 
 ## 6. Important Source Files
@@ -804,7 +800,7 @@ Responsible for:
 - Zoom to Fit.
 - Canvas navigation.
 - Zoom percentage notifications.
-- Grid snapping integration.
+- Grid snapping integration (using stroke-independent geometric bounds via `_item_geometric_scene_bounds()`).
 
 ### Grid Settings Dialog
 
@@ -932,6 +928,7 @@ Implemented:
 - [x] Major and minor grid intervals.
 - [x] Grid visibility control.
 - [x] Grid snapping.
+- [x] Stroke-independent geometric snapping (`_item_geometric_scene_bounds()`).
 - [x] Group snapping.
 - [x] Zoom In and Zoom Out.
 - [x] Zoom to Fit.
@@ -948,8 +945,6 @@ Outstanding:
 - [ ] Verify rotated-object snapping.
 - [ ] Verify group snapping under different conditions.
 - [ ] Verify resizing with snapping enabled.
-- [ ] Investigate geometry-based snapping independent of stroke
-      expansion.
 - [ ] Implement object-to-object snapping.
 - [ ] Implement alignment guides.
 - [ ] Improve canvas rendering performance.
@@ -959,8 +954,8 @@ Outstanding:
 
 Implemented:
 
-- [x] Rectangle objects.
-- [x] Ellipse objects.
+- [x] Rectangle objects (25.0 × 25.0 mm default dimensions).
+- [x] Ellipse objects (25.0 × 25.0 mm default dimensions).
 - [x] Text objects.
 - [x] Object selection and multi-selection.
 - [x] Object movement.
@@ -1076,7 +1071,6 @@ Outstanding:
 - [ ] Implement Brother ScanNCut SDX125 profile.
 - [ ] Verify SVG compatibility with Brother ScanNCut workflows.
 - [ ] Test with physical cutting machines.
-
 ---
 
 ## 8. Geometry and Measurement Requirements
@@ -1108,35 +1102,30 @@ The geometric path determines object dimensions and position.
 Stroke thickness is a visual property and must not silently
 alter reported object geometry.
 
-### Outstanding Geometry Work
+### Resolved Geometry Work (November 25, 2026)
 
-The following discrepancies have been identified:
+The following previously identified geometry discrepancies have
+been resolved and covered by automated regression tests:
 
-1. Default rectangle dimensions currently calculate to
-   approximately 26.46 × 26.46 mm.
-2. Default ellipse dimensions currently calculate to
-   approximately 26.46 × 26.46 mm.
-3. The intended default dimensions are 25 × 25 mm.
-4. Verify that object coordinates consistently represent
-   geometric origins.
-5. Investigate the small apparent coordinate discrepancy
-   of approximately 0.26 mm in X and Y.
-6. Review snapping calculations to ensure geometry-based
-   bounds are used where appropriate.
-7. Investigate the effect of stroke expansion on selection
-   bounds and snapping.
+1. Default rectangle dimensions in `MainWindow.add_rectangle()` were
+   updated from `100 * 25.4 / 96` (`~26.46 mm`) to exact `25.0 × 25.0 mm`.
+2. Default ellipse dimensions in `MainWindow.add_ellipse()` were
+   updated from `100 * 25.4 / 96` (`~26.46 mm`) to exact `25.0 × 25.0 mm`.
+3. `CuttingMat._snap_selected_group()` was updated to compute
+   stroke-independent geometric scene bounds via
+   `_item_geometric_scene_bounds()` (`item.sceneTransform().mapRect(item.rect())`
+   for shapes and `item.boundingRect()` for text) instead of
+   `item.sceneBoundingRect()`, eliminating the `0.26 mm` (`1 px` half-stroke)
+   coordinate shift during grid snapping.
 
 ### Important Coordinate Conversion Requirement
 
 Do not change the underlying 96-units-per-inch coordinate
-conversion simply to correct the identified discrepancies.
+conversion simply to adjust object dimensions or positions.
 
 The existing conversion model is internally consistent.
 
-Investigate the geometry creation, positioning, and snapping
-calculations before modifying fundamental coordinate conversion.
-
-Any changes must be evaluated against:
+Any future geometry or snapping changes must be evaluated against:
 
 - Existing document geometry.
 - Object properties.
@@ -1177,7 +1166,9 @@ editing efficiency without destabilizing existing functionality.
 Before implementing additional canvas functionality:
 
 1. Inspect the current Git working tree.
-2. Verify the existing grid implementation.
+2. Perform manual GUI verification of the existing grid implementation,
+   exact `25.0 × 25.0 mm` default rectangle/ellipse creation, and
+   stroke-independent geometric snapping.
 3. Verify grid visibility at different zoom levels.
 4. Verify major and minor grid intervals.
 5. Verify inch and millimetre spacing.
@@ -1185,10 +1176,6 @@ Before implementing additional canvas functionality:
 7. Test multi-object group snapping.
 8. Test snapping with rotated objects.
 9. Test resizing with snapping enabled.
-10. Investigate geometry-based snapping versus stroke-expanded
-    bounds.
-11. Investigate the identified default object dimension
-    discrepancies.
 
 ### Next Editing Milestone
 
@@ -1329,31 +1316,33 @@ Backup files should not be included in commits automatically.
 
 ### Latest Recorded Repository State
 
-Latest recorded commit:
+Latest recorded commit on `main` / `origin/main`:
+
+    bd866c9 Update ROADMAP.md to match progress made up to November 23, 2026.
+
+Preceding recent development commits include:
 
     0278bb6 Strengthen project persistence validation
-
-Recent development commits include:
-
     13938cb Improve undo redo history and selection restoration
     82802d8 Fix undo redo layer state and selection restoration
     724ceac Update handoff and regression tests
-    47a2456 Add grid and snapping regression tests
-
-Latest recorded branch relationship:
-
-    main == origin/main
 
 Latest verified automated test result:
 
-    152 passed
+    155 passed
 
 Verification date:
 
-    November 24, 2026
+    November 25, 2026
 
-The working tree contained the following untracked backup files
-at the latest inspection:
+Uncommitted tracked modifications at last inspection:
+
+- `cutstudio/ui/canvas/cutting_mat.py`
+- `cutstudio/ui/main_window.py`
+- `tests/test_cutting_mat.py`
+- `tests/test_main_window.py`
+
+Untracked backup files exist in `backups/` alongside:
 
     cutstudio/core/project_file.py.bak
     cutstudio/ui/main_window.py.before_selection_fix
@@ -1363,7 +1352,6 @@ approved after inspection.
 
 Repository state must always be checked again before making
 development decisions.
-
 ---
 
 ## 11. Documentation Requirements
@@ -1454,14 +1442,14 @@ Requirements:
 - Avoid unnecessary HTML formatting.
 - Keep documents directly editable in plain-text editors.
 
-When providing long Markdown documents through ChatGPT:
+When providing long Markdown documents:
 
-- Divide the complete document into four consecutive chunks.
+- Divide the document into consecutive chunks sized to avoid truncation.
 - Place each chunk in its own fenced Markdown code block.
 - Preserve the original document order.
 - Do not omit sections.
 - Do not duplicate sections.
-- Ensure that the four chunks can be concatenated into one
+- Ensure that the chunks can be concatenated into one
   complete Markdown document.
 - Avoid interrupting important technical details at chunk
   boundaries.
@@ -1635,7 +1623,7 @@ advanced vector editing and future cutting machine integration.
 
 - Modular document architecture.
 - Qt graphics-based canvas.
-- Rectangle, ellipse, and text objects.
+- Rectangle, ellipse, and text objects (`25.0 × 25.0 mm` default rectangle and ellipse dimensions).
 - Object selection and multi-selection.
 - Object movement, resizing, and rotation.
 - Eight resize handles.
@@ -1660,7 +1648,7 @@ advanced vector editing and future cutting machine integration.
 - Grid spacing presets in inches and millimetres.
 - Configurable major grid line intervals.
 - Independent grid visibility control.
-- Grid snapping.
+- Grid snapping using stroke-independent geometric scene bounds (`_item_geometric_scene_bounds()`).
 - Grid-aligned resizing.
 - Multi-object group snapping.
 - Project persistence validation and regression tests.
@@ -1685,11 +1673,11 @@ objects, multi-object selections, and resizing with snapping.
 
 Latest verified automated test result:
 
-    152 passed
+    155 passed
 
 Verification date:
 
-    November 24, 2026
+    November 25, 2026
 
 Command:
 
@@ -1699,11 +1687,11 @@ Command:
 
 Commit:
 
-    0278bb6
+    bd866c9
 
 Message:
 
-    Strengthen project persistence validation
+    Update ROADMAP.md to match progress made up to November 23, 2026.
 
 Branch:
 
@@ -1713,11 +1701,9 @@ Remote:
 
     origin/main
 
-The latest recorded local and remote branch positions are
-identical.
-
-The working tree contains two untracked backup files that
-must be preserved.
+Uncommitted tracked changes exist for the November 25, 2026
+geometry and geometric snapping fixes, alongside untracked
+backup files that must be preserved.
 
 ### Immediate Development Direction
 
@@ -1726,25 +1712,6 @@ canvas accuracy and object editing.
 
 The recommended sequence is:
 
-1. Complete manual verification of configurable grid behaviour.
-2. Investigate geometry-based snapping and stroke expansion.
-3. Investigate the outstanding default object dimension
-   discrepancies.
-4. Develop object alignment and positioning tools.
-5. Implement object distribution.
-6. Improve multi-object editing.
-7. Develop grouping and ungrouping.
-8. Continue expanding vector editing capabilities.
-
-All development should preserve the existing document
-architecture, physical measurement model, and established
-application functionality.
-
-Always inspect the actual source code and Git working tree
-before making development decisions.
-
-The long-term objective remains to develop CutStudio into
-a reliable, cross-platform vector design and vinyl cutting
-application with accurate geometry, professional editing
-capabilities, common vector file formats, and extensible
-cutting machine support.
+1. Perform manual GUI verification of configurable grid behaviour,
+   `25.0 × 25.0 mm` default shapes, and stroke-independent
+   geometric snapping.
