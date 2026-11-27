@@ -863,6 +863,21 @@ class MainWindow(QMainWindow):
         )
         self.edit_menu.addAction(self.paste_action)
 
+        # Select All
+        self.select_all_action = QAction("Select All", self.canvas)
+        self.select_all_action.setShortcut(
+            QKeySequence.StandardKey.SelectAll
+        )
+        self.select_all_action.setShortcutContext(
+            Qt.ShortcutContext.WidgetWithChildrenShortcut
+        )
+        self.select_all_action.triggered.connect(
+            self.select_all_objects
+        )
+        self.canvas.addAction(self.select_all_action)
+        self.edit_menu.addAction(self.select_all_action)
+
+
         self.update_history_actions()
 
         self.duplicate_action = QAction(
@@ -1518,6 +1533,31 @@ class MainWindow(QMainWindow):
 # ============================================================
 # SECTION 4B: DUPLICATE SELECTED OBJECTS
 # ============================================================
+
+    def select_all_objects(self):
+
+        self.scene.clearSelection()
+
+        selected_count = 0
+
+        for layer in self.document.layers:
+
+            if not layer.visible:
+                continue
+
+            for obj in layer.objects:
+
+                item = self.renderer.items.get(obj.object_id)
+
+                if item is None or not item.isVisible():
+                    continue
+
+                item.setSelected(True)
+                selected_count += 1
+
+        self.statusBar().showMessage(
+            f"Selected {selected_count} object(s)"
+        )
 
     def copy_selected_objects(self):
 
