@@ -353,6 +353,10 @@ Status: In Progress
 - [x] Implement object deletion.
 - [x] Implement unique object identifiers.
 - [x] Implement object validation.
+- [x] Implement object alignment.
+- [x] Implement object distribution.
+- [x] Implement rotation-aware equal-gap distribution.
+- [x] Implement Ctrl+A select all canvas objects.
 - [x] Implement Copy.
 - [x] Implement Cut.
 - [x] Implement Paste.
@@ -369,8 +373,6 @@ Status: In Progress
 #### Outstanding
 
 - [ ] Implement grouping and ungrouping.
-- [ ] Implement object alignment.
-- [ ] Implement object distribution.
 - [ ] Improve multi-object manipulation.
 - [ ] Improve selection feedback.
 - [ ] Improve text editing.

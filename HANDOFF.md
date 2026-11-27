@@ -1433,11 +1433,20 @@ tests were committed prior to the November 25, 2026 geometry and snapping update
 - Added `CuttingMat._item_geometric_scene_bounds()` in `cutstudio/ui/canvas/cutting_mat.py` and updated `_snap_selected_group()` to snap using geometric scene bounds (`item.sceneTransform().mapRect(item.rect())` for shapes and `item.boundingRect()` for text) rather than `item.sceneBoundingRect()`, eliminating the `0.26 mm` half-stroke coordinate offset.
 - Added regression tests in `tests/test_cutting_mat.py` and `tests/test_main_window.py` covering `25.0 × 25.0 mm` default object dimensions, stroke-width independence during snapping, and rotated-object geometric snapping.
 
-#### Latest Test Results
+## Latest Development Update — November 27, 2026
+
+### Completed
+
+- Implemented object alignment operations.
+- Implemented object distribution operations.
+- Implemented rotation-aware equal-gap distribution.
+- Implemented Ctrl+A to select all visible canvas objects.
+
+### Latest Test Results
 
 Full automated test suite:
 
-    155 passed
+    169 passed
 
 Command:
 
@@ -1446,3 +1455,49 @@ Command:
 Formatting verification:
 
     git diff --check
+
+### Latest Git Commit
+
+Commit:
+
+    0f9519c
+
+Message:
+
+    Add Ctrl+A select all canvas objects
+
+Branch:
+
+    main
+
+### Working Tree Before Documentation Updates
+
+- ROADMAP.md had pending documentation changes.
+- No other working-tree changes were reported.
+
+### Current Development Priorities
+
+The next development objective is grouping and ungrouping objects.
+
+Before implementation:
+
+1. Design the document-level group data model.
+2. Determine how groups interact with existing layers.
+3. Preserve individual object IDs, dimensions and rotations.
+4. Establish renderer integration requirements.
+5. Plan Undo/Redo integration.
+6. Determine project serialization and backward-compatibility requirements.
+
+Grouping should be implemented incrementally with automated regression tests.
+
+### Development Workflow
+
+Run the complete automated test suite:
+
+    python -m pytest -q
+
+Check whitespace and formatting:
+
+    git diff --check
+
+Perform manual GUI verification before committing completed functionality.
