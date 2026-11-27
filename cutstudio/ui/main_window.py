@@ -475,24 +475,34 @@ class MainWindow(QMainWindow):
         self.object_menu = menu_bar.addMenu("Objects")
 
         align_menu = self.object_menu.addMenu("Align")
-        for label, mode in [
-            ("Align Left", "left"),
-            ("Align Horizontal Centre", "h_center"),
-            ("Align Right", "right"),
-        ]:
-            act = QAction(label, self)
-            act.triggered.connect(lambda checked=False, m=mode: self.align_selected_objects(m))
-            align_menu.addAction(act)
 
-        align_menu.addSeparator()
+        horizontal_menu = align_menu.addMenu("Align Horizontally")
+
         for label, mode in [
-            ("Align Top", "top"),
-            ("Align Vertical Centre", "v_center"),
-            ("Align Bottom", "bottom"),
+            ("Left", "left"),
+            ("Center", "h_center"),
+            ("Right", "right"),
         ]:
             act = QAction(label, self)
-            act.triggered.connect(lambda checked=False, m=mode: self.align_selected_objects(m))
-            align_menu.addAction(act)
+            act.triggered.connect(
+                lambda checked=False, m=mode:
+                    self.align_selected_objects(m)
+            )
+            horizontal_menu.addAction(act)
+
+        vertical_menu = align_menu.addMenu("Align Vertically")
+
+        for label, mode in [
+            ("Top", "top"),
+            ("Middle", "v_center"),
+            ("Bottom", "bottom"),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(
+                lambda checked=False, m=mode:
+                    self.align_selected_objects(m)
+            )
+            vertical_menu.addAction(act)
 
         distribute_menu = self.object_menu.addMenu("Distribute")
 
