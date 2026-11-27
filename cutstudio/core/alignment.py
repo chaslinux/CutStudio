@@ -139,3 +139,94 @@ def distribute_objects(objects: Sequence[VectorObject], axis: str) -> bool:
             obj.y += target_center - b.center_y
 
     return True
+
+
+def distribute_gaps(objects: Sequence[VectorObject], axis: str) -> bool:
+    """
+    Distribute three or more VectorObjects with equal gaps between
+    their rotation-aware geometric bounding boxes.
+
+    The first and last objects remain stationary.
+    Intermediate objects are repositioned.
+
+    Returns False if the requested distribution would require
+    overlapping objects or fewer than three objects.
+    """
+    if axis not in {"horizontal", "vertical"}:
+        raise ValueError(f"Unsupported distribution axis: {axis}")
+
+    if len(objects) < 3:
+        return False
+
+    # A document object must not appear more than once.
+    if len({id(obj) for obj in objects}) != len(objects):
+        return False
+
+    items = [
+        (idx, obj, object_geometric_bounds(obj))
+        for idx, obj in enumerate(objects)
+    ]
+
+    if axis == "horizontal":
+        items.sort(
+            key=lambda entry: (
+                entry[2].left,
+                entry[2].center_x,
+                entry[0],
+            )
+        )
+
+        first_edge = items[0][2].left
+        last_edge = items[-1][2].right
+
+        total_size = sum(
+            bounds.width for _, _, bounds in items
+        )
+
+        total_gap = last_edge - first_edge - total_size
+
+        if total_gap < -1e-9:
+            return False
+
+        gap = max(0.0, total_gap) / (len(items) - 1)
+
+        current_position = first_edge
+
+        for index, (_, obj, bounds) in enumerate(items):
+            if index not in (0, len(items) - 1):
+                obj.x += current_position - bounds.left
+
+            current_position += bounds.width + gap
+
+    else:
+        items.sort(
+            key=lambda entry: (
+                entry[2].top,
+                entry[2].center_y,
+                entry[0],
+            )
+        )
+
+        first_edge = items[0][2].top
+        last_edge = items[-1][2].bottom
+
+        total_size = sum(
+            bounds.height for _, _, bounds in items
+        )
+
+        total_gap = last_edge - first_edge - total_size
+
+        if total_gap < -1e-9:
+            return False
+
+        gap = max(0.0, total_gap) / (len(items) - 1)
+
+        current_position = first_edge
+
+        for index, (_, obj, bounds) in enumerate(items):
+            if index not in (0, len(items) - 1):
+                obj.y += current_position - bounds.top
+
+            current_position += bounds.height + gap
+
+    return True
