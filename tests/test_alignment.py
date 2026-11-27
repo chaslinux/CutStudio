@@ -301,6 +301,7 @@ def test_distribute_gaps_independent_of_selection_order():
     assert bounds[2].left - bounds[1].right == pytest.approx(25)
 
 
+
 def test_gap_distribution_main_window_undo_redo(main_window):
     first = _place_rect(
         main_window, 0, 0, width=10, height=10
@@ -320,61 +321,12 @@ def test_gap_distribution_main_window_undo_redo(main_window):
     for obj in (first, middle, last):
         main_window.renderer.items[obj.object_id].setSelected(True)
 
-    print("\\n--- GAP DISTRIBUTION HISTORY DIAGNOSTICS ---")
-    print("Before operation:")
-    print("  undo_count:", main_window.history.undo_count)
-    print("  states:", len(main_window.history._states))
-
     main_window.distribute_selected_gaps("horizontal")
-
-    print("After operation:")
-    print("  undo_count:", main_window.history.undo_count)
-    print("  can_undo:", main_window.history.can_undo)
-    print("  states:", len(main_window.history._states))
-
-    for index, state in enumerate(main_window.history._states):
-        print(f"  Snapshot {index}:")
-        for layer in state.layers:
-            for obj in layer.objects:
-                print("   ", obj.object_id, obj.x, obj.y)
 
     updated = main_window.renderer.find_object(middle.object_id)
     assert updated.x == pytest.approx(35.0)
 
-    print("\\n--- SNAPSHOT BEFORE UNDO ---")
-    previous = main_window.history._states[0]
-    for layer in previous.layers:
-        for obj in layer.objects:
-            print("Snapshot:", obj.object_id, obj.x, obj.y)
-
-    original_restore = main_window.restore_document
-
-    def diagnostic_restore(document, selected_object_ids=None):
-        print("\\n--- RESTORE DOCUMENT INPUT ---")
-        for layer in document.layers:
-            for obj in layer.objects:
-                print("Restore input:", obj.object_id, obj.x, obj.y)
-
-        original_restore(document, selected_object_ids)
-
-        print("\\n--- RESTORE DOCUMENT OUTPUT ---")
-        for layer in main_window.document.layers:
-            for obj in layer.objects:
-                print("Restored:", obj.object_id, obj.x, obj.y)
-
-    main_window.restore_document = diagnostic_restore
-
     main_window.undo()
-
-    print("\\n--- AFTER UNDO DIAGNOSTICS ---")
-    print("History index:", main_window.history.undo_count)
-
-    for layer in main_window.document.layers:
-        for obj in layer.objects:
-            print("Document:", obj.object_id, obj.x, obj.y)
-
-    for object_id, item in main_window.renderer.items.items():
-        print("Graphics:", object_id, item.pos().x(), item.pos().y())
 
     restored = main_window.renderer.find_object(middle.object_id)
     assert restored.x == pytest.approx(20.0)
