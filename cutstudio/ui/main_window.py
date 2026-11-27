@@ -43,7 +43,7 @@ from PySide6.QtWidgets import (
 from cutstudio.core.document import Document
 from cutstudio.core.history import UndoHistory
 from cutstudio.core.mat import CuttingMatConfig
-from cutstudio.core.alignment import align_objects, distribute_objects
+from cutstudio.core.alignment import align_objects, distribute_objects, distribute_gaps
 from cutstudio.core.objects import ObjectType, VectorObject
 from cutstudio.core.project_file import (
     ProjectFileError,
@@ -495,13 +495,30 @@ class MainWindow(QMainWindow):
             align_menu.addAction(act)
 
         distribute_menu = self.object_menu.addMenu("Distribute")
+
+        centres_menu = distribute_menu.addMenu("Distribute Centres")
         for label, axis in [
-            ("Distribute Evenly Horizontally", "horizontal"),
-            ("Distribute Evenly Vertically", "vertical"),
+            ("Distribute Centres Horizontally", "horizontal"),
+            ("Distribute Centres Vertically", "vertical"),
         ]:
             act = QAction(label, self)
-            act.triggered.connect(lambda checked=False, a=axis: self.distribute_selected_objects(a))
-            distribute_menu.addAction(act)
+            act.triggered.connect(
+                lambda checked=False, a=axis:
+                    self.distribute_selected_objects(a)
+            )
+            centres_menu.addAction(act)
+
+        gaps_menu = distribute_menu.addMenu("Distribute Gaps")
+        for label, axis in [
+            ("Distribute Gaps Horizontally", "horizontal"),
+            ("Distribute Gaps Vertically", "vertical"),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(
+                lambda checked=False, a=axis:
+                    self.distribute_selected_gaps(a)
+            )
+            gaps_menu.addAction(act)
 
     def change_grid_spacing(self):
 
@@ -1271,8 +1288,8 @@ class MainWindow(QMainWindow):
 
         self.renderer.update_resize_handles(object_id)
 
-        # Synchronize canvas positions with document model.
-        self.renderer.sync_to_document()
+        # Do not synchronize here.
+        # Property display must not modify document geometry.
 
         obj, layer = self.find_object_and_layer(
             object_id
@@ -1817,6 +1834,23 @@ class MainWindow(QMainWindow):
 
         self._refresh_aligned_objects(objects)
         self.statusBar().showMessage(f"Distributed {len(objects)} object(s)")
+
+    def distribute_selected_gaps(self, axis):
+
+        objects = self._collect_unlocked_selected_objects(3, "distribute")
+        if objects is None:
+            return
+
+        if not distribute_gaps(objects, axis):
+            self.statusBar().showMessage(
+                "Cannot distribute gaps without overlapping objects"
+            )
+            return
+
+        self._refresh_aligned_objects(objects)
+        self.statusBar().showMessage(
+            f"Distributed gaps between {len(objects)} object(s)"
+        )
 
 
 # ============================================================
